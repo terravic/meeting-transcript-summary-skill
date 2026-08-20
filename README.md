@@ -219,7 +219,8 @@ A visual SVG node-link topology connecting the core meeting goal to discussed to
 
 ![Canvas Dashboard Knowledge Graph](assets/canvas_dashboard_knowledge_graph.png)
 
-#### 3. Action Items Visualizer
+#### 3. Action Items Visualizer & Toolbar
+- **Interactive Toolbar:** Includes an **Owner Dropdown Filter** (defaulting to `All Owners`), real-time search input, one-click CSV/Markdown export buttons, and a live items-shown count badge.
 - **Kanban by Owner Board (Default):** Groups tasks into columns by assignee (plus an `Unassigned` backlog column) for rapid team resource planning.
 - **Sortable Data Table:** Filterable, searchable table with instant data inspection and sorting.
 

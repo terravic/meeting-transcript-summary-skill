@@ -225,20 +225,23 @@
       font-weight: bold;
     }
 
-    /* Copy Button */
+    /* Generic Action Button */
     .btn-action {
       background-color: var(--bg-tertiary);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      padding: 0.35rem 0.75rem;
+      padding: 0.4rem 0.75rem;
       font-size: 0.75rem;
+      font-weight: 500;
       border-radius: var(--radius-sm);
       cursor: pointer;
       transition: background 0.15s ease;
+      white-space: nowrap;
     }
 
     .btn-action:hover {
       background-color: var(--accent-blue-hover);
+      color: #ffffff;
     }
 
     /* Knowledge Graph Layout */
@@ -345,11 +348,11 @@
       line-height: 1.5;
     }
 
-    /* Action Items Sub-Navigation */
+    /* Action Items Sub-Navigation & Toolbar */
     .view-switch {
       display: flex;
       gap: 0.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
     }
 
     .sub-tab-btn {
@@ -367,6 +370,56 @@
       background-color: var(--accent-blue-hover);
       color: #ffffff;
       border-color: var(--accent-blue-hover);
+    }
+
+    .action-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+    }
+
+    .action-toolbar input[type="text"] {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      border-radius: var(--radius-sm);
+      outline: none;
+      min-width: 220px;
+    }
+
+    .action-toolbar input[type="text"]:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .action-toolbar select {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      border-radius: var(--radius-sm);
+      outline: none;
+      cursor: pointer;
+      min-width: 150px;
+    }
+
+    .action-toolbar select:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .action-count-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-left: auto;
+      font-weight: 500;
     }
 
     /* Kanban Board */
@@ -412,13 +465,16 @@
       font-weight: 500;
       color: var(--text-primary);
       margin-bottom: 0.35rem;
+      line-height: 1.4;
     }
 
     .kanban-card-meta {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       font-size: 0.75rem;
       color: var(--text-muted);
+      margin-top: 0.5rem;
     }
 
     /* Table View */
@@ -597,6 +653,17 @@
         <button class="sub-tab-btn" onclick="switchActionSubTab('table', this)">Data Table</button>
       </div>
 
+      <!-- Action Items Filter & Action Toolbar -->
+      <div class="action-toolbar">
+        <input type="text" id="action-search-input" placeholder="Search action items..." oninput="applyActionFilters()">
+        <select id="action-owner-select" onchange="applyActionFilters()">
+          <option value="all">All Owners</option>
+        </select>
+        <button class="btn-action" onclick="exportActionItemsCSV()">Export CSV</button>
+        <button class="btn-action" onclick="exportActionItemsMarkdown()">Export Markdown</button>
+        <span id="action-count-text" class="action-count-text"></span>
+      </div>
+
       <!-- Kanban Sub-view (Default) -->
       <div id="subview-kanban" class="kanban-board"></div>
 
@@ -663,8 +730,8 @@
       document.getElementById('display-risks').innerHTML = data.executiveSummary.risks.map(r => `<li>${r}</li>`).join('');
 
       renderKnowledgeGraph(data.topics, data.relationships);
-      renderKanbanBoard(data.actionItems);
-      renderActionTable(data.actionItems);
+      populateOwnerDropdown(data.actionItems);
+      applyActionFilters();
       renderTopicAccordions(data.topics);
     }
 
@@ -683,6 +750,44 @@
       btn.classList.add('active');
       document.getElementById('subview-kanban').style.display = subKey === 'kanban' ? 'grid' : 'none';
       document.getElementById('subview-table').style.display = subKey === 'table' ? 'block' : 'none';
+    }
+
+    function populateOwnerDropdown(actions) {
+      const select = document.getElementById('action-owner-select');
+      if (!select) return;
+      select.innerHTML = '<option value="all">All Owners</option>';
+      const uniqueOwners = [...new Set(actions.map(a => a.assignee))].filter(Boolean);
+      uniqueOwners.forEach(owner => {
+        const opt = document.createElement('option');
+        opt.value = owner;
+        opt.textContent = owner;
+        select.appendChild(opt);
+      });
+    }
+
+    function applyActionFilters() {
+      const searchInput = document.getElementById('action-search-input');
+      const ownerSelect = document.getElementById('action-owner-select');
+      const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+      const selectedOwner = ownerSelect ? ownerSelect.value : 'all';
+
+      const filtered = (MEETING_DATA.actionItems || []).filter(item => {
+        const matchesOwner = selectedOwner === 'all' || item.assignee === selectedOwner;
+        const matchesQuery = !query || 
+          item.description.toLowerCase().includes(query) ||
+          item.assignee.toLowerCase().includes(query) ||
+          item.deadline.toLowerCase().includes(query) ||
+          (item.deliverable && item.deliverable.toLowerCase().includes(query));
+        return matchesOwner && matchesQuery;
+      });
+
+      renderKanbanBoard(filtered, selectedOwner);
+      renderActionTable(filtered);
+
+      const countBadge = document.getElementById('action-count-text');
+      if (countBadge) {
+        countBadge.innerText = `${filtered.length} of ${MEETING_DATA.actionItems.length} items shown`;
+      }
     }
 
     function renderKnowledgeGraph(topics, relationships) {
@@ -844,10 +949,19 @@
       });
     }
 
-    function renderKanbanBoard(actions) {
+    function renderKanbanBoard(actions, selectedOwner) {
       const container = document.getElementById('subview-kanban');
       if (!container) return;
-      const assignees = [...new Set(actions.map(a => a.assignee))];
+
+      const assignees = selectedOwner && selectedOwner !== 'all' 
+        ? [selectedOwner] 
+        : [...new Set(actions.map(a => a.assignee))];
+
+      if (assignees.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-muted); padding:1rem; font-size:0.875rem;">No action items matching the current filter.</div>';
+        return;
+      }
+
       container.innerHTML = assignees.map(owner => {
         const tasks = actions.filter(a => a.assignee === owner);
         return `
@@ -861,7 +975,7 @@
                 <div class="kanban-card-title">${t.description}</div>
                 <div class="kanban-card-meta">
                   <span style="color:var(--accent-blue); font-weight:600;">${t.deadline}</span>
-                  <span>${t.deliverable ? 'Deliverable Defined' : ''}</span>
+                  <span class="badge ${t.deliverable ? 'badge-emerald' : 'badge-slate'}">${t.deliverable ? 'Assigned' : 'Pending'}</span>
                 </div>
               </div>
             `).join('')}
@@ -873,14 +987,46 @@
     function renderActionTable(actions) {
       const tbody = document.getElementById('table-body-actions');
       if (!tbody) return;
+      if (actions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:1.5rem;">No action items match the current filter.</td></tr>';
+        return;
+      }
       tbody.innerHTML = actions.map(act => `
         <tr>
           <td style="font-weight:500; color:var(--text-primary);">${act.description}</td>
           <td><span class="badge badge-slate">${act.assignee}</span></td>
           <td style="font-weight:600; color:var(--accent-blue);">${act.deadline}</td>
-          <td>${act.deliverable}</td>
+          <td>${act.deliverable || ''}</td>
         </tr>
       `).join('');
+    }
+
+    function exportActionItemsCSV() {
+      const actions = MEETING_DATA.actionItems || [];
+      const headers = ["Action Item", "Assigned To", "Deadline", "Acceptance Criteria"];
+      const rows = actions.map(a => [
+        `"${(a.description || '').replace(/"/g, '""')}"`,
+        `"${(a.assignee || '').replace(/"/g, '""')}"`,
+        `"${(a.deadline || '').replace(/"/g, '""')}"`,
+        `"${(a.deliverable || '').replace(/"/g, '""')}"`
+      ]);
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      
+      navigator.clipboard.writeText(csvContent).then(() => {
+        alert("Action items copied to clipboard in CSV format.");
+      });
+    }
+
+    function exportActionItemsMarkdown() {
+      const actions = MEETING_DATA.actionItems || [];
+      let md = "| Action Item | Assigned To | Deadline | Acceptance Criteria / Target Deliverable |\n";
+      md += "| :--- | :--- | :--- | :--- |\n";
+      actions.forEach(a => {
+        md += `| ${a.description} | ${a.assignee} | ${a.deadline} | ${a.deliverable || ''} |\n`;
+      });
+      navigator.clipboard.writeText(md).then(() => {
+        alert("Action items table copied to clipboard in Markdown format.");
+      });
     }
 
     function renderTopicAccordions(topics) {

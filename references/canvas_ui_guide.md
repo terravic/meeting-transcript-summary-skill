@@ -32,10 +32,16 @@ The meeting intelligence dashboard comprises four primary interface modules:
   - Instant search input to filter and highlight matching nodes in real time.
 - **Content Depth:** The inspector displays the full Context, In-Depth Technical Mechanism, the Rationale / Debates ("Why"), and Key Conclusions.
 
-### 2.3 Action Items Visualizer (Multi-View)
-The dashboard delivers two clean, actionable views of the assigned action items:
-1. **Kanban by Owner Board (Default):** Columns organized per participant (plus an `Unassigned` column for sprint planning), presenting tasks, deadlines, and deliverables as actionable cards.
-2. **Structured Interactive Table:** A data table with column sorting, keyword search, owner filtering, and CSV/Markdown export.
+### 2.3 Action Items Visualizer (Multi-View & Filter Toolbar)
+The dashboard delivers two clean views equipped with a unified filtering and export toolbar:
+- **Filtering Toolbar:**
+  - **Owner Dropdown Filter:** Filter deliverables by specific assignee, defaulting to `All Owners`.
+  - **Live Search Input:** Instant keyword matching across task descriptions, assignees, deadlines, and acceptance criteria.
+  - **Export Buttons:** One-click CSV and Markdown table export to clipboard.
+  - **Live Item Count:** Real-time indicator displaying matched vs. total tasks.
+- **Views:**
+  1. **Kanban by Owner Board (Default):** Columns organized per participant (plus an `Unassigned` backlog column), presenting tasks, deadlines, and deliverables as actionable cards.
+  2. **Structured Interactive Table:** A tabular view displaying all four standardized columns with zebra striping and hover highlights.
 
 ### 2.4 Detailed Narrative Discussion Explorer
 - Collapsible topic accordions allowing deep reading of the complete meeting record with technical explanations preserved in full.
