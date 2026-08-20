@@ -101,9 +101,8 @@ The agent will output the structured document consisting of:
 To make this skill available across your Antigravity workspaces:
 
 1. Place the skill folder inside your custom skills directory:
-   - For Google3 CitC workspaces: `configs/users/<username>/_agents/skills/meeting-transcript-summary/`
-   - For local machine setup: `~/.gemini/config/skills/meeting-transcript-summary/`
-   - For project-level setup: Place `SKILL.md` inside `.gemini/skills/meeting-transcript-summary/` within your project root.
+   - For global configuration: `~/.config/antigravity/skills/meeting-transcript-summary/` (or `~/.gemini/skills/meeting-transcript-summary/`)
+   - For project-level configuration: Place `SKILL.md` inside `.agents/skills/meeting-transcript-summary/` or `.gemini/skills/meeting-transcript-summary/` within your project root.
 2. In chat, prompt the agent:
    ```text
    Use the meeting-transcript-summary skill to analyze the transcript in path/to/transcript.txt
