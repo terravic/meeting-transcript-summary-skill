@@ -1,4 +1,3 @@
-# [Note: This transcript contains synthetic demonstration data only.]
 Meeting: Enterprise Event Streaming Migration Architecture Review
 Date: 2026-08-14
 Participants: Sarah Lin (Principal Architect), Marcus Vance (Lead Data Engineer), Elena Rostova (Director of Infrastructure), David Chen (Product Security Lead)

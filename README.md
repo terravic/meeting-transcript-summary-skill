@@ -13,6 +13,7 @@ This skill enforces a rigorous, multi-tier analysis framework designed to satisf
 1. **Executive Summary:** High-level strategic briefing covering core objectives, major decisions, impact, and critical blockers for leadership.
 2. **Detailed Discussion Record and Action Items:** A comprehensive narrative record organized by topic. Captures complete technical explanations, architecture details, and the "Why" (arguments exchanged, trade-offs evaluated, alternatives dismissed). Concludes with a four-column Action Items table.
 3. **Five-Sentence Summary:** Exactly five dense, self-contained sentences providing a rapid briefing suitable for status reports or chat digests.
+4. **Interactive Canvas UI Dashboard:** A self-contained visual interface featuring KPI metrics cards, an interactive SVG Topic Knowledge Graph with dependency edges and slide-out inspector, and a dynamic Kanban by Owner action items board.
 
 The skill operates under strict constraints: absolute business tone, zero emojis or decorative icons, zero conversational filler or AI pleasantries, and strict factual grounding.
 
@@ -28,7 +29,10 @@ meeting-transcript-summary-skill/
 ├── README.md                         # End-user documentation and platform guides
 ├── LICENSE                           # Apache License, Version 2.0
 ├── assets/
-│   └── skill_workflow_diagram.png    # Architecture and workflow diagram
+│   ├── skill_workflow_diagram.png          # Architecture and workflow diagram
+│   ├── canvas_dashboard_executive_brief.png # Canvas Executive Brief screenshot
+│   ├── canvas_dashboard_knowledge_graph.png # Canvas Knowledge Graph screenshot
+│   └── canvas_dashboard_action_items.png   # Canvas Action Items Kanban screenshot
 ├── templates/
 │   └── meeting_dashboard_template.html # Self-contained Canvas UI dashboard template
 ├── references/
@@ -204,12 +208,25 @@ cat cleaned_transcript.txt | your-agent-cli --prompt "Execute meeting-transcript
 When invoked in environments supporting Canvas or HTML webviews (e.g. Gemini Enterprise App, Spark, or web-based artifact runtimes), the skill can generate an interactive, self-contained dashboard:
 
 ### Core Visual Features:
-1. **Executive Overview & KPI Cards:** Instant metrics for key decisions, topics covered, assigned deliverables, and target cutover date, alongside structured cards for Meeting Objectives, Key Decisions, Strategic Impacts, and Critical Risks.
-2. **Interactive Topic Knowledge Graph:** A visual SVG node-link topology connecting the core meeting goal to discussed topics, labeled with concise short titles (e.g. `Platform Migration`, `Protobuf Schemas`). Features directed relationship edges between interdependent topics with workflow labels (e.g. `Enforces`, `Requires`, `Gates`). Clicking any node opens a slide-out Detail Inspector drawer presenting full context, in-depth technical mechanisms, decision rationale ("The Why"), and conclusions.
-3. **Action Items Visualizer:**
-   - **Kanban by Owner Board (Default):** Groups tasks into columns by assignee (plus an `Unassigned` backlog column) for rapid team resource planning.
-   - **Sortable Data Table:** Filterable, searchable table with instant data inspection and sorting.
-4. **Narrative Discussion Accordions:** Expandable topic blocks allowing stakeholders to inspect the complete unabridged meeting record.
+
+#### 1. Executive Overview & KPI Cards
+Instant metrics for key decisions, topics covered, assigned deliverables, and target cutover date, alongside structured cards for Meeting Objectives, Key Decisions, Strategic Impacts, and Critical Risks.
+
+![Canvas Dashboard Executive Brief](assets/canvas_dashboard_executive_brief.png)
+
+#### 2. Interactive Topic Knowledge Graph
+A visual SVG node-link topology connecting the core meeting goal to discussed topics, labeled with concise short titles (e.g. `Platform Migration`, `Protobuf Schemas`). Features directed relationship edges between interdependent topics with workflow labels (e.g. `Enforces`, `Requires`, `Gates`). Clicking any node opens a slide-out Detail Inspector drawer presenting full context, in-depth technical mechanisms, decision rationale ("The Why"), and conclusions.
+
+![Canvas Dashboard Knowledge Graph](assets/canvas_dashboard_knowledge_graph.png)
+
+#### 3. Action Items Visualizer
+- **Kanban by Owner Board (Default):** Groups tasks into columns by assignee (plus an `Unassigned` backlog column) for rapid team resource planning.
+- **Sortable Data Table:** Filterable, searchable table with instant data inspection and sorting.
+
+![Canvas Dashboard Action Items Kanban](assets/canvas_dashboard_action_items.png)
+
+#### 4. Narrative Discussion Accordions
+Expandable topic blocks allowing stakeholders to inspect the complete unabridged meeting record.
 
 ### Template & Reference:
 - Reusable Template: [templates/meeting_dashboard_template.html](templates/meeting_dashboard_template.html)
