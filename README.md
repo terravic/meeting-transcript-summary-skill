@@ -1,6 +1,6 @@
 # Meeting Transcript Summary Skill
 
-A standardized agent skill for extracting high-fidelity, structured intelligence from raw meeting transcripts. Compatible with Gemini Enterprise App, Google Antigravity, Jetski, Claude Desktop/Projects, OpenAI Custom GPTs, and standalone agent harnesses.
+A standardized agent skill for extracting high-fidelity, structured intelligence from raw meeting transcripts. Compatible with Gemini Enterprise App, Google Antigravity, Claude Desktop/Projects, OpenAI Custom GPTs, and standalone agent harnesses.
 
 ---
 
@@ -96,7 +96,7 @@ The agent will output the structured document consisting of:
 
 ## Platform Deployment and Integration
 
-### 1. Google Antigravity / Jetski
+### 1. Google Antigravity
 
 To make this skill available across your Antigravity workspaces:
 
