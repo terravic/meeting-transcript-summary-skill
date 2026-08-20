@@ -36,7 +36,7 @@ meeting-transcript-summary-skill/
 │   ├── transcript_formats.md         # Reference guide for Google Meet, Zoom, Teams, VTT, SRT formats
 │   └── quality_checklist.md          # 10-point audit rubric used to verify output quality
 ├── examples/
-│   ├── sample_meeting_transcript.txt # Realistic enterprise architecture meeting transcript
+│   ├── sample_meeting_transcript.txt # Sample meeting transcript (synthetic data only)
 │   ├── sample_output_summary.md      # Expected three-tier gold standard output
 │   └── sample_meeting_dashboard.html # Working interactive Canvas UI dashboard example
 └── scripts/
@@ -204,7 +204,7 @@ cat cleaned_transcript.txt | your-agent-cli --prompt "Execute meeting-transcript
 When invoked in environments supporting Canvas or HTML webviews (e.g. Gemini Enterprise App, Spark, or web-based artifact runtimes), the skill can generate an interactive, self-contained dashboard:
 
 ### Core Visual Features:
-1. **Executive Overview & KPI Cards:** Instant metrics for key decisions, topics covered, assigned deliverables, and target cutover date, plus a one-click copy button for the five-sentence brief.
+1. **Executive Overview & KPI Cards:** Instant metrics for key decisions, topics covered, assigned deliverables, and target cutover date, alongside structured cards for Meeting Objectives, Key Decisions, Strategic Impacts, and Critical Risks.
 2. **Interactive Topic Knowledge Graph:** A visual SVG node-link topology connecting the core meeting goal to discussed topics, labeled with concise short titles (e.g. `Platform Migration`, `Protobuf Schemas`). Features directed relationship edges between interdependent topics with workflow labels (e.g. `Enforces`, `Requires`, `Gates`). Clicking any node opens a slide-out Detail Inspector drawer presenting full context, in-depth technical mechanisms, decision rationale ("The Why"), and conclusions.
 3. **Action Items Visualizer:**
    - **Kanban by Owner Board (Default):** Groups tasks into columns by assignee (plus an `Unassigned` backlog column) for rapid team resource planning.
@@ -231,9 +231,10 @@ When invoked in environments supporting Canvas or HTML webviews (e.g. Gemini Ent
 
 ## Quality Audit
 
-Before delivering a summary, the output is audited against [quality_checklist.md](references/quality_checklist.md). You can review a complete reference input and output pair in the `examples/` directory:
-- Input: [sample_meeting_transcript.txt](examples/sample_meeting_transcript.txt)
+Before delivering a summary, the output is audited against [quality_checklist.md](references/quality_checklist.md). You can review a complete reference input and output pair in the `examples/` directory (note: all participant names, projects, metrics, and meeting dialogues in the sample files are synthetic data only):
+- Input: [sample_meeting_transcript.txt](examples/sample_meeting_transcript.txt) (Synthetic Data)
 - Output: [sample_output_summary.md](examples/sample_output_summary.md)
+- Interactive Dashboard: [sample_meeting_dashboard.html](examples/sample_meeting_dashboard.html)
 
 ---
 

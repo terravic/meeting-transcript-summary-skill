@@ -449,14 +449,6 @@
         <div class="card-title">Critical Risks & Blockers</div>
         <ul class="content-list" id="display-risks"></ul>
       </div>
-
-      <div class="card">
-        <div class="card-title">
-          <span>Five-Sentence Summary</span>
-          <button class="btn-action" onclick="copyFiveSentence()">Copy Summary</button>
-        </div>
-        <p id="display-five-sentence" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;"></p>
-      </div>
     </section>
 
     <!-- TAB 2: KNOWLEDGE GRAPH -->
@@ -558,7 +550,6 @@
           "Memory footprint impact on legacy Python consumer workers using streaming pull clients remains unbenchmarked and unassigned."
         ]
       },
-      fiveSentenceSummary: "The enterprise architecture team finalized plans to decommission their self-hosted Apache Kafka cluster and migrate all event streaming workloads to Google Cloud Pub/Sub by October 3, 2026. This migration resolves chronic consumer rebalancing lag, improves p99 latency to under 26 milliseconds at 65,000 QPS, and yields a 28 percent net infrastructure cost reduction. The organization standardized on Protocol Buffers version 3 with Google Cloud Pub/Sub Schema Registry enforcement to eliminate downstream schema drift. Production rollout is gated on mandatory InfoSec controls, including Customer-Managed Encryption Keys, VPC Service Controls perimeters, and short-lived Workload Identity Federation tokens. Staging dual-publishing will launch on September 5, 2026, followed by an InfoSec compliance audit on September 12, 2026, prior to final production cutover.",
       topics: [
         {
           id: "topic-1",
@@ -651,7 +642,6 @@
       document.getElementById('display-decisions').innerHTML = MEETING_DATA.executiveSummary.decisions.map(d => `<li>${d}</li>`).join('');
       document.getElementById('display-impacts').innerHTML = MEETING_DATA.executiveSummary.impacts.map(i => `<li>${i}</li>`).join('');
       document.getElementById('display-risks').innerHTML = MEETING_DATA.executiveSummary.risks.map(r => `<li>${r}</li>`).join('');
-      document.getElementById('display-five-sentence').innerText = MEETING_DATA.fiveSentenceSummary;
 
       renderKnowledgeGraph(MEETING_DATA.topics, MEETING_DATA.relationships);
       renderKanbanBoard(MEETING_DATA.actionItems);
@@ -672,12 +662,6 @@
       btn.classList.add('active');
       document.getElementById('subview-kanban').style.display = subKey === 'kanban' ? 'grid' : 'none';
       document.getElementById('subview-table').style.display = subKey === 'table' ? 'block' : 'none';
-    }
-
-    function copyFiveSentence() {
-      navigator.clipboard.writeText(MEETING_DATA.fiveSentenceSummary).then(() => {
-        alert("Five-sentence summary copied to clipboard.");
-      });
     }
 
     function renderKnowledgeGraph(topics, relationships) {

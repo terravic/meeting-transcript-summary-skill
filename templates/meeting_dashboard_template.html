@@ -554,14 +554,6 @@
         <div class="card-title">Critical Risks & Blockers</div>
         <ul class="content-list" id="display-risks"></ul>
       </div>
-
-      <div class="card">
-        <div class="card-title">
-          <span>Five-Sentence Summary</span>
-          <button class="btn-action" onclick="copyFiveSentence()">Copy Summary</button>
-        </div>
-        <p id="display-five-sentence" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;"></p>
-      </div>
     </section>
 
     <!-- TAB 2: KNOWLEDGE GRAPH -->
@@ -648,7 +640,6 @@
         impacts: [],
         risks: []
       },
-      fiveSentenceSummary: "",
       topics: [],
       relationships: [],
       actionItems: []
@@ -670,7 +661,6 @@
       document.getElementById('display-decisions').innerHTML = data.executiveSummary.decisions.map(d => `<li>${d}</li>`).join('');
       document.getElementById('display-impacts').innerHTML = data.executiveSummary.impacts.map(i => `<li>${i}</li>`).join('');
       document.getElementById('display-risks').innerHTML = data.executiveSummary.risks.map(r => `<li>${r}</li>`).join('');
-      document.getElementById('display-five-sentence').innerText = data.fiveSentenceSummary;
 
       renderKnowledgeGraph(data.topics, data.relationships);
       renderKanbanBoard(data.actionItems);
@@ -693,12 +683,6 @@
       btn.classList.add('active');
       document.getElementById('subview-kanban').style.display = subKey === 'kanban' ? 'grid' : 'none';
       document.getElementById('subview-table').style.display = subKey === 'table' ? 'block' : 'none';
-    }
-
-    function copyFiveSentence() {
-      navigator.clipboard.writeText(MEETING_DATA.fiveSentenceSummary).then(() => {
-        alert("Five-sentence summary copied to clipboard.");
-      });
     }
 
     function renderKnowledgeGraph(topics, relationships) {

@@ -21,8 +21,7 @@ The meeting intelligence dashboard comprises four primary interface modules:
 
 ### 2.1 Executive Overview & KPI Metrics
 - **Metric Badges:** High-level counts for decisions made, topics analyzed, assigned action items, and target milestone dates.
-- **Executive Summary Card:** Structured cards displaying Meeting Objectives, Approved Decisions, Strategic Impacts, and Critical Risks.
-- **Five-Sentence Brief Card:** Standalone block with one-click clipboard copy functionality.
+- **Executive Summary Cards:** Structured cards displaying Meeting Objectives, Approved Decisions, Strategic Impacts, and Critical Risks. (Note: The strict Five-Sentence Summary is generated exclusively in the primary text/markdown output and omitted from the Canvas UI).
 
 ### 2.2 Interactive Topic Knowledge Graph
 - **Visual Topology:** An interactive SVG node-link graph representing the central meeting objective, radiating outwards to distinct topic nodes labeled with concise, descriptive short titles (e.g. `Platform Migration`, `Protobuf Schemas`, `CMEK & Security`, `Staging & Cutover`).
@@ -64,7 +63,6 @@ The dashboard template is driven by a structured JavaScript object embedded in t
     "impacts": ["string"],
     "risks": ["string"]
   },
-  "fiveSentenceSummary": "string",
   "topics": [
     {
       "id": "topic-1",
