@@ -8,7 +8,8 @@ Use this checklist to audit generated meeting summaries against required quality
 
 | Criterion | Requirement | Verification Check |
 | :--- | :--- | :--- |
-| **Factual Grounding** | All statements, numbers, names, and conclusions derive strictly from the transcript. | Zero extrapolated facts, unmentioned tools, or invented deadlines. |
+| **Pure Factual Grounding** | All statements, numbers, names, and conclusions derive strictly from the transcript. | Zero extrapolated facts, unmentioned tools, or invented deadlines. |
+| **Zero Opinion & Editorializing** | No external commentary, personal opinions, editorial assessments, or unstated implications are injected. | All content reports purely what participants stated, proposed, and decided. |
 | **Full Technical Depth** | Technical explanations (architectures, protocols, calculations, workflows) are preserved in complete detail. | Technical mechanisms are explained in depth rather than summarized in vague high-level terms. |
 | **Preservation of the "Why"** | Debates, trade-offs, discarded alternatives, and reasoning behind decisions are explicitly documented. | The narrative explains why decisions were made, not merely what was decided. |
 | **Topic-Based Organization** | Discussions are grouped by logical subject matter rather than chronological transcript order. | Related discussions across different time points in the meeting are consolidated cleanly under relevant topic headers. |

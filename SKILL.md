@@ -15,10 +15,11 @@ This skill transforms raw, messy meeting transcripts into structured, high-fidel
 
 ## Operating Principles
 
-- Absolute Tone: Deliver factual, direct, and unambiguous analysis. Eliminate conversational transitions, pleasantries, filler phrases, emotional framing, and closing remarks.
+- Absolute Tone: Deliver factual, direct, and unambiguous synthesis. Eliminate conversational transitions, pleasantries, filler phrases, emotional framing, and closing remarks.
+- Pure Factual Grounding (Zero Opinion): Include solely the factual information, decisions, and arguments directly stated in the transcript. Never introduce external opinions, editorial analysis, subjective interpretations, or speculative commentary.
+- Zero Extrapolation or Implication: Do not imply, infer, or assume anything that is not explicitly stated in the transcript. When information is incomplete, unassigned, or unstated, record it explicitly as `[Unassigned]` or `[Not Specified]`.
 - No Decorative Elements: Never use emojis, emoticons, graphical icons, or visual placeholder tokens (such as `[image]`, `[icon]`, or decorative symbols).
 - Zero Preamble and Postamble: Begin output immediately with the document header. End immediately after the final sentence of the third section. Do not include introductory text ("Here is the summary...") or conversational closings ("Let me know if you need changes...").
-- Factual Fidelity: Ground all statements strictly in the transcript. Do not extrapolate, speculate, or introduce external assumptions. When information is incomplete or unstated in the meeting, mark it explicitly as `[Unassigned]` or `[Not Specified]`.
 - Missing Input Handling: If the user requests a summary without providing transcript text or an accessible transcript file path, respond with a single prompt requesting the transcript input and terminate.
 
 ## Processing Workflow
@@ -115,7 +116,7 @@ The skill supports four delivery modes based on user requirements:
 1. **Rendered Markdown (Default):** Output standard Markdown directly to the chat stream. The host agent harness automatically parses and renders this into visual rich text with styled headers, structured bullet lists, and graphical tables. This format is optimized for non-technical users to select, copy, and paste directly into Google Docs, Microsoft Word, Confluence, or email without losing styling.
 2. **Raw Markdown Code Block:** When prompted for "raw markdown", wrap the complete output inside a fenced code block (` ```markdown ... ``` `) with a one-click copy button, allowing immediate transfer into code repositories or `.md` files.
 3. **Dual Output Mode:** When prompted for "dual output" or "both rendered and raw", deliver the complete rendered output first, followed by a divider and a fenced code block containing the exact raw Markdown.
-4. **Interactive Canvas UI Mode:** When prompted for "canvas", "dashboard", "visual UI", or "interactive summary", generate a self-contained HTML/JS/CSS document (`meeting_dashboard.html` or ` ```html ... ``` ` code block) implementing the interactive Executive Overview, SVG Knowledge Graph with Topic Inspector, and Multi-View Action Items (Gantt timeline, Kanban by owner, and sortable data table) following the reference guide in `references/canvas_ui_guide.md` and template in `templates/meeting_dashboard_template.html`.
+4. **Interactive Canvas UI Mode:** When prompted for "canvas", "dashboard", "visual UI", or "interactive summary", generate a self-contained HTML/JS/CSS document (`meeting_dashboard.html` or ` ```html ... ``` ` code block) implementing the interactive Executive Overview, SVG Knowledge Graph with Topic Inspector, and Multi-View Action Items (Kanban board by owner and sortable data table) following the reference guide in `references/canvas_ui_guide.md` and template in `templates/meeting_dashboard_template.html`.
 
 ---
 
@@ -127,4 +128,4 @@ Before outputting the response, verify compliance against these standards:
 2. **Completeness of Explanations:** Verify that in Section 2, complex explanations (e.g., system designs, numerical targets, workflow steps) are fully elaborated rather than condensed into generic summaries.
 3. **Preservation of Rationale:** Confirm that the reasoning, trade-offs, and counter-arguments behind decisions are documented.
 4. **Tone and Style Check:** Verify that zero emojis, zero conversational pleasantries, and zero meta-commentary are present.
-5. **No Extrapolations:** Verify that all names, dates, deliverables, and technical terms match the source transcript.
+5. **Pure Factual Grounding & Zero Opinion:** Verify that all facts, numbers, dates, technical claims, arguments, and deliverables derive solely from the transcript. Confirm that zero personal opinions, editorial interpretations, external advice, or unstated implications were added.

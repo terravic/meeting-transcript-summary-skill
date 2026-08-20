@@ -205,11 +205,10 @@ When invoked in environments supporting Canvas or HTML webviews (e.g. Gemini Ent
 
 ### Core Visual Features:
 1. **Executive Overview & KPI Cards:** Instant metrics for key decisions, topics covered, assigned deliverables, and target cutover date, plus a one-click copy button for the five-sentence brief.
-2. **Interactive Topic Knowledge Graph:** A visual SVG node-link topology connecting the core meeting goal to discussed topics. Clicking any node opens a slide-out Detail Inspector drawer presenting full context, in-depth technical mechanisms, decision rationale ("The Why"), and conclusions.
-3. **Multi-View Action Items Visualizer:**
-   - **Timeline / Gantt Chart:** Plots deliverables chronologically from meeting date to final cutover with progress bars and owner tags.
-   - **Kanban by Owner Board:** Groups tasks into columns by assignee (plus an `Unassigned` backlog column) for rapid team resource planning.
-   - **Sortable Data Table:** Filterable, searchable table with instant data inspection.
+2. **Interactive Topic Knowledge Graph:** A visual SVG node-link topology connecting the core meeting goal to discussed topics, labeled with concise short titles (e.g. `Platform Migration`, `Protobuf Schemas`). Features directed relationship edges between interdependent topics with workflow labels (e.g. `Enforces`, `Requires`, `Gates`). Clicking any node opens a slide-out Detail Inspector drawer presenting full context, in-depth technical mechanisms, decision rationale ("The Why"), and conclusions.
+3. **Action Items Visualizer:**
+   - **Kanban by Owner Board (Default):** Groups tasks into columns by assignee (plus an `Unassigned` backlog column) for rapid team resource planning.
+   - **Sortable Data Table:** Filterable, searchable table with instant data inspection and sorting.
 4. **Narrative Discussion Accordions:** Expandable topic blocks allowing stakeholders to inspect the complete unabridged meeting record.
 
 ### Template & Reference:
@@ -222,9 +221,10 @@ When invoked in environments supporting Canvas or HTML webviews (e.g. Gemini Ent
 ## Core Rules and Constraints
 
 - **Absolute Tone:** Direct and factual prose. Eliminates filler phrases, polite acknowledgments, and motivational commentary.
+- **Pure Factual Grounding (Zero Opinion):** Output must strictly contain only facts, decisions, and arguments directly stated in the source transcript. The skill forbids injecting external opinions, editorial assessments, subjective advice, or personal analysis.
+- **Zero Extrapolation or Implication:** Never infer or assume anything not explicitly spoken during the meeting. If a detail, date, or owner is missing or unstated, mark it explicitly as `[Unassigned]` or `[Not Specified]`.
 - **No Decorative Elements:** Emojis, graphical bullets, and visual placeholder tokens are strictly forbidden.
 - **Zero Conversational Framing:** The output starts directly with the title header and terminates immediately after the final sentence. No introductory greeting or follow-up offer.
-- **Factual Grounding:** Zero tolerance for hallucination. If an owner, date, or detail was not mentioned in the transcript, it must be marked as `[Unassigned]` or `[Not Specified]`.
 - **Missing Input Handling:** If invoked without a transcript, the agent requests the input directly and terminates execution.
 
 ---

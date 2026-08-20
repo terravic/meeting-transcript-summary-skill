@@ -25,18 +25,18 @@ The meeting intelligence dashboard comprises four primary interface modules:
 - **Five-Sentence Brief Card:** Standalone block with one-click clipboard copy functionality.
 
 ### 2.2 Interactive Topic Knowledge Graph
-- **Visual Topology:** An interactive SVG node-link graph representing the central meeting objective, radiating outwards to distinct topic clusters, decision nodes, and technical rationale sub-nodes.
+- **Visual Topology:** An interactive SVG node-link graph representing the central meeting objective, radiating outwards to distinct topic nodes labeled with concise, descriptive short titles (e.g. `Platform Migration`, `Protobuf Schemas`, `CMEK & Security`, `Staging & Cutover`).
+- **Inter-Topic Relationships:** Explicit directed edges link interdependent topics with relationship badge pills (e.g. `Enforces`, `Requires`, `Tested in`, `Gates`), visualizing technical and operational workflows.
 - **Dynamic Interaction:**
   - Clicking any node opens a slide-out Detail Inspector drawer.
-  - Hover states reveal concise contextual tooltips.
+  - Hover states highlight connected topics and dependencies.
   - Instant search input to filter and highlight matching nodes in real time.
 - **Content Depth:** The inspector displays the full Context, In-Depth Technical Mechanism, the Rationale / Debates ("Why"), and Key Conclusions.
 
 ### 2.3 Action Items Visualizer (Multi-View)
-Rather than a static table, the dashboard delivers three switchable visual representations of the action items:
-1. **Gantt / Timeline View:** A chronological milestone bar chart mapping deliverables against deadlines from kickoff to cutover, with progress indicators and owner tags.
-2. **Kanban by Owner Board:** Columns organized per participant (plus an `Unassigned` column for backlog tasks), presenting deliverables as actionable cards.
-3. **Structured Interactive Table:** A data table with column sorting, keyword search, owner filtering, and CSV/Markdown export.
+The dashboard delivers two clean, actionable views of the assigned action items:
+1. **Kanban by Owner Board (Default):** Columns organized per participant (plus an `Unassigned` column for sprint planning), presenting tasks, deadlines, and deliverables as actionable cards.
+2. **Structured Interactive Table:** A data table with column sorting, keyword search, owner filtering, and CSV/Markdown export.
 
 ### 2.4 Detailed Narrative Discussion Explorer
 - Collapsible topic accordions allowing deep reading of the complete meeting record with technical explanations preserved in full.
@@ -69,10 +69,18 @@ The dashboard template is driven by a structured JavaScript object embedded in t
     {
       "id": "topic-1",
       "title": "string",
+      "shortTitle": "string (2-3 words for node label)",
       "context": "string",
       "explanation": "string",
       "rationale": "string",
       "conclusion": "string"
+    }
+  ],
+  "relationships": [
+    {
+      "from": "topic-1",
+      "to": "topic-2",
+      "label": "string (e.g. Enforces, Requires, Tested in, Gates)"
     }
   ],
   "actionItems": [

@@ -214,7 +214,7 @@
       background-color: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      height: 550px;
+      height: 600px;
       overflow: hidden;
       display: flex;
     }
@@ -296,50 +296,12 @@
       font-size: 0.8rem;
       border-radius: var(--radius-sm);
       cursor: pointer;
+      font-weight: 500;
     }
     .sub-tab-btn.active {
       background-color: var(--accent-blue-hover);
       color: #ffffff;
       border-color: var(--accent-blue-hover);
-    }
-
-    .gantt-chart {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .gantt-row {
-      display: grid;
-      grid-template-columns: 280px 1fr 140px;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .gantt-task-name { font-size: 0.875rem; font-weight: 500; color: var(--text-primary); }
-    .gantt-bar-track {
-      background-color: var(--bg-tertiary);
-      height: 26px;
-      border-radius: var(--radius-sm);
-      position: relative;
-    }
-    .gantt-bar {
-      position: absolute;
-      height: 100%;
-      background-color: var(--accent-blue);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      padding: 0 0.75rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #0f172a;
     }
 
     .kanban-board {
@@ -441,7 +403,7 @@
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="switchMainTab('overview', this)">Executive Brief</button>
       <button class="tab-btn" onclick="switchMainTab('graph', this)">Knowledge Graph</button>
-      <button class="tab-btn" onclick="switchMainTab('actions', this)">Action Items Visualizer</button>
+      <button class="tab-btn" onclick="switchMainTab('actions', this)">Action Items</button>
       <button class="tab-btn" onclick="switchMainTab('discussion', this)">Detailed Record</button>
     </div>
   </header>
@@ -534,13 +496,11 @@
     <!-- TAB 3: ACTION ITEMS -->
     <section id="tab-actions" class="tab-content">
       <div class="view-switch">
-        <button class="sub-tab-btn active" onclick="switchActionSubTab('gantt', this)">Timeline / Gantt</button>
-        <button class="sub-tab-btn" onclick="switchActionSubTab('kanban', this)">Kanban by Owner</button>
+        <button class="sub-tab-btn active" onclick="switchActionSubTab('kanban', this)">Kanban by Owner</button>
         <button class="sub-tab-btn" onclick="switchActionSubTab('table', this)">Data Table</button>
       </div>
 
-      <div id="subview-gantt" class="gantt-chart"></div>
-      <div id="subview-kanban" class="kanban-board" style="display:none;"></div>
+      <div id="subview-kanban" class="kanban-board"></div>
       <div id="subview-table" class="data-table-container" style="display:none;">
         <table>
           <thead>
@@ -603,6 +563,7 @@
         {
           id: "topic-1",
           title: "Messaging Platform Migration Evaluation",
+          shortTitle: "Platform Migration",
           context: "The organization operates an 18-node r5.2xlarge Apache Kafka cluster across three AZs with a 5-node ZooKeeper quorum, consuming 22 hours per month in operational maintenance with consumer lag exceeding 4 minutes under load.",
           explanation: "Data engineering benchmarked Kafka 3.8 (KRaft mode) against Google Cloud Pub/Sub. Pub/Sub achieved 65,000 QPS with 14ms average and 26ms p99 latency across multi-region topics. Financial modeling showed Pub/Sub costs $11,800/mo vs Kafka's $22,700/mo total cost of ownership (28% net savings).",
           rationale: "Kafka KRaft was dismissed because it did not eliminate manual partition scaling or broker rebalancing storms. Google Cloud Pub/Sub was selected for full autoscaling and zero broker maintenance.",
@@ -611,6 +572,7 @@
         {
           id: "topic-2",
           title: "Schema Evolution and Serialization Standard",
+          shortTitle: "Protobuf Schemas",
           context: "Downstream consumers currently parse unvalidated JSON blobs, causing production parser crashes due to undetected schema drift.",
           explanation: "Evaluated Apache Avro vs Protobuf v3. Protobuf v3 payloads are 42% smaller than JSON and 15% smaller than Avro. Direct integration with Google Cloud Pub/Sub Schema Registry provides boundary-level payload rejection for non-compliant producers.",
           rationale: "Although Avro had historical analytics support in Snowflake, Protobuf was selected for superior polyglot microservice performance (Go, Java, TypeScript) and strongly typed stub generation.",
@@ -619,6 +581,7 @@
         {
           id: "topic-3",
           title: "Security, Governance, and Compliance Controls",
+          shortTitle: "CMEK & Security",
           context: "Enterprise compliance mandates strict isolation, customer key ownership, and identity governance before routing production traffic.",
           explanation: "Mandated CMEK encryption using Google Cloud KMS key ring in us-central1, VPC Service Controls perimeters around Pub/Sub, and short-lived Workload Identity Federation tokens with granular roles (roles/pubsub.publisher, roles/pubsub.subscriber).",
           rationale: "Infrastructure-as-code automation in Terraform ensures zero configuration drift and guarantees compliance prior to cutover.",
@@ -627,11 +590,18 @@
         {
           id: "topic-4",
           title: "Migration Timeline and Phasing",
+          shortTitle: "Staging & Cutover",
           context: "Migration requires zero data loss and uninterrupted downstream service operations.",
           explanation: "Three phases: 1) Dual-publishing gateway adapter in staging by Sept 5 with 14-day shadow traffic; 2) InfoSec automated audit by Sept 12; 3) Production cutover on Oct 3.",
           rationale: "Shadow traffic allows verifying message delivery guarantees and consumer offset correctness under production load without customer impact.",
           conclusion: "Approved October 3, 2026 production cutover target date."
         }
+      ],
+      relationships: [
+        { from: "topic-1", to: "topic-2", label: "Enforces" },
+        { from: "topic-1", to: "topic-3", label: "Requires" },
+        { from: "topic-2", to: "topic-4", label: "Tested in" },
+        { from: "topic-3", to: "topic-4", label: "Gates" }
       ],
       actionItems: [
         {
@@ -683,8 +653,7 @@
       document.getElementById('display-risks').innerHTML = MEETING_DATA.executiveSummary.risks.map(r => `<li>${r}</li>`).join('');
       document.getElementById('display-five-sentence').innerText = MEETING_DATA.fiveSentenceSummary;
 
-      renderKnowledgeGraph(MEETING_DATA.topics);
-      renderGanttChart(MEETING_DATA.actionItems);
+      renderKnowledgeGraph(MEETING_DATA.topics, MEETING_DATA.relationships);
       renderKanbanBoard(MEETING_DATA.actionItems);
       renderActionTable(MEETING_DATA.actionItems);
       renderTopicAccordions(MEETING_DATA.topics);
@@ -695,13 +664,12 @@
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('tab-' + tabKey).classList.add('active');
-      if (tabKey === 'graph') renderKnowledgeGraph(MEETING_DATA.topics);
+      if (tabKey === 'graph') renderKnowledgeGraph(MEETING_DATA.topics, MEETING_DATA.relationships);
     }
 
     function switchActionSubTab(subKey, btn) {
       document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      document.getElementById('subview-gantt').style.display = subKey === 'gantt' ? 'flex' : 'none';
       document.getElementById('subview-kanban').style.display = subKey === 'kanban' ? 'grid' : 'none';
       document.getElementById('subview-table').style.display = subKey === 'table' ? 'block' : 'none';
     }
@@ -712,22 +680,30 @@
       });
     }
 
-    function renderKnowledgeGraph(topics) {
+    function renderKnowledgeGraph(topics, relationships) {
       const svg = document.getElementById('graph-svg');
+      if (!svg) return;
       svg.innerHTML = '';
+      
       const w = svg.clientWidth || 800;
-      const h = svg.clientHeight || 550;
+      const h = svg.clientHeight || 580;
       const cx = w / 2;
       const cy = h / 2;
 
-      const rootG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      rootG.innerHTML = `
-        <circle cx="${cx}" cy="${cy}" r="48" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
-        <text x="${cx}" y="${cy - 6}" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">EVENT STREAMING</text>
-        <text x="${cx}" y="${cy + 8}" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">MIGRATION</text>
+      // Create defs for arrow markers
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      defs.innerHTML = `
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+        </marker>
+        <marker id="arrow-subtle" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+        </marker>
       `;
-      svg.appendChild(rootG);
+      svg.appendChild(defs);
 
+      // Compute topic node positions around perimeter
+      const nodePositions = {};
       const radius = Math.min(w, h) * 0.36;
       const angleStep = (2 * Math.PI) / topics.length;
 
@@ -735,24 +711,106 @@
         const angle = idx * angleStep - Math.PI / 4;
         const tx = cx + radius * Math.cos(angle);
         const ty = cy + radius * Math.sin(angle);
+        nodePositions[t.id] = { x: tx, y: ty, topic: t };
+      });
 
+      // 1. Draw Central Links from Goal to Topics
+      topics.forEach(t => {
+        const pos = nodePositions[t.id];
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         line.setAttribute('x1', cx);
         line.setAttribute('y1', cy);
-        line.setAttribute('x2', tx);
-        line.setAttribute('y2', ty);
+        line.setAttribute('x2', pos.x);
+        line.setAttribute('y2', pos.y);
         line.setAttribute('stroke', '#334155');
-        line.setAttribute('stroke-width', '2');
-        line.setAttribute('stroke-dasharray', '4 2');
+        line.setAttribute('stroke-width', '1.5');
+        line.setAttribute('stroke-dasharray', '4 3');
         svg.appendChild(line);
+      });
+
+      // 2. Draw Inter-Topic Relationship Edges
+      if (relationships && relationships.length > 0) {
+        relationships.forEach(rel => {
+          const fromPos = nodePositions[rel.from];
+          const toPos = nodePositions[rel.to];
+          if (!fromPos || !toPos) return;
+
+          const dx = toPos.x - fromPos.x;
+          const dy = toPos.y - fromPos.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const nodeR = 48; // Node radius offset
+
+          if (dist > nodeR * 2) {
+            const startX = fromPos.x + (dx / dist) * nodeR;
+            const startY = fromPos.y + (dy / dist) * nodeR;
+            const endX = toPos.x - (dx / dist) * nodeR;
+            const endY = toPos.y - (dy / dist) * nodeR;
+
+            const edgeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            
+            const edgeLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            edgeLine.setAttribute('x1', startX);
+            edgeLine.setAttribute('y1', startY);
+            edgeLine.setAttribute('x2', endX);
+            edgeLine.setAttribute('y2', endY);
+            edgeLine.setAttribute('stroke', '#0284c7');
+            edgeLine.setAttribute('stroke-width', '2');
+            edgeLine.setAttribute('marker-end', 'url(#arrow)');
+            edgeG.appendChild(edgeLine);
+
+            if (rel.label) {
+              const midX = (startX + endX) / 2;
+              const midY = (startY + endY) / 2;
+
+              const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+              bgRect.setAttribute('x', midX - 35);
+              bgRect.setAttribute('y', midY - 9);
+              bgRect.setAttribute('width', 70);
+              bgRect.setAttribute('height', 18);
+              bgRect.setAttribute('rx', 4);
+              bgRect.setAttribute('fill', '#0b1120');
+              bgRect.setAttribute('stroke', '#334155');
+              bgRect.setAttribute('stroke-width', '1');
+              edgeG.appendChild(bgRect);
+
+              const lblText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+              lblText.setAttribute('x', midX);
+              lblText.setAttribute('y', midY + 4);
+              lblText.setAttribute('text-anchor', 'middle');
+              lblText.setAttribute('fill', '#38bdf8');
+              lblText.setAttribute('font-size', '9');
+              lblText.setAttribute('font-weight', '600');
+              lblText.textContent = rel.label;
+              edgeG.appendChild(lblText);
+            }
+            svg.appendChild(edgeG);
+          }
+        });
+      }
+
+      // 3. Draw Center Root Node
+      const rootG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      rootG.innerHTML = `
+        <circle cx="${cx}" cy="${cy}" r="48" fill="#0369a1" stroke="#38bdf8" stroke-width="2.5"/>
+        <text x="${cx}" y="${cy - 5}" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">MIGRATION</text>
+        <text x="${cx}" y="${cy + 9}" text-anchor="middle" fill="#e0f2fe" font-size="8.5" font-weight="500">GOALS</text>
+      `;
+      svg.appendChild(rootG);
+
+      // 4. Draw Topic Nodes with Short Titles
+      topics.forEach(t => {
+        const pos = nodePositions[t.id];
+        const words = t.shortTitle.split(' ');
+        const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
+        const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
 
         const tg = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         tg.setAttribute('cursor', 'pointer');
         tg.onclick = () => openInspector(t);
         tg.innerHTML = `
-          <circle cx="${tx}" cy="${ty}" r="38" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
-          <text x="${tx}" y="${ty - 4}" text-anchor="middle" fill="#f8fafc" font-size="9" font-weight="700">TOPIC ${idx + 1}</text>
-          <text x="${tx}" y="${ty + 8}" text-anchor="middle" fill="#94a3b8" font-size="8">${t.title.split(' ')[0]}</text>
+          <circle cx="${pos.x}" cy="${pos.y}" r="46" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+          <text x="${pos.x}" y="${pos.y - (line2 ? 4 : 0)}" text-anchor="middle" fill="#f8fafc" font-size="10" font-weight="700">${line1}</text>
+          ${line2 ? `<text x="${pos.x}" y="${pos.y + 11}" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="500">${line2}</text>` : ''}
         `;
         svg.appendChild(tg);
       });
@@ -774,24 +832,10 @@
     function filterGraphNodes(query) {
       const q = query.toLowerCase();
       MEETING_DATA.topics.forEach(t => {
-        if (t.title.toLowerCase().includes(q) || t.rationale.toLowerCase().includes(q)) {
+        if (t.title.toLowerCase().includes(q) || t.shortTitle.toLowerCase().includes(q) || t.rationale.toLowerCase().includes(q)) {
           openInspector(t);
         }
       });
-    }
-
-    function renderGanttChart(actions) {
-      const container = document.getElementById('subview-gantt');
-      const widths = [25, 45, 65, 80, 50, 100];
-      container.innerHTML = actions.map((act, i) => `
-        <div class="gantt-row">
-          <div class="gantt-task-name">${act.description}</div>
-          <div class="gantt-bar-track">
-            <div class="gantt-bar" style="width: ${widths[i]}%;">${act.assignee}</div>
-          </div>
-          <div style="font-size:0.75rem; color:var(--text-muted); text-align:right; font-weight:600;">${act.deadline}</div>
-        </div>
-      `).join('');
     }
 
     function renderKanbanBoard(actions) {
