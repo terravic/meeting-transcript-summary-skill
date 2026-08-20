@@ -29,12 +29,16 @@ meeting-transcript-summary-skill/
 ├── LICENSE                           # Apache License, Version 2.0
 ├── assets/
 │   └── skill_workflow_diagram.png    # Architecture and workflow diagram
+├── templates/
+│   └── meeting_dashboard_template.html # Self-contained Canvas UI dashboard template
 ├── references/
+│   ├── canvas_ui_guide.md            # Guide for Canvas UI rendering, iframe architecture, and data schema
 │   ├── transcript_formats.md         # Reference guide for Google Meet, Zoom, Teams, VTT, SRT formats
 │   └── quality_checklist.md          # 10-point audit rubric used to verify output quality
 ├── examples/
 │   ├── sample_meeting_transcript.txt # Realistic enterprise architecture meeting transcript
-│   └── sample_output_summary.md      # Expected three-tier gold standard output
+│   ├── sample_output_summary.md      # Expected three-tier gold standard output
+│   └── sample_meeting_dashboard.html # Working interactive Canvas UI dashboard example
 └── scripts/
     └── clean_transcript.py           # Standalone Python utility to strip VTT/SRT timestamps
 ```
@@ -78,6 +82,11 @@ Please process the transcript located at ./examples/sample_meeting_transcript.tx
 #### Sample Prompt 4: Requesting Dual Output (Rendered + Raw Markdown)
 ```text
 Summarize the attached meeting transcript using the meeting-transcript-summary skill. Provide dual output with both rendered markdown and a raw markdown code block.
+```
+
+#### Sample Prompt 5: Requesting an Interactive Canvas UI Dashboard
+```text
+Process the attached meeting transcript with the meeting-transcript-summary skill and generate an interactive Canvas UI dashboard with the topic knowledge graph and action items visualizer.
 ```
 
 ### Step 3: Review and Copy the Output
@@ -186,6 +195,27 @@ cat cleaned_transcript.txt | your-agent-cli --prompt "Execute meeting-transcript
 - **Rendered Markdown (Default):** The summary is rendered natively in the agent harness UI. Selecting and copying text from the chat window pastes directly as rich text into Google Docs, Word, or Confluence with tables and headings preserved.
 - **Raw Markdown Code Block:** Wraps the entire document in a fenced code block with a one-click copy button, suitable for saving to `.md` files or Markdown editors.
 - **Dual Output Mode:** Outputs both the visually rendered document and the raw Markdown code block in a single response.
+- **Interactive Canvas UI Mode:** Generates a self-contained HTML/CSS/JS dashboard that renders directly in Canvas / iframe runtimes (Gemini Enterprise App, Spark, Artifacts webviews).
+
+---
+
+## Interactive Canvas UI Dashboards
+
+When invoked in environments supporting Canvas or HTML webviews (e.g. Gemini Enterprise App, Spark, or web-based artifact runtimes), the skill can generate an interactive, self-contained dashboard:
+
+### Core Visual Features:
+1. **Executive Overview & KPI Cards:** Instant metrics for key decisions, topics covered, assigned deliverables, and target cutover date, plus a one-click copy button for the five-sentence brief.
+2. **Interactive Topic Knowledge Graph:** A visual SVG node-link topology connecting the core meeting goal to discussed topics. Clicking any node opens a slide-out Detail Inspector drawer presenting full context, in-depth technical mechanisms, decision rationale ("The Why"), and conclusions.
+3. **Multi-View Action Items Visualizer:**
+   - **Timeline / Gantt Chart:** Plots deliverables chronologically from meeting date to final cutover with progress bars and owner tags.
+   - **Kanban by Owner Board:** Groups tasks into columns by assignee (plus an `Unassigned` backlog column) for rapid team resource planning.
+   - **Sortable Data Table:** Filterable, searchable table with instant data inspection.
+4. **Narrative Discussion Accordions:** Expandable topic blocks allowing stakeholders to inspect the complete unabridged meeting record.
+
+### Template & Reference:
+- Reusable Template: [templates/meeting_dashboard_template.html](templates/meeting_dashboard_template.html)
+- Working Example: [examples/sample_meeting_dashboard.html](examples/sample_meeting_dashboard.html)
+- Architecture Guide: [references/canvas_ui_guide.md](references/canvas_ui_guide.md)
 
 ---
 

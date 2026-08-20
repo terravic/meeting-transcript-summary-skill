@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meeting Intelligence Dashboard</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #38bdf8;
+      --accent-blue-hover: #0284c7;
+      --accent-emerald: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-rose: #f43f5e;
+      --border-color: #334155;
+      --border-subtle: #1e293b;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 1.5rem;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .meeting-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .meeting-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-primary { background: #0369a1; color: #e0f2fe; }
+    .badge-emerald { background: #065f46; color: #d1fae5; }
+    .badge-amber { background: #78350f; color: #fef3c7; }
+    .badge-rose { background: #881337; color: #ffe4e6; }
+    .badge-slate { background: #334155; color: #e2e8f0; }
+
+    .participants-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.25rem;
+    }
+
+    .participant-pill {
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+    }
+
+    /* Tab Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: 0.75rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--text-secondary);
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      background-color: var(--accent-blue-hover);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* KPI Metrics Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .kpi-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 0.25rem;
+    }
+
+    /* Executive Summary Cards */
+    .card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .content-list {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .content-list li {
+      position: relative;
+      padding-left: 1.25rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .content-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0.25rem;
+      color: var(--accent-blue);
+      font-weight: bold;
+    }
+
+    /* Copy Button */
+    .btn-action {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-action:hover {
+      background-color: var(--accent-blue-hover);
+    }
+
+    /* Knowledge Graph Layout */
+    .graph-container {
+      position: relative;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      height: 600px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .graph-canvas-area {
+      flex: 1;
+      height: 100%;
+      position: relative;
+    }
+
+    .graph-search-bar {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      gap: 0.5rem;
+      width: 280px;
+    }
+
+    .graph-search-bar input {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      width: 100%;
+      outline: none;
+    }
+
+    /* Detail Inspector Drawer */
+    .inspector-drawer {
+      width: 380px;
+      background-color: #0b1120;
+      border-left: 1px solid var(--border-color);
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transform: translateX(100%);
+      transition: transform 0.25s ease-in-out;
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 20;
+    }
+
+    .inspector-drawer.open {
+      transform: translateX(0);
+    }
+
+    .inspector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .inspector-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .inspector-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .inspector-section {
+      border-top: 1px solid var(--border-color);
+      padding-top: 0.75rem;
+    }
+
+    .inspector-section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
+    }
+
+    .inspector-text {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Action Items Sub-Navigation */
+    .view-switch {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .sub-tab-btn {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    .sub-tab-btn.active {
+      background-color: var(--accent-blue-hover);
+      color: #ffffff;
+      border-color: var(--accent-blue-hover);
+    }
+
+    /* Timeline / Gantt Chart */
+    .gantt-chart {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+
+    .gantt-row {
+      display: grid;
+      grid-template-columns: 240px 1fr 120px;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .gantt-task-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .gantt-bar-track {
+      background-color: var(--bg-tertiary);
+      height: 24px;
+      border-radius: var(--radius-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gantt-bar {
+      position: absolute;
+      height: 100%;
+      background-color: var(--accent-blue);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      padding: 0 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    /* Kanban Board */
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .kanban-col {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+    }
+
+    .kanban-col-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .kanban-col-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .kanban-card {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .kanban-card-title {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.35rem;
+    }
+
+    .kanban-card-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Table View */
+    .data-table-container {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #0b1120;
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-color);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    tr:hover td {
+      background-color: rgba(51, 65, 85, 0.3);
+    }
+
+    /* Discussion Record Accordions */
+    .topic-accordion {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+
+    .topic-header {
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--bg-secondary);
+      user-select: none;
+    }
+
+    .topic-header:hover {
+      background-color: var(--bg-tertiary);
+    }
+
+    .topic-body {
+      padding: 1.25rem;
+      border-top: 1px solid var(--border-color);
+      background-color: #0b1120;
+      display: none;
+    }
+
+    .topic-body.open {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <div>
+        <h1 class="meeting-title" id="display-title">Meeting Title</h1>
+        <div class="participants-list" id="display-participants"></div>
+      </div>
+      <div class="meeting-meta">
+        <span class="badge badge-primary" id="display-date">Date</span>
+        <span class="badge badge-slate" id="display-status">Synthesis Verified</span>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchMainTab('overview', this)">Executive Brief</button>
+      <button class="tab-btn" onclick="switchMainTab('graph', this)">Knowledge Graph</button>
+      <button class="tab-btn" onclick="switchMainTab('actions', this)">Action Items Visualizer</button>
+      <button class="tab-btn" onclick="switchMainTab('discussion', this)">Detailed Record</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB 1: OVERVIEW -->
+    <section id="tab-overview" class="tab-content active">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Key Decisions</div>
+          <div class="kpi-value" id="kpi-decisions">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Topics Explored</div>
+          <div class="kpi-value" id="kpi-topics">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Action Items</div>
+          <div class="kpi-value" id="kpi-actions">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Target Cutover</div>
+          <div class="kpi-value" id="kpi-cutover">TBD</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Meeting Objective</div>
+        <p id="display-objective" style="font-size: 0.95rem; color: var(--text-secondary);"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Key Decisions Made</div>
+        <ul class="content-list" id="display-decisions"></ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Strategic Outcomes & Impact</div>
+        <ul class="content-list" id="display-impacts"></ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Critical Risks & Blockers</div>
+        <ul class="content-list" id="display-risks"></ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>Five-Sentence Summary</span>
+          <button class="btn-action" onclick="copyFiveSentence()">Copy Summary</button>
+        </div>
+        <p id="display-five-sentence" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;"></p>
+      </div>
+    </section>
+
+    <!-- TAB 2: KNOWLEDGE GRAPH -->
+    <section id="tab-graph" class="tab-content">
+      <div class="graph-container">
+        <div class="graph-search-bar">
+          <input type="text" id="graph-search-input" placeholder="Search topics & rationale..." oninput="filterGraphNodes(this.value)">
+        </div>
+        <div class="graph-canvas-area" id="graph-canvas-container">
+          <svg id="graph-svg" width="100%" height="100%"></svg>
+        </div>
+        <div class="inspector-drawer" id="inspector-drawer">
+          <div class="inspector-header">
+            <h3 class="inspector-title" id="inspector-title">Topic Title</h3>
+            <button class="inspector-close" onclick="closeInspector()">&times;</button>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-section-label">Context & Background</div>
+            <p class="inspector-text" id="inspector-context"></p>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-section-label">Technical Mechanism</div>
+            <p class="inspector-text" id="inspector-mechanism"></p>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-section-label">Rationale ("Why") & Debates</div>
+            <p class="inspector-text" id="inspector-rationale"></p>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-section-label">Key Conclusion</div>
+            <p class="inspector-text" id="inspector-conclusion"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: ACTION ITEMS -->
+    <section id="tab-actions" class="tab-content">
+      <div class="view-switch">
+        <button class="sub-tab-btn active" onclick="switchActionSubTab('gantt', this)">Timeline / Gantt</button>
+        <button class="sub-tab-btn" onclick="switchActionSubTab('kanban', this)">Kanban by Owner</button>
+        <button class="sub-tab-btn" onclick="switchActionSubTab('table', this)">Data Table</button>
+      </div>
+
+      <!-- Gantt Sub-view -->
+      <div id="subview-gantt" class="gantt-chart"></div>
+
+      <!-- Kanban Sub-view -->
+      <div id="subview-kanban" class="kanban-board" style="display:none;"></div>
+
+      <!-- Table Sub-view -->
+      <div id="subview-table" class="data-table-container" style="display:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Action Item</th>
+              <th>Assigned To</th>
+              <th>Deadline</th>
+              <th>Acceptance Criteria</th>
+            </tr>
+          </thead>
+          <tbody id="table-body-actions"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 4: DETAILED DISCUSSION -->
+    <section id="tab-discussion" class="tab-content">
+      <div id="topics-accordion-list"></div>
+    </section>
+  </main>
+
+  <script>
+    // Embedded Data Model Payload
+    const MEETING_DATA = {
+      meetingTitle: "Meeting Title Placeholder",
+      date: "YYYY-MM-DD",
+      participants: ["Participant 1", "Participant 2"],
+      metrics: {
+        decisionsCount: 0,
+        topicsCount: 0,
+        actionsCount: 0,
+        targetCutover: "YYYY-MM-DD"
+      },
+      executiveSummary: {
+        objective: "",
+        decisions: [],
+        impacts: [],
+        risks: []
+      },
+      fiveSentenceSummary: "",
+      topics: [],
+      actionItems: []
+    };
+
+    function initDashboard(data) {
+      document.getElementById('display-title').innerText = data.meetingTitle;
+      document.getElementById('display-date').innerText = data.date;
+      
+      const pContainer = document.getElementById('display-participants');
+      pContainer.innerHTML = data.participants.map(p => `<span class="participant-pill">${p}</span>`).join('');
+
+      document.getElementById('kpi-decisions').innerText = data.metrics.decisionsCount;
+      document.getElementById('kpi-topics').innerText = data.metrics.topicsCount;
+      document.getElementById('kpi-actions').innerText = data.metrics.actionsCount;
+      document.getElementById('kpi-cutover').innerText = data.metrics.targetCutover || 'TBD';
+
+      document.getElementById('display-objective').innerText = data.executiveSummary.objective;
+      document.getElementById('display-decisions').innerHTML = data.executiveSummary.decisions.map(d => `<li>${d}</li>`).join('');
+      document.getElementById('display-impacts').innerHTML = data.executiveSummary.impacts.map(i => `<li>${i}</li>`).join('');
+      document.getElementById('display-risks').innerHTML = data.executiveSummary.risks.map(r => `<li>${r}</li>`).join('');
+      document.getElementById('display-five-sentence').innerText = data.fiveSentenceSummary;
+
+      renderKnowledgeGraph(data.topics);
+      renderGanttChart(data.actionItems);
+      renderKanbanBoard(data.actionItems, data.participants);
+      renderActionTable(data.actionItems);
+      renderTopicAccordions(data.topics);
+    }
+
+    function switchMainTab(tabKey, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + tabKey).classList.add('active');
+      if (tabKey === 'graph') {
+        renderKnowledgeGraph(MEETING_DATA.topics);
+      }
+    }
+
+    function switchActionSubTab(subKey, btn) {
+      document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('subview-gantt').style.display = subKey === 'gantt' ? 'block' : 'none';
+      document.getElementById('subview-kanban').style.display = subKey === 'kanban' ? 'grid' : 'none';
+      document.getElementById('subview-table').style.display = subKey === 'table' ? 'block' : 'none';
+    }
+
+    function copyFiveSentence() {
+      navigator.clipboard.writeText(MEETING_DATA.fiveSentenceSummary).then(() => {
+        alert("Five-sentence summary copied to clipboard.");
+      });
+    }
+
+    function renderKnowledgeGraph(topics) {
+      const svg = document.getElementById('graph-svg');
+      svg.innerHTML = '';
+      const w = svg.clientWidth || 800;
+      const h = svg.clientHeight || 550;
+      const cx = w / 2;
+      const cy = h / 2;
+
+      // Draw Center Root Node
+      const rootG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      rootG.innerHTML = `
+        <circle cx="${cx}" cy="${cy}" r="45" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+        <text x="${cx}" y="${cy}" text-anchor="middle" dy="0.3em" fill="#ffffff" font-size="11" font-weight="700">MEETING GOAL</text>
+      `;
+      svg.appendChild(rootG);
+
+      const radius = Math.min(w, h) * 0.35;
+      const angleStep = (2 * Math.PI) / (topics.length || 1);
+
+      topics.forEach((t, idx) => {
+        const angle = idx * angleStep;
+        const tx = cx + radius * Math.cos(angle);
+        const ty = cy + radius * Math.sin(angle);
+
+        // Line
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', cx);
+        line.setAttribute('y1', cy);
+        line.setAttribute('x2', tx);
+        line.setAttribute('y2', ty);
+        line.setAttribute('stroke', '#334155');
+        line.setAttribute('stroke-width', '1.5');
+        line.setAttribute('stroke-dasharray', '4 2');
+        svg.appendChild(line);
+
+        // Topic Node
+        const tg = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        tg.setAttribute('cursor', 'pointer');
+        tg.onclick = () => openInspector(t);
+        tg.innerHTML = `
+          <circle cx="${tx}" cy="${ty}" r="32" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+          <text x="${tx}" y="${ty}" text-anchor="middle" dy="0.35em" fill="#f8fafc" font-size="10" font-weight="600">TOPIC ${idx + 1}</text>
+        `;
+        svg.appendChild(tg);
+      });
+    }
+
+    function openInspector(topic) {
+      document.getElementById('inspector-title').innerText = topic.title;
+      document.getElementById('inspector-context').innerText = topic.context;
+      document.getElementById('inspector-mechanism').innerText = topic.explanation;
+      document.getElementById('inspector-rationale').innerText = topic.rationale;
+      document.getElementById('inspector-conclusion').innerText = topic.conclusion;
+      document.getElementById('inspector-drawer').classList.add('open');
+    }
+
+    function closeInspector() {
+      document.getElementById('inspector-drawer').classList.remove('open');
+    }
+
+    function renderGanttChart(actions) {
+      const container = document.getElementById('gantt-chart');
+      if (!container) return;
+      container.innerHTML = actions.map((act, i) => {
+        const widthPct = Math.min(100, 30 + (i * 12));
+        return `
+          <div class="gantt-row">
+            <div class="gantt-task-name">${act.description}</div>
+            <div class="gantt-bar-track">
+              <div class="gantt-bar" style="width: ${widthPct}%;">${act.assignee}</div>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-muted); text-align:right;">${act.deadline}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderKanbanBoard(actions, participants) {
+      const container = document.getElementById('subview-kanban');
+      if (!container) return;
+      const assignees = [...new Set(actions.map(a => a.assignee))];
+      container.innerHTML = assignees.map(owner => {
+        const tasks = actions.filter(a => a.assignee === owner);
+        return `
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <span class="kanban-col-title">${owner}</span>
+              <span class="badge badge-slate">${tasks.length}</span>
+            </div>
+            ${tasks.map(t => `
+              <div class="kanban-card">
+                <div class="kanban-card-title">${t.description}</div>
+                <div class="kanban-card-meta">
+                  <span>${t.deadline}</span>
+                  <span>${t.deliverable ? 'Deliverable Defined' : ''}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderActionTable(actions) {
+      const tbody = document.getElementById('table-body-actions');
+      if (!tbody) return;
+      tbody.innerHTML = actions.map(act => `
+        <tr>
+          <td style="font-weight:500; color:var(--text-primary);">${act.description}</td>
+          <td><span class="badge badge-slate">${act.assignee}</span></td>
+          <td>${act.deadline}</td>
+          <td>${act.deliverable}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderTopicAccordions(topics) {
+      const container = document.getElementById('topics-accordion-list');
+      if (!container) return;
+      container.innerHTML = topics.map((t, idx) => `
+        <div class="topic-accordion">
+          <div class="topic-header" onclick="toggleAccordion(${idx})">
+            <span style="font-weight:600; color:var(--text-primary);">${idx + 1}. ${t.title}</span>
+            <span style="color:var(--text-muted); font-size:0.8rem;">[Expand / Collapse]</span>
+          </div>
+          <div class="topic-body" id="topic-body-${idx}">
+            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Context:</strong> ${t.context}</p>
+            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Mechanism:</strong> ${t.explanation}</p>
+            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">The 'Why':</strong> ${t.rationale}</p>
+            <p><strong style="color:var(--accent-blue);">Conclusion:</strong> ${t.conclusion}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleAccordion(idx) {
+      const el = document.getElementById('topic-body-' + idx);
+      el.classList.toggle('open');
+    }
+
+    window.onload = () => initDashboard(MEETING_DATA);
+  </script>
+</body>
+</html>

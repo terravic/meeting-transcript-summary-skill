@@ -110,11 +110,12 @@ A single paragraph containing exactly five complete, high-density sentences summ
 
 ## Output Format Modes
 
-The skill supports three delivery modes based on user requirements:
+The skill supports four delivery modes based on user requirements:
 
 1. **Rendered Markdown (Default):** Output standard Markdown directly to the chat stream. The host agent harness automatically parses and renders this into visual rich text with styled headers, structured bullet lists, and graphical tables. This format is optimized for non-technical users to select, copy, and paste directly into Google Docs, Microsoft Word, Confluence, or email without losing styling.
 2. **Raw Markdown Code Block:** When prompted for "raw markdown", wrap the complete output inside a fenced code block (` ```markdown ... ``` `) with a one-click copy button, allowing immediate transfer into code repositories or `.md` files.
 3. **Dual Output Mode:** When prompted for "dual output" or "both rendered and raw", deliver the complete rendered output first, followed by a divider and a fenced code block containing the exact raw Markdown.
+4. **Interactive Canvas UI Mode:** When prompted for "canvas", "dashboard", "visual UI", or "interactive summary", generate a self-contained HTML/JS/CSS document (`meeting_dashboard.html` or ` ```html ... ``` ` code block) implementing the interactive Executive Overview, SVG Knowledge Graph with Topic Inspector, and Multi-View Action Items (Gantt timeline, Kanban by owner, and sortable data table) following the reference guide in `references/canvas_ui_guide.md` and template in `templates/meeting_dashboard_template.html`.
 
 ---
 
