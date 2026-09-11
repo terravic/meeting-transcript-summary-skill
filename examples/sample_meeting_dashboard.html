@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meeting Intelligence Dashboard - Event Streaming Migration</title>
   <style>
-    :root {
+    :root, [data-theme="dark"] {
       --bg-primary: #0f172a;
       --bg-secondary: #1e293b;
       --bg-tertiary: #334155;
+      --bg-drawer: #0b1120;
       --text-primary: #f8fafc;
       --text-secondary: #94a3b8;
       --text-muted: #64748b;
@@ -23,6 +24,22 @@
       --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --bg-drawer: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --accent-blue: #0284c7;
+      --accent-blue-hover: #0369a1;
+      --accent-emerald: #059669;
+      --accent-amber: #d97706;
+      --accent-rose: #e11d48;
+      --border-color: #e2e8f0;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: var(--bg-primary);
@@ -32,12 +49,14 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     header {
       background-color: var(--bg-secondary);
       border-bottom: 1px solid var(--border-color);
       padding: 1rem 1.5rem;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
     }
 
     .header-top {
@@ -62,6 +81,40 @@
       font-size: 0.875rem;
       align-items: center;
     }
+
+    /* Theme Toggle Button (Icon Only) */
+    .theme-toggle-btn {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-md);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      padding: 0;
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: var(--accent-blue-hover);
+      color: #ffffff;
+      border-color: var(--accent-blue-hover);
+    }
+
+    .theme-toggle-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    [data-theme="dark"] .theme-toggle-btn .moon-icon { display: none; }
+    [data-theme="dark"] .theme-toggle-btn .sun-icon { display: block; }
+    [data-theme="light"] .theme-toggle-btn .sun-icon { display: none; }
+    [data-theme="light"] .theme-toggle-btn .moon-icon { display: block; }
+    :root:not([data-theme]) .theme-toggle-btn .moon-icon { display: none; }
+    :root:not([data-theme]) .theme-toggle-btn .sun-icon { display: block; }
 
     .badge {
       display: inline-block;
@@ -218,15 +271,21 @@
       background-color: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      height: 600px;
+      height: 620px;
       overflow: hidden;
       display: flex;
     }
 
-    .graph-canvas-area {
+    .graph-stage-area {
       flex: 1;
       height: 100%;
       position: relative;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .graph-stage-area.grabbing {
+      cursor: grabbing;
     }
 
     .graph-search-bar {
@@ -234,11 +293,12 @@
       top: 1rem;
       left: 1rem;
       z-index: 10;
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       padding: 0.5rem 0.75rem;
       width: 300px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
     }
 
     .graph-search-bar input {
@@ -250,9 +310,94 @@
       outline: none;
     }
 
+    /* Floating Graph Zoom Controls */
+    .graph-controls {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 15;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.35rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .graph-ctrl-btn {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      padding: 0;
+    }
+
+    .graph-ctrl-btn:hover {
+      background-color: var(--accent-blue-hover);
+      color: #ffffff;
+      border-color: var(--accent-blue-hover);
+    }
+
+    .graph-ctrl-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Node & Link visual states */
+    .node-group {
+      cursor: grab;
+      transition: opacity 0.2s ease, filter 0.2s ease;
+    }
+
+    .node-group:active {
+      cursor: grabbing;
+    }
+
+    .node-group text {
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .node-group circle {
+      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
+      transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+    }
+
+    .node-group.active circle {
+      stroke: var(--accent-blue) !important;
+      stroke-width: 3.5px !important;
+      filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.8)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+    }
+
+    .node-group.dimmed {
+      opacity: 0.25;
+    }
+
+    .edge-group {
+      transition: opacity 0.2s ease;
+    }
+
+    .edge-group.dimmed {
+      opacity: 0.15;
+    }
+
+    .edge-group.highlighted line {
+      stroke: var(--accent-blue) !important;
+      stroke-width: 2.5px !important;
+    }
+
     .inspector-drawer {
       width: 400px;
-      background-color: #0b1120;
+      background-color: var(--bg-drawer);
       border-left: 1px solid var(--border-color);
       padding: 1.5rem;
       overflow-y: auto;
@@ -435,7 +580,7 @@
     .topic-body {
       padding: 1.25rem;
       border-top: 1px solid var(--border-color);
-      background-color: #0b1120;
+      background-color: var(--bg-drawer);
       display: none;
     }
     .topic-body.open { display: block; }
@@ -452,6 +597,22 @@
       <div class="meeting-meta">
         <span class="badge badge-primary" id="display-date">2026-08-14</span>
         <span class="badge badge-slate">Synthesis Verified</span>
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle light and dark mode" title="Toggle theme">
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
       </div>
     </div>
     <div class="nav-tabs">
@@ -511,8 +672,33 @@
         <div class="graph-search-bar">
           <input type="text" id="graph-search-input" placeholder="Search topics & rationale..." oninput="filterGraphNodes(this.value)">
         </div>
-        <div class="graph-canvas-area" id="graph-canvas-container">
-          <svg id="graph-svg" width="100%" height="100%"></svg>
+
+        <!-- Floating Graph Zoom Controls -->
+        <div class="graph-controls">
+          <button class="graph-ctrl-btn" onclick="graphZoomIn()" title="Zoom In" aria-label="Zoom In">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <button class="graph-ctrl-btn" onclick="graphZoomOut()" title="Zoom Out" aria-label="Zoom Out">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <button class="graph-ctrl-btn" onclick="graphResetZoom()" title="Reset View" aria-label="Reset View">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <polyline points="3 3 3 8 8 8"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div class="graph-stage-area" id="graph-stage-container">
+          <svg id="graph-svg" width="100%" height="100%">
+            <defs id="graph-defs"></defs>
+            <g id="graph-viewport"></g>
+          </svg>
         </div>
         <div class="inspector-drawer" id="inspector-drawer">
           <div class="inspector-header">
@@ -597,21 +783,21 @@
         targetCutover: "2026-10-03"
       },
       executiveSummary: {
-        objective: "Finalize the architectural, financial, security, and scheduling plans for migrating the enterprise event streaming infrastructure from self-hosted Apache Kafka on EC2 to Google Cloud Pub/Sub.",
+        objective: "Finalize the architectural, financial, security, and scheduling plans for migrating the enterprise event streaming infrastructure from self-hosted message broker clusters on virtual compute instances to a managed cloud publish-subscribe platform.",
         decisions: [
-          "Approved full platform migration from self-hosted Kafka to Google Cloud Pub/Sub.",
-          "Standardized on Protocol Buffers version 3 (Protobuf) for message serialization and schema enforcement, rejecting Apache Avro.",
-          "Mandated Google Cloud Pub/Sub Schema Registry enforcement at the topic boundary with strict backward compatibility rules.",
-          "Enforced Customer-Managed Encryption Keys (CMEK), VPC Service Controls (VPC-SC), and Workload Identity Federation IAM policies.",
+          "Approved full platform migration from the self-hosted broker to the managed cloud messaging platform.",
+          "Standardized on Protocol Buffers version 3 (Protobuf) for message serialization and schema enforcement, deprecating unvalidated JSON payloads.",
+          "Mandated schema registry enforcement at the topic boundary with strict backward compatibility rules.",
+          "Enforced Customer-Managed Encryption Keys (CMEK), Virtual Private Cloud (VPC) service perimeters, and short-lived identity federation policies.",
           "Approved target timeline: Dual-publishing in staging by September 5, 2026; InfoSec audit complete by September 12, 2026; production cutover scheduled for October 3, 2026."
         ],
         impacts: [
-          "Reduces net messaging infrastructure and operational costs by 28%, eliminating approximately 22 hours per month of manual Kafka broker maintenance and partition rebalancing.",
+          "Reduces net messaging infrastructure and operational costs by 28%, eliminating approximately 22 hours per month of manual broker maintenance and partition rebalancing.",
           "Resolves consumer rebalance lag spikes (previously exceeding 4 minutes during peak traffic), achieving sub-26 millisecond p99 publish latency at 65,000 QPS.",
           "Eliminates silent schema drift across polyglot microservices via centralized schema validation and automated CI tooling."
         ],
         risks: [
-          "InfoSec compliance approval is a hard gate prior to staging sign-off, requiring complete VPC-SC perimeter validation by September 12, 2026.",
+          "InfoSec compliance approval is a hard gate prior to staging sign-off, requiring complete VPC perimeter validation by September 12, 2026.",
           "Memory footprint impact on legacy Python consumer workers using streaming pull clients remains unbenchmarked and unassigned."
         ]
       },
@@ -620,26 +806,26 @@
           id: "topic-1",
           title: "Messaging Platform Migration Evaluation",
           shortTitle: "Platform Migration",
-          context: "The organization operates an 18-node r5.2xlarge Apache Kafka cluster across three AZs with a 5-node ZooKeeper quorum, consuming 22 hours per month in operational maintenance with consumer lag exceeding 4 minutes under load.",
-          explanation: "Data engineering benchmarked Kafka 3.8 (KRaft mode) against Google Cloud Pub/Sub. Pub/Sub achieved 65,000 QPS with 14ms average and 26ms p99 latency across multi-region topics. Financial modeling showed Pub/Sub costs $11,800/mo vs Kafka's $22,700/mo total cost of ownership (28% net savings).",
-          rationale: "Kafka KRaft was dismissed because it did not eliminate manual partition scaling or broker rebalancing storms. Google Cloud Pub/Sub was selected for full autoscaling and zero broker maintenance.",
-          conclusion: "Unanimously approved migration of all event streaming workloads to Google Cloud Pub/Sub."
+          context: "The organization operates an 18-node broker cluster across three AZs with a 5-node coordination quorum, consuming 22 hours per month in operational maintenance with consumer lag exceeding 4 minutes under load.",
+          explanation: "Data engineering benchmarked self-hosted broker upgrade options against the managed cloud messaging service. Cloud messaging achieved 65,000 QPS with 14ms average and 26ms p99 latency across multi-region topics. Financial modeling showed cloud messaging costs $11,800/mo vs self-hosting's $22,700/mo total cost of ownership (28% net savings).",
+          rationale: "Upgrading self-hosted software was dismissed because it did not eliminate manual partition scaling or broker rebalancing storms. The managed cloud messaging platform was selected for full autoscaling and zero broker maintenance.",
+          conclusion: "Unanimously approved migration of all event streaming workloads to the managed cloud messaging platform."
         },
         {
           id: "topic-2",
           title: "Schema Evolution and Serialization Standard",
           shortTitle: "Protobuf Schemas",
           context: "Downstream consumers currently parse unvalidated JSON blobs, causing production parser crashes due to undetected schema drift.",
-          explanation: "Evaluated Apache Avro vs Protobuf v3. Protobuf v3 payloads are 42% smaller than JSON and 15% smaller than Avro. Direct integration with Google Cloud Pub/Sub Schema Registry provides boundary-level payload rejection for non-compliant producers.",
-          rationale: "Although Avro had historical analytics support in Snowflake, Protobuf was selected for superior polyglot microservice performance (Go, Java, TypeScript) and strongly typed stub generation.",
-          conclusion: "Adopt Protobuf v3 with Schema Registry enforcement and centralized schema repository managed via Buf."
+          explanation: "Evaluated legacy binary schema formats vs Protobuf v3. Protobuf v3 payloads are 42% smaller than JSON and 15% smaller than legacy binary schemas. Direct integration with the central schema registry provides boundary-level payload rejection for non-compliant producers.",
+          rationale: "Protobuf was selected for superior polyglot microservice performance (Go, Java, TypeScript), smaller wire size, and strongly typed stub generation.",
+          conclusion: "Adopt Protobuf v3 with schema registry enforcement and centralized schema repository with CI linting."
         },
         {
           id: "topic-3",
           title: "Security, Governance, and Compliance Controls",
           shortTitle: "CMEK & Security",
           context: "Enterprise compliance mandates strict isolation, customer key ownership, and identity governance before routing production traffic.",
-          explanation: "Mandated CMEK encryption using Google Cloud KMS key ring in us-central1, VPC Service Controls perimeters around Pub/Sub, and short-lived Workload Identity Federation tokens with granular roles (roles/pubsub.publisher, roles/pubsub.subscriber).",
+          explanation: "Mandated CMEK encryption using Key Management Service (KMS) key ring in us-central1, VPC service perimeters around messaging endpoints, and short-lived identity federation tokens with granular roles (roles/messaging.publisher, roles/messaging.subscriber).",
           rationale: "Infrastructure-as-code automation in Terraform ensures zero configuration drift and guarantees compliance prior to cutover.",
           conclusion: "Implement all security perimeters and IAM bindings in reusable Terraform modules."
         },
@@ -661,7 +847,7 @@
       ],
       actionItems: [
         {
-          description: "Develop reusable Terraform module for Google Cloud Pub/Sub with CMEK and IAM hardening",
+          description: "Develop reusable Terraform module for cloud messaging with CMEK and IAM hardening",
           assignee: "Tom Bradley",
           deadline: "2026-08-28",
           deliverable: "Terraform module submitted and approved in repository"
@@ -670,10 +856,10 @@
           description: "Implement dual-publishing adapter in core event gateway",
           assignee: "Marcus Vance",
           deadline: "2026-09-05",
-          deliverable: "Gateway publishing simultaneously to Kafka and Pub/Sub in staging"
+          deliverable: "Gateway publishing simultaneously to legacy broker and cloud platform in staging"
         },
         {
-          description: "Conduct automated security validation scan on VPC-SC perimeters",
+          description: "Conduct automated security validation scan on VPC perimeters",
           assignee: "David Chen",
           deadline: "2026-09-12",
           deliverable: "InfoSec compliance report signed and published"
@@ -688,13 +874,13 @@
           description: "Benchmark memory footprint on legacy Python consumer workers with streaming pull client",
           assignee: "Unassigned",
           deadline: "Not Specified",
-          deliverable: "Resource utilization report comparing Kafka vs Pub/Sub client overhead"
+          deliverable: "Resource utilization report comparing legacy vs cloud messaging client overhead"
         },
         {
-          description: "Execute production cutover to Google Cloud Pub/Sub",
+          description: "Execute production cutover to cloud messaging platform",
           assignee: "Marcus Vance",
           deadline: "2026-10-03",
-          deliverable: "Production traffic routed to Pub/Sub; Kafka decommission plan initiated"
+          deliverable: "Production traffic routed to cloud platform; legacy broker decommission plan initiated"
         }
       ]
     };
@@ -767,162 +953,632 @@
       }
     }
 
+    // Physics Simulation & Knowledge Graph Engine
+    let graphState = {
+      nodes: [],
+      links: [],
+      activeTopicId: null,
+      zoom: 1.0,
+      panX: 0,
+      panY: 0,
+      isPanning: false,
+      panStartX: 0,
+      panStartY: 0,
+      draggedNode: null,
+      hasDraggedMoved: false,
+      animId: null,
+      cx: 400,
+      cy: 290,
+      width: 800,
+      height: 580,
+      isInitialized: false
+    };
+
+    function updateGraphViewportTransform() {
+      const vp = document.getElementById('graph-viewport');
+      if (vp) {
+        vp.setAttribute('transform', `translate(${graphState.panX}, ${graphState.panY}) scale(${graphState.zoom})`);
+      }
+    }
+
+    function graphZoomIn() {
+      const svg = document.getElementById('graph-svg');
+      const cx = (svg ? svg.clientWidth : 800) / 2;
+      const cy = (svg ? svg.clientHeight : 580) / 2;
+      const newZoom = Math.min(3.0, graphState.zoom * 1.25);
+      graphState.panX = cx - (cx - graphState.panX) * (newZoom / graphState.zoom);
+      graphState.panY = cy - (cy - graphState.panY) * (newZoom / graphState.zoom);
+      graphState.zoom = newZoom;
+      updateGraphViewportTransform();
+    }
+
+    function graphZoomOut() {
+      const svg = document.getElementById('graph-svg');
+      const cx = (svg ? svg.clientWidth : 800) / 2;
+      const cy = (svg ? svg.clientHeight : 580) / 2;
+      const newZoom = Math.max(0.35, graphState.zoom * 0.8);
+      graphState.panX = cx - (cx - graphState.panX) * (newZoom / graphState.zoom);
+      graphState.panY = cy - (cy - graphState.panY) * (newZoom / graphState.zoom);
+      graphState.zoom = newZoom;
+      updateGraphViewportTransform();
+    }
+
+    function graphResetZoom() {
+      graphState.zoom = 1.0;
+      graphState.panX = 0;
+      graphState.panY = 0;
+      updateGraphViewportTransform();
+    }
+
     function renderKnowledgeGraph(topics, relationships) {
       const svg = document.getElementById('graph-svg');
-      if (!svg) return;
-      svg.innerHTML = '';
-      
+      const defs = document.getElementById('graph-defs');
+      const viewport = document.getElementById('graph-viewport');
+      if (!svg || !viewport) return;
+
       const w = svg.clientWidth || 800;
       const h = svg.clientHeight || 580;
-      const cx = w / 2;
-      const cy = h / 2;
+      graphState.width = w;
+      graphState.height = h;
+      graphState.cx = w / 2;
+      graphState.cy = h / 2;
 
-      // Create defs for arrow markers
-      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-      defs.innerHTML = `
-        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
-        </marker>
-        <marker id="arrow-subtle" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
-        </marker>
-      `;
-      svg.appendChild(defs);
+      // Initialize defs markers
+      if (defs) {
+        defs.innerHTML = `
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+          </marker>
+          <marker id="arrow-subtle" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+          </marker>
+        `;
+      }
 
-      // Compute topic node positions around perimeter
-      const nodePositions = {};
-      const radius = Math.min(w, h) * 0.36;
+      // 1. Build Nodes Array
+      const nodes = [];
+      const nodeMap = {};
+
+      // Central Goal Root Node
+      const rootNode = {
+        id: 'root',
+        title: 'Meeting Core Objective',
+        shortTitle: 'MIGRATION GOALS',
+        x: graphState.cx,
+        y: graphState.cy,
+        vx: 0,
+        vy: 0,
+        r: 52,
+        isRoot: true,
+        topicData: {
+          title: MEETING_DATA.meetingTitle,
+          context: MEETING_DATA.executiveSummary.objective,
+          explanation: MEETING_DATA.executiveSummary.decisions.join('; '),
+          rationale: MEETING_DATA.executiveSummary.impacts.join('; '),
+          conclusion: 'InfoSec Audit & Shadow Validation Contingencies: ' + MEETING_DATA.executiveSummary.risks.join('; ')
+        }
+      };
+      nodes.push(rootNode);
+      nodeMap['root'] = rootNode;
+
+      // Topic Nodes placed around initial perimeter with ample spacing
+      const radius = Math.max(Math.min(w, h) * 0.40, 240);
       const angleStep = (2 * Math.PI) / topics.length;
 
       topics.forEach((t, idx) => {
         const angle = idx * angleStep - Math.PI / 4;
-        const tx = cx + radius * Math.cos(angle);
-        const ty = cy + radius * Math.sin(angle);
-        nodePositions[t.id] = { x: tx, y: ty, topic: t };
+        const node = {
+          id: t.id,
+          title: t.title,
+          shortTitle: t.shortTitle,
+          x: graphState.cx + radius * Math.cos(angle),
+          y: graphState.cy + radius * Math.sin(angle),
+          vx: 0,
+          vy: 0,
+          r: 46,
+          isRoot: false,
+          topicData: t
+        };
+        nodes.push(node);
+        nodeMap[t.id] = node;
       });
 
-      // 1. Draw Central Links from Goal to Topics
+      // 2. Build Links Array
+      const links = [];
+      // Radial links from Root to each Topic
       topics.forEach(t => {
-        const pos = nodePositions[t.id];
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', cx);
-        line.setAttribute('y1', cy);
-        line.setAttribute('x2', pos.x);
-        line.setAttribute('y2', pos.y);
-        line.setAttribute('stroke', '#334155');
-        line.setAttribute('stroke-width', '1.5');
-        line.setAttribute('stroke-dasharray', '4 3');
-        svg.appendChild(line);
+        const targetNode = nodeMap[t.id];
+        if (targetNode) {
+          links.push({
+            id: `link-root-${t.id}`,
+            from: rootNode,
+            to: targetNode,
+            isRadial: true,
+            targetDist: 240,
+            strength: 0.025
+          });
+        }
       });
 
-      // 2. Draw Inter-Topic Relationship Edges
+      // Relationship links between topics
       if (relationships && relationships.length > 0) {
-        relationships.forEach(rel => {
-          const fromPos = nodePositions[rel.from];
-          const toPos = nodePositions[rel.to];
-          if (!fromPos || !toPos) return;
-
-          const dx = toPos.x - fromPos.x;
-          const dy = toPos.y - fromPos.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const nodeR = 48; // Node radius offset
-
-          if (dist > nodeR * 2) {
-            const startX = fromPos.x + (dx / dist) * nodeR;
-            const startY = fromPos.y + (dy / dist) * nodeR;
-            const endX = toPos.x - (dx / dist) * nodeR;
-            const endY = toPos.y - (dy / dist) * nodeR;
-
-            const edgeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            
-            const edgeLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            edgeLine.setAttribute('x1', startX);
-            edgeLine.setAttribute('y1', startY);
-            edgeLine.setAttribute('x2', endX);
-            edgeLine.setAttribute('y2', endY);
-            edgeLine.setAttribute('stroke', '#0284c7');
-            edgeLine.setAttribute('stroke-width', '2');
-            edgeLine.setAttribute('marker-end', 'url(#arrow)');
-            edgeG.appendChild(edgeLine);
-
-            if (rel.label) {
-              const midX = (startX + endX) / 2;
-              const midY = (startY + endY) / 2;
-
-              const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-              bgRect.setAttribute('x', midX - 35);
-              bgRect.setAttribute('y', midY - 9);
-              bgRect.setAttribute('width', 70);
-              bgRect.setAttribute('height', 18);
-              bgRect.setAttribute('rx', 4);
-              bgRect.setAttribute('fill', '#0b1120');
-              bgRect.setAttribute('stroke', '#334155');
-              bgRect.setAttribute('stroke-width', '1');
-              edgeG.appendChild(bgRect);
-
-              const lblText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-              lblText.setAttribute('x', midX);
-              lblText.setAttribute('y', midY + 4);
-              lblText.setAttribute('text-anchor', 'middle');
-              lblText.setAttribute('fill', '#38bdf8');
-              lblText.setAttribute('font-size', '9');
-              lblText.setAttribute('font-weight', '600');
-              lblText.textContent = rel.label;
-              edgeG.appendChild(lblText);
-            }
-            svg.appendChild(edgeG);
+        relationships.forEach((rel, rIdx) => {
+          const fromNode = nodeMap[rel.from];
+          const toNode = nodeMap[rel.to];
+          if (fromNode && toNode) {
+            links.push({
+              id: `link-rel-${rIdx}`,
+              from: fromNode,
+              to: toNode,
+              label: rel.label,
+              isRadial: false,
+              targetDist: 220,
+              strength: 0.020
+            });
           }
         });
       }
 
-      // 3. Draw Center Root Node
-      const rootG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      rootG.innerHTML = `
-        <circle cx="${cx}" cy="${cy}" r="48" fill="#0369a1" stroke="#38bdf8" stroke-width="2.5"/>
-        <text x="${cx}" y="${cy - 5}" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">MIGRATION</text>
-        <text x="${cx}" y="${cy + 9}" text-anchor="middle" fill="#e0f2fe" font-size="8.5" font-weight="500">GOALS</text>
+      graphState.nodes = nodes;
+      graphState.links = links;
+
+      // 3. Render SVG DOM Structure
+      viewport.innerHTML = `
+        <g class="links-layer" id="graph-links-layer"></g>
+        <g class="edges-layer" id="graph-edges-layer"></g>
+        <g class="nodes-layer" id="graph-nodes-layer"></g>
       `;
-      svg.appendChild(rootG);
 
-      // 4. Draw Topic Nodes with Short Titles
-      topics.forEach(t => {
-        const pos = nodePositions[t.id];
-        const words = t.shortTitle.split(' ');
-        const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
-        const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+      const linksLayer = document.getElementById('graph-links-layer');
+      const edgesLayer = document.getElementById('graph-edges-layer');
+      const nodesLayer = document.getElementById('graph-nodes-layer');
 
-        const tg = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        tg.setAttribute('cursor', 'pointer');
-        tg.onclick = () => openInspector(t);
-        tg.innerHTML = `
-          <circle cx="${pos.x}" cy="${pos.y}" r="46" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
-          <text x="${pos.x}" y="${pos.y - (line2 ? 4 : 0)}" text-anchor="middle" fill="#f8fafc" font-size="10" font-weight="700">${line1}</text>
-          ${line2 ? `<text x="${pos.x}" y="${pos.y + 11}" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="500">${line2}</text>` : ''}
-        `;
-        svg.appendChild(tg);
+      const isLight = (document.documentElement.getAttribute('data-theme') === 'light');
+      const edgeStroke = isLight ? '#cbd5e1' : '#334155';
+      const labelBg = isLight ? '#ffffff' : '#0b1120';
+      const labelBorder = isLight ? '#e2e8f0' : '#334155';
+      const labelText = isLight ? '#0284c7' : '#38bdf8';
+      const nodeFill = isLight ? '#ffffff' : '#1e293b';
+      const nodeBorder = isLight ? '#0284c7' : '#38bdf8';
+      const nodeText1 = isLight ? '#0f172a' : '#f8fafc';
+      const nodeText2 = isLight ? '#475569' : '#94a3b8';
+      const rootFill = isLight ? '#0284c7' : '#0369a1';
+      const rootStroke = '#38bdf8';
+
+      // Create DOM elements for links
+      links.forEach(link => {
+        if (link.isRadial) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('id', link.id);
+          line.setAttribute('stroke', edgeStroke);
+          line.setAttribute('stroke-width', '1.5');
+          line.setAttribute('stroke-dasharray', '4 3');
+          linksLayer.appendChild(line);
+          link.domLine = line;
+        } else {
+          const edgeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          edgeG.setAttribute('id', link.id);
+          edgeG.setAttribute('class', 'edge-group');
+
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('stroke', '#0284c7');
+          line.setAttribute('stroke-width', '2');
+          line.setAttribute('marker-end', 'url(#arrow)');
+          edgeG.appendChild(line);
+
+          let labelBgRect = null;
+          let labelTextEl = null;
+
+          if (link.label) {
+            labelBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            labelBgRect.setAttribute('width', 74);
+            labelBgRect.setAttribute('height', 18);
+            labelBgRect.setAttribute('rx', 4);
+            labelBgRect.setAttribute('fill', labelBg);
+            labelBgRect.setAttribute('stroke', labelBorder);
+            labelBgRect.setAttribute('stroke-width', '1');
+            edgeG.appendChild(labelBgRect);
+
+            labelTextEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            labelTextEl.setAttribute('text-anchor', 'middle');
+            labelTextEl.setAttribute('fill', labelText);
+            labelTextEl.setAttribute('font-size', '9');
+            labelTextEl.setAttribute('font-weight', '600');
+            labelTextEl.textContent = link.label;
+            edgeG.appendChild(labelTextEl);
+          }
+
+          edgesLayer.appendChild(edgeG);
+          link.domG = edgeG;
+          link.domLine = line;
+          link.domRect = labelBgRect;
+          link.domText = labelTextEl;
+        }
+      });
+
+      // Create DOM elements for nodes
+      nodes.forEach(node => {
+        const nodeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        nodeG.setAttribute('id', `node-g-${node.id}`);
+        nodeG.setAttribute('class', 'node-group');
+
+        if (node.isRoot) {
+          nodeG.innerHTML = `
+            <circle cx="0" cy="0" r="${node.r}" fill="${rootFill}" stroke="${rootStroke}" stroke-width="2.5"/>
+            <text x="0" y="-5" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">MIGRATION</text>
+            <text x="0" y="9" text-anchor="middle" fill="#e0f2fe" font-size="8.5" font-weight="500">GOALS</text>
+          `;
+        } else {
+          const words = node.shortTitle.split(' ');
+          const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
+          const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+          nodeG.innerHTML = `
+            <circle cx="0" cy="0" r="${node.r}" fill="${nodeFill}" stroke="${nodeBorder}" stroke-width="2"/>
+            <text x="0" y="${line2 ? -4 : 0}" text-anchor="middle" fill="${nodeText1}" font-size="10" font-weight="700">${line1}</text>
+            ${line2 ? `<text x="0" y="11" text-anchor="middle" fill="${nodeText2}" font-size="9" font-weight="500">${line2}</text>` : ''}
+          `;
+        }
+
+        // Mouse & Drag events for node
+        nodeG.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+          graphState.draggedNode = node;
+          graphState.dragStartX = e.clientX;
+          graphState.dragStartY = e.clientY;
+          graphState.hasDraggedMoved = false;
+        });
+
+        nodeG.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (!graphState.hasDraggedMoved) {
+            selectGraphNode(node);
+          }
+        });
+
+        nodesLayer.appendChild(nodeG);
+        node.domG = nodeG;
+      });
+
+      // 4. Setup Pan / Zoom & Graph Viewport Events (Once)
+      if (!graphState.isInitialized) {
+        setupGraphInteractionEvents(svg);
+        graphState.isInitialized = true;
+      }
+
+      updateGraphViewportTransform();
+
+      // 5. Start Physics Animation Loop
+      if (graphState.animId) {
+        cancelAnimationFrame(graphState.animId);
+      }
+      runPhysicsSimulation();
+    }
+
+    function setupGraphInteractionEvents(svg) {
+      const container = document.getElementById('graph-stage-container');
+
+      // Mouse wheel zoom
+      svg.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const rect = svg.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
+        const newZoom = Math.min(3.0, Math.max(0.35, graphState.zoom * zoomFactor));
+        
+        graphState.panX = mouseX - (mouseX - graphState.panX) * (newZoom / graphState.zoom);
+        graphState.panY = mouseY - (mouseY - graphState.panY) * (newZoom / graphState.zoom);
+        graphState.zoom = newZoom;
+        updateGraphViewportTransform();
+      }, { passive: false });
+
+      // Graph background mousedown -> pan
+      svg.addEventListener('mousedown', (e) => {
+        if (e.target === svg || e.target.id === 'graph-viewport' || e.target.tagName === 'line' || e.target.classList.contains('links-layer')) {
+          graphState.isPanning = true;
+          graphState.panStartX = e.clientX - graphState.panX;
+          graphState.panStartY = e.clientY - graphState.panY;
+          if (container) container.classList.add('grabbing');
+        }
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (graphState.isPanning) {
+          graphState.panX = e.clientX - graphState.panStartX;
+          graphState.panY = e.clientY - graphState.panStartY;
+          updateGraphViewportTransform();
+        } else if (graphState.draggedNode) {
+          const dx = e.clientX - graphState.dragStartX;
+          const dy = e.clientY - graphState.dragStartY;
+          if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+            graphState.hasDraggedMoved = true;
+          }
+          const rect = svg.getBoundingClientRect();
+          const mouseX = (e.clientX - rect.left - graphState.panX) / graphState.zoom;
+          const mouseY = (e.clientY - rect.top - graphState.panY) / graphState.zoom;
+          graphState.draggedNode.x = mouseX;
+          graphState.draggedNode.y = mouseY;
+          graphState.draggedNode.vx = 0;
+          graphState.draggedNode.vy = 0;
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (graphState.isPanning) {
+          graphState.isPanning = false;
+          if (container) container.classList.remove('grabbing');
+        }
+        if (graphState.draggedNode) {
+          graphState.draggedNode = null;
+        }
       });
     }
 
+    function runPhysicsSimulation() {
+      const nodes = graphState.nodes;
+      const links = graphState.links;
+      const cx = graphState.cx;
+      const cy = graphState.cy;
+
+      if (!nodes || nodes.length === 0) return;
+
+      // 1. Hard Collision Resolution & Non-Overlap Constraint
+      // Strictly prevents nodes from ever overlapping or covering each other
+      const padding = 30; // Buffer distance between circle borders
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const n1 = nodes[i];
+          const n2 = nodes[j];
+          const dx = n2.x - n1.x;
+          const dy = n2.y - n1.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+          const minDist = n1.r + n2.r + padding;
+
+          if (dist < minDist) {
+            const overlap = minDist - dist;
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            // Direct geometric displacement push-apart
+            if (n1 === graphState.draggedNode) {
+              n2.x += nx * overlap;
+              n2.y += ny * overlap;
+            } else if (n2 === graphState.draggedNode) {
+              n1.x -= nx * overlap;
+              n1.y -= ny * overlap;
+            } else {
+              n1.x -= nx * (overlap * 0.5);
+              n1.y -= ny * (overlap * 0.5);
+              n2.x += nx * (overlap * 0.5);
+              n2.y += ny * (overlap * 0.5);
+            }
+
+            // Impulse velocity to bounce away from collision
+            const impulse = overlap * 0.2;
+            n1.vx -= nx * impulse;
+            n1.vy -= ny * impulse;
+            n2.vx += nx * impulse;
+            n2.vy += ny * impulse;
+          }
+        }
+      }
+
+      // 2. Electrostatic Repulsion between all node pairs
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const n1 = nodes[i];
+          const n2 = nodes[j];
+          const dx = n2.x - n1.x;
+          const dy = n2.y - n1.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+          if (dist < 700) {
+            const force = -22000 / (dist * dist + 1600);
+            const fx = (dx / dist) * force;
+            const fy = (dy / dist) * force;
+            n1.vx += fx;
+            n1.vy += fy;
+            n2.vx -= fx;
+            n2.vy -= fy;
+          }
+        }
+      }
+
+      // 3. Link spring attraction
+      for (let i = 0; i < links.length; i++) {
+        const l = links[i];
+        const dx = l.to.x - l.from.x;
+        const dy = l.to.y - l.from.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+        const displacement = dist - l.targetDist;
+        const force = displacement * l.strength;
+        const fx = (dx / dist) * force;
+        const fy = (dy / dist) * force;
+        l.from.vx += fx;
+        l.from.vy += fy;
+        l.to.vx -= fx;
+        l.to.vy -= fy;
+      }
+
+      // 4. Centering force & integration
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i];
+        const dx = cx - n.x;
+        const dy = cy - n.y;
+        const gravity = n.isRoot ? 0.06 : 0.004;
+        n.vx += dx * gravity;
+        n.vy += dy * gravity;
+
+        // Friction damping
+        n.vx *= 0.82;
+        n.vy *= 0.82;
+
+        if (n !== graphState.draggedNode) {
+          n.x += n.vx;
+          n.y += n.vy;
+        }
+      }
+
+      // 5. Update SVG elements positions
+      // Radial links
+      for (let i = 0; i < links.length; i++) {
+        const l = links[i];
+        if (l.isRadial && l.domLine) {
+          l.domLine.setAttribute('x1', l.from.x);
+          l.domLine.setAttribute('y1', l.from.y);
+          l.domLine.setAttribute('x2', l.to.x);
+          l.domLine.setAttribute('y2', l.to.y);
+        } else if (!l.isRadial && l.domG) {
+          const dx = l.to.x - l.from.x;
+          const dy = l.to.y - l.from.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+          const rFrom = l.from.r || 46;
+          const rTo = l.to.r || 46;
+          if (dist > (rFrom + rTo)) {
+            const startX = l.from.x + (dx / dist) * rFrom;
+            const startY = l.from.y + (dy / dist) * rFrom;
+            const endX = l.to.x - (dx / dist) * rTo;
+            const endY = l.to.y - (dy / dist) * rTo;
+
+            l.domLine.setAttribute('x1', startX);
+            l.domLine.setAttribute('y1', startY);
+            l.domLine.setAttribute('x2', endX);
+            l.domLine.setAttribute('y2', endY);
+
+            if (l.domRect && l.domText) {
+              const midX = (startX + endX) / 2;
+              const midY = (startY + endY) / 2;
+              l.domRect.setAttribute('x', midX - 37);
+              l.domRect.setAttribute('y', midY - 9);
+              l.domText.setAttribute('x', midX);
+              l.domText.setAttribute('y', midY + 4);
+            }
+          }
+        }
+      }
+
+      // Node groups
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i];
+        if (n.domG) {
+          n.domG.setAttribute('transform', `translate(${n.x}, ${n.y})`);
+        }
+      }
+
+      graphState.animId = requestAnimationFrame(runPhysicsSimulation);
+    }
+
+    function selectGraphNode(node) {
+      graphState.activeTopicId = node.id;
+      openInspector(node.topicData);
+
+      // Highlight active node & connected edges, dim others
+      const connectedNodeIds = new Set([node.id]);
+      graphState.links.forEach(l => {
+        if (l.from.id === node.id) connectedNodeIds.add(l.to.id);
+        if (l.to.id === node.id) connectedNodeIds.add(l.from.id);
+      });
+
+      graphState.nodes.forEach(n => {
+        if (n.domG) {
+          if (n.id === node.id) {
+            n.domG.classList.add('active');
+            n.domG.classList.remove('dimmed');
+          } else if (connectedNodeIds.has(n.id)) {
+            n.domG.classList.remove('active', 'dimmed');
+          } else {
+            n.domG.classList.remove('active');
+            n.domG.classList.add('dimmed');
+          }
+        }
+      });
+
+      graphState.links.forEach(l => {
+        if (l.domG) {
+          if (l.from.id === node.id || l.to.id === node.id) {
+            l.domG.classList.add('highlighted');
+            l.domG.classList.remove('dimmed');
+          } else {
+            l.domG.classList.remove('highlighted');
+            l.domG.classList.add('dimmed');
+          }
+        }
+      });
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      try {
+        localStorage.setItem('meeting_dashboard_theme', newTheme);
+      } catch (e) {}
+      if (typeof renderKnowledgeGraph === 'function' && typeof MEETING_DATA !== 'undefined' && MEETING_DATA) {
+        renderKnowledgeGraph(MEETING_DATA.topics || [], MEETING_DATA.relationships || []);
+      }
+    }
+
+    (function initTheme() {
+      let savedTheme = 'dark';
+      try {
+        savedTheme = localStorage.getItem('meeting_dashboard_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      } catch (e) {}
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+
     function openInspector(topic) {
-      document.getElementById('inspector-title').innerText = topic.title;
-      document.getElementById('inspector-context').innerText = topic.context;
-      document.getElementById('inspector-mechanism').innerText = topic.explanation;
-      document.getElementById('inspector-rationale').innerText = topic.rationale;
-      document.getElementById('inspector-conclusion').innerText = topic.conclusion;
+      if (!topic) return;
+      document.getElementById('inspector-title').innerText = topic.title || 'Topic Detail';
+      document.getElementById('inspector-context').innerText = topic.context || '';
+      document.getElementById('inspector-mechanism').innerText = topic.explanation || '';
+      document.getElementById('inspector-rationale').innerText = topic.rationale || '';
+      document.getElementById('inspector-conclusion').innerText = topic.conclusion || '';
       document.getElementById('inspector-drawer').classList.add('open');
     }
 
     function closeInspector() {
       document.getElementById('inspector-drawer').classList.remove('open');
+      graphState.activeTopicId = null;
+
+      // Reset node and edge visual opacities
+      graphState.nodes.forEach(n => {
+        if (n.domG) {
+          n.domG.classList.remove('active', 'dimmed');
+        }
+      });
+      graphState.links.forEach(l => {
+        if (l.domG) {
+          l.domG.classList.remove('highlighted', 'dimmed');
+        }
+      });
     }
 
     function filterGraphNodes(query) {
-      const q = query.toLowerCase();
-      MEETING_DATA.topics.forEach(t => {
-        if (t.title.toLowerCase().includes(q) || t.shortTitle.toLowerCase().includes(q) || t.rationale.toLowerCase().includes(q)) {
-          openInspector(t);
+      const q = (query || '').toLowerCase().trim();
+      if (!q) {
+        closeInspector();
+        return;
+      }
+      let firstMatch = null;
+      graphState.nodes.forEach(n => {
+        const matches = !n.isRoot && (
+          n.title.toLowerCase().includes(q) || 
+          n.shortTitle.toLowerCase().includes(q) || 
+          (n.topicData.context && n.topicData.context.toLowerCase().includes(q)) ||
+          (n.topicData.rationale && n.topicData.rationale.toLowerCase().includes(q))
+        );
+        if (n.domG) {
+          if (matches) {
+            n.domG.classList.remove('dimmed');
+            if (!firstMatch) firstMatch = n;
+          } else {
+            n.domG.classList.add('dimmed');
+          }
         }
       });
+      if (firstMatch) {
+        selectGraphNode(firstMatch);
+      }
     }
 
     function renderKanbanBoard(actions, selectedOwner) {

@@ -6,7 +6,7 @@ This reference document outlines the common meeting transcript formats processed
 
 ## 1. Supported Input Formats
 
-### 1.1 Google Meet (Google Docs / Google Drive Transcript)
+### 1.1 Block Header Transcripts (Speaker Name & Time on Separate Lines)
 - **Format:** Plain text or exported document.
 - **Structure:**
   ```text
@@ -22,7 +22,7 @@ This reference document outlines the common meeting transcript formats processed
 
 ---
 
-### 1.2 WebVTT (.vtt) - Zoom, Microsoft Teams, Cisco Webex
+### 1.2 WebVTT (.vtt) Caption Tracks
 - **Format:** Standard Web Video Text Tracks format.
 - **Structure:**
   ```text
@@ -34,13 +34,13 @@ This reference document outlines the common meeting transcript formats processed
 
   2
   00:00:05.100 --> 00:00:10.200
-  John Smith: Based on our latency tests, Pub/Sub handled 45k QPS with sub-15ms p99.
+  John Smith: Based on our latency tests, the messaging platform handled 45k QPS with sub-15ms p99.
   ```
 - **Parsing Strategy:** Strip track index numbers, millisecond timestamp ranges (`-->`), and VTT headers. Parse `Speaker Name:` prefixes and concatenate adjacent cues from the same speaker.
 
 ---
 
-### 1.3 SubRip (.srt)
+### 1.3 SubRip (.srt) Caption Files
 - **Format:** Standard SubRip caption format.
 - **Structure:**
   ```text
@@ -56,7 +56,7 @@ This reference document outlines the common meeting transcript formats processed
 
 ---
 
-### 1.4 Microsoft Teams Meeting Transcript (.docx / plain text export)
+### 1.4 Segmented Timestamp Transcripts (.docx / Plain Text Export)
 - **Format:** Exported meeting transcript.
 - **Structure:**
   ```text
@@ -72,7 +72,7 @@ This reference document outlines the common meeting transcript formats processed
 
 ---
 
-### 1.5 Otter.ai / Descript / Third-Party AI Transcribers
+### 1.5 Inline Timestamp & Diarized Transcripts
 - **Format:** Text export with speaker diarization and running timestamps.
 - **Structure:**
   ```text

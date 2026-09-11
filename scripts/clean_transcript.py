@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Transcript Cleaner and Normalizer.
 
-Preprocesses raw meeting transcripts (WebVTT, SRT, Google Meet, Zoom, MS Teams, Otter.ai)
+Preprocesses raw meeting transcripts (WebVTT, SRT, plain text, and exported caption formats)
 into a clean, normalized text stream suitable for skill processing.
 
 Usage:
@@ -19,13 +19,13 @@ def clean_vtt_srt(content: str) -> str:
     lines = content.splitlines()
     cleaned_lines = []
     
-    # Matches VTT timestamp lines: 00:00:01.000 --> 00:00:04.000
-    # Matches SRT timestamp lines: 00:00:01,000 --> 00:00:04,000
-    # Matches Teams timestamp lines: 0:0:1.0 -> 0:0:4.0
+    # Matches standard timestamp lines: 00:00:01.000 --> 00:00:04.000
+    # Matches caption timestamp lines: 00:00:01,000 --> 00:00:04,000
+    # Matches segmented timestamp lines: 0:0:1.0 -> 0:0:4.0
     timestamp_pattern = re.compile(
         r'^\s*(\d{1,2}:)?\d{1,2}:\d{2}[\.,]\d{3}\s*-+>\s*(\d{1,2}:)?\d{1,2}:\d{2}[\.,]\d{3}'
     )
-    teams_timestamp_pattern = re.compile(
+    segmented_timestamp_pattern = re.compile(
         r'^\s*\d{1,2}:\d{1,2}:\d{1,2}(\.\d+)?\s*->\s*\d{1,2}:\d{1,2}:\d{1,2}(\.\d+)?'
     )
     inline_timestamp_pattern = re.compile(
@@ -45,7 +45,7 @@ def clean_vtt_srt(content: str) -> str:
             continue
         
         # Skip timestamp lines
-        if timestamp_pattern.search(stripped) or teams_timestamp_pattern.search(stripped):
+        if timestamp_pattern.search(stripped) or segmented_timestamp_pattern.search(stripped):
             continue
             
         # Remove inline timestamps like [00:01:23]
