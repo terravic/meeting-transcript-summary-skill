@@ -19,7 +19,7 @@ This skill transforms raw meeting transcripts into structured, high-fidelity doc
 - Pure Factual Grounding (Zero Hallucination, Zero Making Things Up): Strictly include only the details, facts, numbers, arguments, and decisions directly and explicitly stated by participants in the transcript. Never make up information, invent names, fabricate numbers, or hallucinate events.
 - Strictly Record What Was Said (No External Explanations): Focus exclusively on reporting the specific details of what was spoken during the meeting. Do NOT provide external explanations, definitions, tutorials, or general background explanations about the topics discussed. Only capture the facts, arguments, constraints, and points explicitly raised by the participants.
 - Absolute Tone: Deliver factual, direct, and unambiguous synthesis. Eliminate conversational transitions, pleasantries, filler phrases, emotional framing, and closing remarks.
-- Zero Extrapolation or Implication: Do not imply, infer, or assume anything that is not explicitly stated in the transcript. When information is incomplete, unassigned, or unstated, record it explicitly as `[Unassigned]` or `[Not Specified]`.
+- Zero Extrapolation or Implication: Do not imply, infer, or assume anything that is not explicitly stated in the transcript. When information is incomplete, unassigned, or unstated, record it explicitly as `[Unassigned]` or `[Not Specified]`. **Exception — Meeting Date Fallback:** If no meeting date is explicitly stated in the transcript, assume today's date (the current date when the skill runs to process the input transcript text) formatted as `YYYY-MM-DD`.
 - Clean Professional Formatting: Structure the deliverable using standard Markdown typography, clean headings, bulleted lists, and aligned tables. Do not include graphical placeholders, decorative symbols, or emoticons.
 - Zero Preamble and Postamble: Begin output immediately with the document header. End immediately after the final sentence of the third section. Do not include introductory text ("Here is the summary...") or conversational closings ("Let me know if you need changes...").
 - Missing Input Handling: If the user requests a summary without providing transcript text or an accessible transcript file path, respond with a single prompt requesting the transcript input and terminate.
@@ -31,6 +31,7 @@ Follow these steps sequentially:
 ```
 1. Ingestion & Preprocessing
    ├── Parse speaker tags, timestamps, and diarization markers
+   ├── Extract the meeting date from the transcript, or default to today's date (the date the skill runs) in YYYY-MM-DD format if no date is given
    ├── Filter out small talk, greetings, logistics (audio checks), and off-topic banter
    └── Map main discussion topics, distinct arguments, facts, and decisions spoken by participants
 
@@ -64,7 +65,7 @@ Format the generated document using standard Markdown as specified below:
 
 # Meeting Summary: [Insert Meeting Topic / Project Name]
 
-**Date:** [YYYY-MM-DD or As Stated in Transcript]  
+**Date:** [YYYY-MM-DD — Use the date stated in the transcript; if no date is given, assume today's date (the date the skill runs)]  
 **Participants:** [Comma-separated list of active participants identified in transcript]
 
 ---
@@ -123,7 +124,7 @@ The skill supports four delivery modes based on user requirements:
 1. **Rendered Markdown (Default):** Output standard Markdown directly to the chat stream. The host agent harness automatically parses and renders this into visual rich text with styled headers, structured bullet lists, and graphical tables. This format is optimized for non-technical users to select, copy, and paste directly into document editors, wikis, or email without losing styling.
 2. **Raw Markdown Code Block:** When prompted for "raw markdown", wrap the complete output inside a fenced code block (` ```markdown ... ``` `) with a one-click copy button, allowing immediate transfer into code repositories or `.md` files.
 3. **Dual Output Mode:** When prompted for "dual output" or "both rendered and raw", deliver the complete rendered output first, followed by a divider and a fenced code block containing the exact raw Markdown.
-4. **Interactive Web Dashboard Mode:** When prompted for "dashboard", "visual UI", or "interactive summary", generate a self-contained HTML/JS/CSS document implementing the interactive Executive Overview, SVG Knowledge Graph with Topic Inspector, Multi-View Action Items (Kanban board by owner and sortable data table), and a Light/Dark Mode toggle button (SVG toggle for seamless theme switching) following the reference guide in `references/dashboard_ui_guide.md` and template in `templates/meeting_dashboard_template.html`.
+4. **Interactive Web Dashboard Mode:** When prompted for "dashboard", "visual UI", or "interactive summary", generate a self-contained HTML/JS/CSS document implementing the interactive Executive Overview, SVG Knowledge Graph with Topic Inspector, Multi-View Action Items (Kanban board by owner and sortable data table), and a single icon-only Light/Dark Mode button (`#theme-toggle-btn`, toggling state and switching between Sun and Moon SVG icons) following the reference guide in `references/dashboard_ui_guide.md` and template in `templates/meeting_dashboard_template.html`.
    - **Artifact Emission Requirement:** When generating or updating the interactive HTML dashboard, you MUST emit the standalone HTML file as a user-facing artifact named `dashboard.html` (using `write_to_file` with `ArtifactMetadata: { UserFacing: true, Summary: "Interactive Evaluation Dashboard", RequestFeedback: false }`). This ensures the dashboard immediately opens and renders directly in the agent harness preview pane with no need to manually copy or open links in a browser.
 
 ---

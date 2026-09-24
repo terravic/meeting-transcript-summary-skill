@@ -92,7 +92,7 @@
       align-items: center;
     }
 
-    /* Theme Toggle Button (Icon Only) */
+    /* Theme Toggle Button (Single Icon-Only State Button) */
     .theme-toggle-btn {
       background-color: var(--bg-tertiary);
       border: 1px solid var(--border-color);
@@ -117,6 +117,7 @@
     .theme-toggle-btn svg {
       width: 18px;
       height: 18px;
+      pointer-events: none;
     }
 
     [data-theme="dark"] .theme-toggle-btn .moon-icon { display: none; }
@@ -141,6 +142,12 @@
     .badge-amber { background: #78350f; color: #fef3c7; }
     .badge-rose { background: #881337; color: #ffe4e6; }
     .badge-slate { background: #334155; color: #e2e8f0; }
+
+    [data-theme="light"] .badge-primary { background: #e0f2fe; color: #0369a1; }
+    [data-theme="light"] .badge-emerald { background: #d1fae5; color: #065f46; }
+    [data-theme="light"] .badge-amber { background: #fef3c7; color: #92400e; }
+    [data-theme="light"] .badge-rose { background: #ffe4e6; color: #9f1239; }
+    [data-theme="light"] .badge-slate { background: #e2e8f0; color: #334155; }
 
     .participants-list {
       display: flex;
@@ -638,7 +645,7 @@
     }
 
     th {
-      background-color: #0b1120;
+      background-color: var(--bg-tertiary);
       padding: 0.75rem 1rem;
       color: var(--text-muted);
       font-weight: 600;
@@ -655,7 +662,7 @@
     }
 
     tr:hover td {
-      background-color: rgba(51, 65, 85, 0.3);
+      background-color: var(--bg-tertiary);
     }
 
     /* Discussion Record Accordions */
@@ -685,6 +692,9 @@
       padding: 1.25rem;
       border-top: 1px solid var(--border-color);
       background-color: var(--bg-drawer);
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      line-height: 1.6;
       display: none;
     }
 
@@ -703,8 +713,7 @@
       </div>
       <div class="meeting-meta">
         <span class="badge badge-primary" id="display-date">Date</span>
-        <span class="badge badge-slate" id="display-status">Synthesis Verified</span>
-        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle light and dark mode" title="Toggle theme">
+        <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle light and dark mode" title="Toggle theme">
           <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -748,7 +757,7 @@
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Target Cutover</div>
-          <div class="kpi-value" id="kpi-cutover">TBD</div>
+          <div class="kpi-value" id="kpi-cutover" style="color:var(--accent-blue);">TBD</div>
         </div>
       </div>
 
@@ -900,7 +909,11 @@
 
     function initDashboard(data) {
       document.getElementById('display-title').innerText = data.meetingTitle;
-      document.getElementById('display-date').innerText = data.date;
+      const todayIso = new Date().toISOString().split('T')[0];
+      const meetingDate = (!data.date || data.date === 'YYYY-MM-DD' || data.date === 'Not Specified' || data.date === '[Not Specified]')
+        ? todayIso
+        : data.date;
+      document.getElementById('display-date').innerText = meetingDate;
       
       const pContainer = document.getElementById('display-participants');
       pContainer.innerHTML = data.participants.map(p => `<span class="participant-pill">${p}</span>`).join('');
@@ -1532,10 +1545,21 @@
       });
     }
 
+    function syncThemeButton(theme) {
+      const toggleBtn = document.getElementById('theme-toggle-btn');
+      if (toggleBtn) {
+        const nextLabel = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+        toggleBtn.setAttribute('data-theme-state', theme);
+        toggleBtn.setAttribute('aria-label', nextLabel);
+        toggleBtn.setAttribute('title', nextLabel);
+      }
+    }
+
     function toggleTheme() {
       const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', newTheme);
+      syncThemeButton(newTheme);
       try {
         localStorage.setItem('meeting_dashboard_theme', newTheme);
       } catch (e) {}
@@ -1550,6 +1574,7 @@
         savedTheme = localStorage.getItem('meeting_dashboard_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
       } catch (e) {}
       document.documentElement.setAttribute('data-theme', savedTheme);
+      syncThemeButton(savedTheme);
     })();
 
     function openInspector(topic) {
@@ -1697,10 +1722,10 @@
             <span style="color:var(--text-muted); font-size:0.8rem;">[Expand / Collapse]</span>
           </div>
           <div class="topic-body" id="topic-body-${idx}">
-            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Context:</strong> ${t.context}</p>
-            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Mechanism:</strong> ${t.explanation}</p>
-            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">The 'Why':</strong> ${t.rationale}</p>
-            <p><strong style="color:var(--accent-blue);">Conclusion:</strong> ${t.conclusion}</p>
+            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Context & Background:</strong> ${t.context}</p>
+            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Technical Mechanism:</strong> ${t.explanation}</p>
+            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Rationale ("Why"):</strong> ${t.rationale}</p>
+            <p><strong style="color:var(--accent-blue);">Key Conclusion:</strong> ${t.conclusion}</p>
           </div>
         </div>
       `).join('');

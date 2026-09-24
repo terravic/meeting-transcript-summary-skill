@@ -57,7 +57,7 @@ The dashboard template is driven by a structured JavaScript object embedded in t
 ```json
 {
   "meetingTitle": "string",
-  "date": "YYYY-MM-DD",
+  "date": "YYYY-MM-DD (use transcript date; if no date is given, assume today's date when the skill runs)",
   "participants": ["string"],
   "metrics": {
     "decisionsCount": 0,
@@ -106,7 +106,7 @@ The dashboard template is driven by a structured JavaScript object embedded in t
 
 ## 4. Design and Styling Standards
 
-- **Light and Dark Mode Toggle:** The header contains a theme toggle button (`#theme-toggle-btn`) displaying Sun / Moon SVG graphics. Theme preferences are persisted via `localStorage` and dynamically re-render SVG knowledge graph elements.
+- **Light and Dark Mode Toggle:** The header contains a single icon-only theme toggle button (`#theme-toggle-btn`) that changes state between Light and Dark modes, dynamically switching between Sun and Moon SVG icons. Theme preferences are persisted via `localStorage` and dynamically re-render SVG knowledge graph elements.
 - **Dual Color Palettes:**
   - **Dark Mode (Default):** High-contrast neutral slate background (`#0f172a`), clean card surfaces (`#1e293b`, `#334155`), cool blue accents (`#38bdf8`, `#0284c7`), and muted text hierarchy (`#94a3b8`, `#f8fafc`).
   - **Light Mode:** Crisp neutral slate background (`#f8fafc`), clean white card surfaces (`#ffffff`, `#f1f5f9`), deep blue accents (`#0284c7`, `#0369a1`), and dark text hierarchy (`#475569`, `#0f172a`).

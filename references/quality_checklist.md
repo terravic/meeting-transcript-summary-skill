@@ -14,7 +14,7 @@ Use this checklist to audit generated meeting summaries against required quality
 | **Preservation of the "Why"** | Debates, trade-offs, discarded alternatives, and reasoning spoken by participants are explicitly documented. | The narrative explains why decisions were made as articulated in the meeting, not merely what was decided. |
 | **Zero Opinion & Editorializing** | No external commentary, personal opinions, editorial assessments, or unstated implications are injected. | All content reports purely what participants stated, proposed, and decided. |
 | **Topic-Based Organization** | Discussions are grouped by logical subject matter rather than chronological transcript order. | Related discussions across different time points in the meeting are consolidated cleanly under relevant topic headers. |
-| **Explicit Metadata Fallbacks** | Missing owners or dates in action items are explicitly marked. | Owners marked as `Unassigned` and deadlines marked as `Not Specified` when unstated. |
+| **Explicit Metadata Fallbacks** | Missing owners or dates in action items are explicitly marked; missing meeting date defaults to today's date. | Action item owners marked as `Unassigned` and deadlines marked as `Not Specified` when unstated. If the meeting date is not given in the transcript, assume today's date (the date the skill runs) formatted as `YYYY-MM-DD`. |
 
 ---
 
@@ -22,7 +22,7 @@ Use this checklist to audit generated meeting summaries against required quality
 
 | Section | Mandatory Elements | Common Failures to Avoid |
 | :--- | :--- | :--- |
-| **Document Header** | Meeting Topic, Date, Participant List. | Missing participants or omitting date. |
+| **Document Header** | Meeting Topic, Date (from transcript, or today's date when the skill runs if not given), Participant List. | Missing participants or omitting date instead of defaulting to today's date. |
 | **1. Executive Summary** | Meeting Objective, Key Decisions Made, Strategic Outcomes & Impact, Critical Risks & Blockers. | Blending decisions into running paragraphs without clear structure. |
 | **2. Detailed Discussion Record** | Subheadings per topic with Discussion Details (What Was Said), Points Raised and Rationale, and Key Conclusions. | Providing external topic tutorials instead of documenting what was said, or hallucinating details. |
 | **Action Items Table** | 4 columns: `Action Item`, `Assigned To`, `Deadline`, `Acceptance Criteria / Target Deliverable`. | Missing columns, broken table alignment, or hallucinating assignees/deadlines. |
