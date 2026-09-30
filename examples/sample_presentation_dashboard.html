@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meeting Intelligence Dashboard</title>
+  <title>Presentation Knowledge Graph & Chronological Dashboard</title>
   <style>
     :root, [data-theme="dark"] {
       --bg-primary: #0f172a;
@@ -17,7 +17,7 @@
       --accent-blue-hover: #0284c7;
       --accent-emerald: #34d399;
       --accent-amber: #fbbf24;
-      --accent-rose: #f43f5e;
+      --accent-violet: #a78bfa;
       --border-color: #334155;
       --border-subtle: #1e293b;
       --radius-sm: 4px;
@@ -38,7 +38,7 @@
       --accent-blue-hover: #0369a1;
       --accent-emerald: #059669;
       --accent-amber: #d97706;
-      --accent-rose: #e11d48;
+      --accent-violet: #7c3aed;
       --border-color: #e2e8f0;
       --border-subtle: #cbd5e1;
     }
@@ -74,22 +74,23 @@
       align-items: flex-start;
       margin-bottom: 0.75rem;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 0.75rem;
     }
 
-    .meeting-title {
+    .presentation-title {
       font-size: 1.25rem;
       font-weight: 700;
       color: var(--text-primary);
       letter-spacing: -0.02em;
     }
 
-    .meeting-meta {
+    .presentation-meta {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.5rem;
       font-size: 0.875rem;
       color: var(--text-secondary);
       align-items: center;
+      flex-wrap: wrap;
     }
 
     /* Theme Toggle Button (Single Icon-Only State Button) */
@@ -129,7 +130,7 @@
 
     .badge {
       display: inline-block;
-      padding: 0.2rem 0.5rem;
+      padding: 0.2rem 0.55rem;
       border-radius: var(--radius-sm);
       font-size: 0.75rem;
       font-weight: 600;
@@ -139,29 +140,29 @@
 
     .badge-primary { background: #0369a1; color: #e0f2fe; }
     .badge-emerald { background: #065f46; color: #d1fae5; }
-    .badge-amber { background: #78350f; color: #fef3c7; }
-    .badge-rose { background: #881337; color: #ffe4e6; }
+    .badge-violet { background: #4c1d95; color: #ede9fe; }
     .badge-slate { background: #334155; color: #e2e8f0; }
 
     [data-theme="light"] .badge-primary { background: #e0f2fe; color: #0369a1; }
     [data-theme="light"] .badge-emerald { background: #d1fae5; color: #065f46; }
-    [data-theme="light"] .badge-amber { background: #fef3c7; color: #92400e; }
-    [data-theme="light"] .badge-rose { background: #ffe4e6; color: #9f1239; }
+    [data-theme="light"] .badge-violet { background: #ede9fe; color: #5b21b6; }
     [data-theme="light"] .badge-slate { background: #e2e8f0; color: #334155; }
 
-    .participants-list {
+    .presenters-list {
       display: flex;
       flex-wrap: wrap;
       gap: 0.35rem;
-      margin-top: 0.25rem;
+      margin-top: 0.3rem;
+      align-items: center;
     }
 
-    .participant-pill {
+    .presenter-pill {
       background-color: var(--bg-tertiary);
       color: var(--text-secondary);
       font-size: 0.75rem;
-      padding: 0.15rem 0.5rem;
+      padding: 0.15rem 0.55rem;
       border-radius: 9999px;
+      font-weight: 500;
     }
 
     /* Tab Navigation */
@@ -171,6 +172,7 @@
       border-top: 1px solid var(--border-color);
       padding-top: 0.75rem;
       overflow-x: auto;
+      align-items: center;
     }
 
     .tab-btn {
@@ -200,8 +202,8 @@
     /* Main Container */
     main {
       flex: 1;
-      padding: 1.5rem;
-      max-width: 1400px;
+      padding: 1.25rem 1.5rem;
+      max-width: 1440px;
       width: 100%;
       margin: 0 auto;
     }
@@ -214,95 +216,53 @@
       display: block;
     }
 
-    /* KPI Metrics Grid */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .kpi-card {
+    /* Presentation Core Theme Banner */
+    .theme-banner {
       background-color: var(--bg-secondary);
       border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-blue);
       border-radius: var(--radius-md);
-      padding: 1rem;
-    }
-
-    .kpi-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-    }
-
-    .kpi-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-top: 0.25rem;
-    }
-
-    /* Executive Summary Cards */
-    .card {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .card-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      color: var(--text-primary);
+      padding: 0.85rem 1.15rem;
+      margin-bottom: 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
-    .content-list {
-      list-style-type: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .content-list li {
-      position: relative;
-      padding-left: 1.25rem;
+    .theme-banner-text {
       font-size: 0.875rem;
       color: var(--text-secondary);
-      line-height: 1.5;
+      flex: 1;
+      min-width: 260px;
     }
 
-    .content-list li::before {
-      content: "•";
-      position: absolute;
-      left: 0.25rem;
-      color: var(--accent-blue);
-      font-weight: bold;
-    }
-
-    /* Generic Action Button */
-    .btn-action {
-      background-color: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
+    .theme-banner-text strong {
       color: var(--text-primary);
-      padding: 0.4rem 0.75rem;
-      font-size: 0.75rem;
-      font-weight: 500;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: background 0.15s ease;
-      white-space: nowrap;
+      margin-right: 0.35rem;
     }
 
-    .btn-action:hover {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
+    .graph-legend {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
     }
 
     /* Knowledge Graph Layout */
@@ -311,7 +271,7 @@
       background-color: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      height: 620px;
+      height: 640px;
       overflow: hidden;
       display: flex;
     }
@@ -339,7 +299,7 @@
       padding: 0.5rem 0.75rem;
       display: flex;
       gap: 0.5rem;
-      width: 280px;
+      width: 300px;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
     }
 
@@ -439,7 +399,7 @@
 
     /* Detail Inspector Drawer */
     .inspector-drawer {
-      width: 380px;
+      width: 400px;
       background-color: var(--bg-drawer);
       border-left: 1px solid var(--border-color);
       padding: 1.5rem;
@@ -464,12 +424,20 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      gap: 0.5rem;
     }
 
     .inspector-title {
       font-size: 1.1rem;
       font-weight: 700;
       color: var(--text-primary);
+    }
+
+    .inspector-meta {
+      font-size: 0.75rem;
+      color: var(--accent-blue);
+      font-weight: 600;
+      margin-top: 0.2rem;
     }
 
     .inspector-close {
@@ -497,184 +465,45 @@
     .inspector-text {
       font-size: 0.875rem;
       color: var(--text-secondary);
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
-    /* Action Items Sub-Navigation & Toolbar */
-    .view-switch {
+    /* Chronological Walkthrough Timeline */
+    .walkthrough-toolbar {
       display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .sub-tab-btn {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      padding: 0.4rem 0.8rem;
-      font-size: 0.8rem;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    .sub-tab-btn.active {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
-      border-color: var(--accent-blue-hover);
-    }
-
-    .action-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
+      justify-content: space-between;
       align-items: center;
       margin-bottom: 1rem;
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 0.75rem 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
-    .action-toolbar input[type="text"] {
-      background-color: var(--bg-primary);
+    .btn-action {
+      background-color: var(--bg-tertiary);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
       padding: 0.4rem 0.75rem;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+      font-weight: 500;
       border-radius: var(--radius-sm);
-      outline: none;
-      min-width: 220px;
-    }
-
-    .action-toolbar input[type="text"]:focus {
-      border-color: var(--accent-blue);
-    }
-
-    .action-toolbar select {
-      background-color: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 0.4rem 0.75rem;
-      font-size: 0.8rem;
-      border-radius: var(--radius-sm);
-      outline: none;
       cursor: pointer;
-      min-width: 150px;
+      transition: background 0.15s ease;
     }
 
-    .action-toolbar select:focus {
-      border-color: var(--accent-blue);
+    .btn-action:hover {
+      background-color: var(--accent-blue-hover);
+      color: #ffffff;
     }
 
-    .action-count-text {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-left: auto;
-      font-weight: 500;
-    }
-
-    /* Kanban Board */
-    .kanban-board {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1rem;
-      align-items: flex-start;
-    }
-
-    .kanban-col {
+    .segment-accordion {
       background-color: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 1rem;
-    }
-
-    .kanban-col-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .kanban-col-title {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .kanban-card {
-      background-color: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .kanban-card-title {
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--text-primary);
-      margin-bottom: 0.35rem;
-      line-height: 1.4;
-    }
-
-    .kanban-card-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 0.5rem;
-    }
-
-    /* Table View */
-    .data-table-container {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.875rem;
-      text-align: left;
-    }
-
-    th {
-      background-color: var(--bg-tertiary);
-      padding: 0.75rem 1rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      border-bottom: 1px solid var(--border-color);
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-    }
-
-    td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid var(--border-color);
-      color: var(--text-secondary);
-    }
-
-    tr:hover td {
-      background-color: var(--bg-tertiary);
-    }
-
-    /* Discussion Record Accordions */
-    .topic-accordion {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.85rem;
       overflow: hidden;
     }
 
-    .topic-header {
+    .segment-header {
       padding: 1rem 1.25rem;
       cursor: pointer;
       display: flex;
@@ -682,13 +511,24 @@
       align-items: center;
       background-color: var(--bg-secondary);
       user-select: none;
+      gap: 0.75rem;
     }
 
-    .topic-header:hover {
+    .segment-header:hover {
       background-color: var(--bg-tertiary);
     }
 
-    .topic-body {
+    .segment-step-badge {
+      background-color: var(--accent-blue-hover);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-sm);
+      margin-right: 0.5rem;
+    }
+
+    .segment-body {
       padding: 1.25rem;
       border-top: 1px solid var(--border-color);
       background-color: var(--bg-drawer);
@@ -698,7 +538,7 @@
       display: none;
     }
 
-    .topic-body.open {
+    .segment-body.open {
       display: block;
     }
   </style>
@@ -708,10 +548,12 @@
   <header>
     <div class="header-top">
       <div>
-        <h1 class="meeting-title" id="display-title">Meeting Title</h1>
-        <div class="participants-list" id="display-participants"></div>
+        <h1 class="presentation-title" id="display-title">Presentation Title</h1>
+        <div class="presenters-list" id="display-presenters"></div>
       </div>
-      <div class="meeting-meta">
+      <div class="presentation-meta">
+        <span class="badge badge-violet">Presentation Mode</span>
+        <span class="badge badge-slate" id="badge-segments">0 Segments</span>
         <span class="badge badge-primary" id="display-date">Date</span>
         <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle light and dark mode" title="Toggle theme">
           <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -732,61 +574,29 @@
       </div>
     </div>
     <div class="nav-tabs">
-      <button class="tab-btn active" id="tab-btn-overview" onclick="switchMainTab('overview', this)">Executive Brief</button>
-      <button class="tab-btn" id="tab-btn-graph" onclick="switchMainTab('graph', this)">Knowledge Graph</button>
-      <button class="tab-btn" id="tab-btn-actions" onclick="switchMainTab('actions', this)">Action Items</button>
-      <button class="tab-btn" id="tab-btn-discussion" onclick="switchMainTab('discussion', this)">Detailed Record</button>
+      <button class="tab-btn active" onclick="switchMainTab('graph', this)">Presentation Knowledge Graph</button>
+      <button class="tab-btn" onclick="switchMainTab('walkthrough', this)">Chronological Walkthrough</button>
     </div>
   </header>
 
   <main>
-    <!-- TAB 1: OVERVIEW -->
-    <section id="tab-overview" class="tab-content active">
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">Key Decisions</div>
-          <div class="kpi-value" id="kpi-decisions">0</div>
+    <!-- TAB 1: PRESENTATION KNOWLEDGE GRAPH (DEFAULT ACTIVE VIEW) -->
+    <section id="tab-graph" class="tab-content active">
+      <div class="theme-banner">
+        <div class="theme-banner-text">
+          <strong>Presentation Focus:</strong>
+          <span id="display-core-theme">Interactive topology of presentation segments, slide progression, and technical concepts spoken by the presenter(s).</span>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Topics Explored</div>
-          <div class="kpi-value" id="kpi-topics">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Action Items</div>
-          <div class="kpi-value" id="kpi-actions">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Target Cutover</div>
-          <div class="kpi-value" id="kpi-cutover" style="color:var(--accent-blue);">TBD</div>
+        <div class="graph-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#0284c7;"></span> Core Theme</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#38bdf8;"></span> Chronological Segment (#1..#N)</span>
+          <span class="legend-item">Click any node to inspect what was said</span>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Meeting Objective</div>
-        <p id="display-objective" style="font-size: 0.95rem; color: var(--text-secondary);"></p>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Key Decisions Made</div>
-        <ul class="content-list" id="display-decisions"></ul>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Strategic Outcomes & Impact</div>
-        <ul class="content-list" id="display-impacts"></ul>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Critical Risks & Blockers</div>
-        <ul class="content-list" id="display-risks"></ul>
-      </div>
-    </section>
-
-    <!-- TAB 2: KNOWLEDGE GRAPH -->
-    <section id="tab-graph" class="tab-content">
       <div class="graph-container">
         <div class="graph-search-bar">
-          <input type="text" id="graph-search-input" placeholder="Search topics & rationale..." oninput="filterGraphNodes(this.value)">
+          <input type="text" id="graph-search-input" placeholder="Search slides, concepts, or metrics..." oninput="filterGraphNodes(this.value)">
         </div>
 
         <!-- Floating Graph Zoom Controls -->
@@ -816,139 +626,135 @@
             <g id="graph-viewport"></g>
           </svg>
         </div>
+
+        <!-- Slide / Segment Detail Inspector Drawer -->
         <div class="inspector-drawer" id="inspector-drawer">
           <div class="inspector-header">
-            <h3 class="inspector-title" id="inspector-title">Topic Title</h3>
+            <div>
+              <h3 class="inspector-title" id="inspector-title">Segment Title</h3>
+              <div class="inspector-meta" id="inspector-presenter">Presenter</div>
+            </div>
             <button class="inspector-close" onclick="closeInspector()">&times;</button>
           </div>
           <div class="inspector-section">
-            <div class="inspector-section-label">Context & Background</div>
-            <p class="inspector-text" id="inspector-context"></p>
+            <div class="inspector-section-label">What Was Presented & Said</div>
+            <p class="inspector-text" id="inspector-summary"></p>
           </div>
           <div class="inspector-section">
-            <div class="inspector-section-label">Technical Mechanism</div>
-            <p class="inspector-text" id="inspector-mechanism"></p>
+            <div class="inspector-section-label">Slide Visuals, Demos & Metrics Cited</div>
+            <p class="inspector-text" id="inspector-visuals"></p>
           </div>
           <div class="inspector-section">
-            <div class="inspector-section-label">Rationale ("Why") & Debates</div>
-            <p class="inspector-text" id="inspector-rationale"></p>
-          </div>
-          <div class="inspector-section">
-            <div class="inspector-section-label">Key Conclusion</div>
-            <p class="inspector-text" id="inspector-conclusion"></p>
+            <div class="inspector-section-label">Stated Key Takeaway</div>
+            <p class="inspector-text" id="inspector-takeaway"></p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- TAB 3: ACTION ITEMS -->
-    <section id="tab-actions" class="tab-content">
-      <div class="view-switch">
-        <button class="sub-tab-btn active" onclick="switchActionSubTab('kanban', this)">Kanban by Owner</button>
-        <button class="sub-tab-btn" onclick="switchActionSubTab('table', this)">Data Table</button>
+    <!-- TAB 2: CHRONOLOGICAL WALKTHROUGH -->
+    <section id="tab-walkthrough" class="tab-content">
+      <div class="walkthrough-toolbar">
+        <span style="font-size:0.875rem; color:var(--text-secondary);">Sequential chronological record of what was presented from start to finish:</span>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn-action" onclick="expandAllSegments(true)">Expand All</button>
+          <button class="btn-action" onclick="expandAllSegments(false)">Collapse All</button>
+          <button class="btn-action" onclick="exportChronologicalMarkdown()">Copy Chronological Markdown</button>
+        </div>
       </div>
-
-      <!-- Action Items Filter & Action Toolbar -->
-      <div class="action-toolbar">
-        <input type="text" id="action-search-input" placeholder="Search action items..." oninput="applyActionFilters()">
-        <select id="action-owner-select" onchange="applyActionFilters()">
-          <option value="all">All Owners</option>
-        </select>
-        <button class="btn-action" onclick="exportActionItemsCSV()">Export CSV</button>
-        <button class="btn-action" onclick="exportActionItemsMarkdown()">Export Markdown</button>
-        <span id="action-count-text" class="action-count-text"></span>
-      </div>
-
-      <!-- Kanban Sub-view (Default) -->
-      <div id="subview-kanban" class="kanban-board"></div>
-
-      <!-- Table Sub-view -->
-      <div id="subview-table" class="data-table-container" style="display:none;">
-        <table>
-          <thead>
-            <tr>
-              <th>Action Item</th>
-              <th>Assigned To</th>
-              <th>Deadline</th>
-              <th>Acceptance Criteria</th>
-            </tr>
-          </thead>
-          <tbody id="table-body-actions"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- TAB 4: DETAILED DISCUSSION -->
-    <section id="tab-discussion" class="tab-content">
-      <div id="topics-accordion-list"></div>
+      <div id="segments-accordion-list"></div>
     </section>
   </main>
 
   <script>
-    // Embedded Data Model Payload
-    const MEETING_DATA = {
-      mode: "meeting",
-      meetingTitle: "Meeting Title Placeholder",
-      date: "YYYY-MM-DD",
-      participants: ["Participant 1", "Participant 2"],
-      metrics: {
-        decisionsCount: 0,
-        topicsCount: 0,
-        actionsCount: 0,
-        targetCutover: "YYYY-MM-DD"
-      },
-      executiveSummary: {
-        objective: "",
-        decisions: [],
-        impacts: [],
-        risks: []
-      },
-      topics: [],
-      relationships: [],
-      actionItems: []
+    // Embedded Presentation Data Model Payload (Synthetic Data Example)
+    const PRESENTATION_DATA = {
+      mode: "presentation",
+      presentationTitle: "Next-Generation Vector Search Engine Architecture Keynote",
+      date: "2026-09-18",
+      presenters: ["Dr. Aris Thorne (Distinguished Systems Engineer)"],
+      coreTheme: "Architectural walkthrough of HyperIndex v4, scaling 1.4-billion 1536D vector similarity search while cutting memory footprint by 64% and reducing p99 query latency by 88%.",
+      segments: [
+        {
+          id: "seg-1",
+          order: 1,
+          title: "Introduction & Slide 1: The Billion-Vector Memory Wall",
+          shortTitle: "Memory Wall",
+          presenter: "Dr. Aris Thorne",
+          summary: "Introduced HyperIndex v4 and walked through Slide 1 detailing how the enterprise search cluster grew over 18 months from 120 million embeddings to 1.4 billion 1536-dimensional floating-point vectors. Storing uncompressed FP32 HNSW graphs in DRAM consumed 11.2 TB across 180 high-memory nodes, while garbage collection pauses and cross-node scatter-gather fan-out at 18,000 QPS pushed p99 query latency to 142 ms.",
+          visualsAndMetrics: "Slide 1 left chart: 1.4B 1536D vectors, 11.2 TB DRAM across 180 nodes, 18,000 QPS peak load, 142 ms p99 latency vs. 30 ms SLA target.",
+          takeaway: "Uncompressed in-memory FP32 HNSW graphs hit a cost and latency wall at billion-vector scale."
+        },
+        {
+          id: "seg-2",
+          order: 2,
+          title: "Slide 2: Two-Tier Hybrid Storage and RabitQ Quantization",
+          shortTitle: "Hybrid Storage",
+          presenter: "Dr. Aris Thorne",
+          summary: "Presented Slide 2's two-tier hybrid storage engine. Tier 1 (CPU L3 cache and DRAM) compresses 1536D vectors via asymmetric binary quantization with corrective scalar residuals, shrinking memory usage by 64% to 4.0 TB across 64 nodes. Tier 2 stores full-precision FP16 vectors on local NVMe SSDs in 16 KB aligned blocks. Queries traverse the compressed Tier 1 graph to find the top 250 candidate IDs and issue a single batched io_uring NVMe read to rescore those 250 candidates.",
+          visualsAndMetrics: "Slide 2 bottom architecture diagram: 64% memory reduction (11.2 TB to 4.0 TB), node count reduced from 180 to 64, 16 KB aligned NVMe blocks, top-250 candidate batched rescoring.",
+          takeaway: "Combining quantized DRAM traversal with batched NVMe full-precision rescoring cuts memory by 64% without sacrificing accuracy."
+        },
+        {
+          id: "seg-3",
+          order: 3,
+          title: "Slide 3: Zero-Copy Kernel Bypass and SIMD Distance Kernels",
+          shortTitle: "Kernel Bypass",
+          presenter: "Dr. Aris Thorne",
+          summary: "Explained on Slide 3 that profiling the NVMe rescoring step showed Linux page cache copies consumed 38% of CPU cycles. The engine bypasses the kernel page cache using direct asynchronous io_uring submission queues paired with pre-pinned hugepage ring buffers, feeding a custom AVX-512 SIMD inner-product kernel that computes exact cosine distances.",
+          visualsAndMetrics: "Slide 3 pipeline diagram: 38% CPU previously spent in page cache copies; AVX-512 SIMD inner-product kernel achieves 1.8 billion vector comparisons per second per core.",
+          takeaway: "Zero-copy io_uring into hugepage ring buffers paired with AVX-512 SIMD eliminates kernel copy overhead during NVMe rescoring."
+        },
+        {
+          id: "seg-4",
+          order: 4,
+          title: "Slide 4: Dynamic Predicate Pushdown During Graph Traversal",
+          shortTitle: "Predicate Pushdown",
+          presenter: "Dr. Aris Thorne",
+          summary: "Demonstrated on Slide 4 how post-filtering fails when metadata filters (such as tenant ID or date range) match only 1% of documents. HyperIndex v4 uses an adaptive bitmap pushdown engine that checks filter cardinality via Roaring Bitmaps before traversal: above 15% selectivity it evaluates the bitmap inline during HNSW hops, and below 2% selectivity it switches to a bitmap-driven brute-force scan over quantized vectors.",
+          visualsAndMetrics: "Slide 4 adaptive query planner diagram: Roaring Bitmaps cardinality check with >15% inline HNSW hop evaluation and <2% quantized scan threshold, delivering 100% filter completeness.",
+          takeaway: "Cardinality-aware Roaring Bitmap pushdown guarantees 100% filter completeness and prevents empty post-filtered results."
+        },
+        {
+          id: "seg-5",
+          order: 5,
+          title: "Slide 5: Production Telemetry and Live Benchmark Readout",
+          shortTitle: "Live Benchmarks",
+          presenter: "Dr. Aris Thorne",
+          summary: "Displayed the live Grafana dashboard on Slide 5 from the us-east canary cluster running 1.4 billion vectors at 20,000 concurrent QPS. Reported 98.4% Recall@10, 4.8 ms median p50 latency, 16.2 ms p99 latency (an 88% reduction vs. v3), and $1.14 million annual infrastructure savings from dropping from 180 nodes to 64 nodes.",
+          visualsAndMetrics: "Slide 5 live Grafana dashboard (us-east canary, 1.4B vectors, 20k QPS): 98.4% Recall@10, 4.8 ms p50, 16.2 ms p99 (-88% vs v3), $1.14M/year cost savings.",
+          takeaway: "Production canary telemetry confirms 16.2 ms p99 latency, 98.4% Recall@10, and $1.14M annual compute/memory savings."
+        }
+      ],
+      relationships: [
+        { from: "seg-1", to: "seg-2", label: "Solved by" },
+        { from: "seg-2", to: "seg-3", label: "Accelerated by" },
+        { from: "seg-3", to: "seg-4", label: "Next: Slide 4" },
+        { from: "seg-4", to: "seg-5", label: "Validated in" },
+        { from: "seg-5", to: "seg-1", label: "-88% vs v3" }
+      ]
     };
 
     function initDashboard(data) {
-      document.getElementById('display-title').innerText = data.meetingTitle || data.presentationTitle || 'Summary Dashboard';
+      document.getElementById('display-title').innerText = data.presentationTitle || 'Presentation Summary';
       const todayIso = new Date().toISOString().split('T')[0];
-      const meetingDate = (!data.date || data.date === 'YYYY-MM-DD' || data.date === 'Not Specified' || data.date === '[Not Specified]')
+      const presDate = (!data.date || data.date === 'YYYY-MM-DD' || data.date === 'Not Specified' || data.date === '[Not Specified]')
         ? todayIso
         : data.date;
-      document.getElementById('display-date').innerText = meetingDate;
-      
-      const pList = data.participants || data.presenters || [];
-      const pContainer = document.getElementById('display-participants');
-      pContainer.innerHTML = pList.map(p => `<span class="participant-pill">${p}</span>`).join('');
+      document.getElementById('display-date').innerText = presDate;
 
-      const isPresentation = (data.mode === 'presentation');
-      const items = data.topics || data.segments || [];
+      const presenters = data.presenters || [];
+      const pContainer = document.getElementById('display-presenters');
+      pContainer.innerHTML = presenters.map(p => `<span class="presenter-pill">Presenter: ${p}</span>`).join('');
 
-      if (isPresentation) {
-        const btnOverview = document.getElementById('tab-btn-overview');
-        const btnActions = document.getElementById('tab-btn-actions');
-        const btnGraph = document.getElementById('tab-btn-graph');
-        const btnDiscussion = document.getElementById('tab-btn-discussion');
-        if (btnOverview) btnOverview.style.display = 'none';
-        if (btnActions) btnActions.style.display = 'none';
-        if (btnGraph) btnGraph.innerText = 'Presentation Knowledge Graph';
-        if (btnDiscussion) btnDiscussion.innerText = 'Chronological Walkthrough';
-        if (btnGraph) switchMainTab('graph', btnGraph);
-      } else if (data.metrics && data.executiveSummary) {
-        document.getElementById('kpi-decisions').innerText = data.metrics.decisionsCount;
-        document.getElementById('kpi-topics').innerText = data.metrics.topicsCount;
-        document.getElementById('kpi-actions').innerText = data.metrics.actionsCount;
-        document.getElementById('kpi-cutover').innerText = data.metrics.targetCutover || 'TBD';
-
-        document.getElementById('display-objective').innerText = data.executiveSummary.objective;
-        document.getElementById('display-decisions').innerHTML = (data.executiveSummary.decisions || []).map(d => `<li>${d}</li>`).join('');
-        document.getElementById('display-impacts').innerHTML = (data.executiveSummary.impacts || []).map(i => `<li>${i}</li>`).join('');
-        document.getElementById('display-risks').innerHTML = (data.executiveSummary.risks || []).map(r => `<li>${r}</li>`).join('');
+      const segments = data.segments || [];
+      document.getElementById('badge-segments').innerText = `${segments.length} Chronological Segments`;
+      if (data.coreTheme) {
+        document.getElementById('display-core-theme').innerText = data.coreTheme;
       }
 
-      renderKnowledgeGraph(items, data.relationships || []);
-      populateOwnerDropdown(data.actionItems || []);
-      applyActionFilters();
-      renderTopicAccordions(items);
+      renderKnowledgeGraph(segments, data.relationships || []);
+      renderChronologicalWalkthrough(segments);
     }
 
     function switchMainTab(tabKey, btn) {
@@ -957,60 +763,15 @@
       btn.classList.add('active');
       document.getElementById('tab-' + tabKey).classList.add('active');
       if (tabKey === 'graph') {
-        renderKnowledgeGraph(MEETING_DATA.topics, MEETING_DATA.relationships);
+        renderKnowledgeGraph(PRESENTATION_DATA.segments || [], PRESENTATION_DATA.relationships || []);
       }
     }
 
-    function switchActionSubTab(subKey, btn) {
-      document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('subview-kanban').style.display = subKey === 'kanban' ? 'grid' : 'none';
-      document.getElementById('subview-table').style.display = subKey === 'table' ? 'block' : 'none';
-    }
-
-    function populateOwnerDropdown(actions) {
-      const select = document.getElementById('action-owner-select');
-      if (!select) return;
-      select.innerHTML = '<option value="all">All Owners</option>';
-      const uniqueOwners = [...new Set(actions.map(a => a.assignee))].filter(Boolean);
-      uniqueOwners.forEach(owner => {
-        const opt = document.createElement('option');
-        opt.value = owner;
-        opt.textContent = owner;
-        select.appendChild(opt);
-      });
-    }
-
-    function applyActionFilters() {
-      const searchInput = document.getElementById('action-search-input');
-      const ownerSelect = document.getElementById('action-owner-select');
-      const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
-      const selectedOwner = ownerSelect ? ownerSelect.value : 'all';
-
-      const filtered = (MEETING_DATA.actionItems || []).filter(item => {
-        const matchesOwner = selectedOwner === 'all' || item.assignee === selectedOwner;
-        const matchesQuery = !query || 
-          item.description.toLowerCase().includes(query) ||
-          item.assignee.toLowerCase().includes(query) ||
-          item.deadline.toLowerCase().includes(query) ||
-          (item.deliverable && item.deliverable.toLowerCase().includes(query));
-        return matchesOwner && matchesQuery;
-      });
-
-      renderKanbanBoard(filtered, selectedOwner);
-      renderActionTable(filtered);
-
-      const countBadge = document.getElementById('action-count-text');
-      if (countBadge) {
-        countBadge.innerText = `${filtered.length} of ${MEETING_DATA.actionItems.length} items shown`;
-      }
-    }
-
-    // Physics Simulation & Knowledge Graph Engine
+    // Physics Simulation & Presentation Knowledge Graph Engine
     let graphState = {
       nodes: [],
       links: [],
-      activeTopicId: null,
+      activeSegmentId: null,
       zoom: 1.0,
       panX: 0,
       panY: 0,
@@ -1020,10 +781,10 @@
       draggedNode: null,
       hasDraggedMoved: false,
       animId: null,
-      cx: 400,
-      cy: 290,
-      width: 800,
-      height: 580,
+      cx: 420,
+      cy: 310,
+      width: 840,
+      height: 620,
       isInitialized: false
     };
 
@@ -1036,8 +797,8 @@
 
     function graphZoomIn() {
       const svg = document.getElementById('graph-svg');
-      const cx = (svg ? svg.clientWidth : 800) / 2;
-      const cy = (svg ? svg.clientHeight : 580) / 2;
+      const cx = (svg ? svg.clientWidth : 840) / 2;
+      const cy = (svg ? svg.clientHeight : 620) / 2;
       const newZoom = Math.min(3.0, graphState.zoom * 1.25);
       graphState.panX = cx - (cx - graphState.panX) * (newZoom / graphState.zoom);
       graphState.panY = cy - (cy - graphState.panY) * (newZoom / graphState.zoom);
@@ -1047,8 +808,8 @@
 
     function graphZoomOut() {
       const svg = document.getElementById('graph-svg');
-      const cx = (svg ? svg.clientWidth : 800) / 2;
-      const cy = (svg ? svg.clientHeight : 580) / 2;
+      const cx = (svg ? svg.clientWidth : 840) / 2;
+      const cy = (svg ? svg.clientHeight : 620) / 2;
       const newZoom = Math.max(0.35, graphState.zoom * 0.8);
       graphState.panX = cx - (cx - graphState.panX) * (newZoom / graphState.zoom);
       graphState.panY = cy - (cy - graphState.panY) * (newZoom / graphState.zoom);
@@ -1063,86 +824,81 @@
       updateGraphViewportTransform();
     }
 
-    function renderKnowledgeGraph(topics, relationships) {
+    function renderKnowledgeGraph(segments, relationships) {
       const svg = document.getElementById('graph-svg');
       const defs = document.getElementById('graph-defs');
       const viewport = document.getElementById('graph-viewport');
       if (!svg || !viewport) return;
 
-      const w = svg.clientWidth || 800;
-      const h = svg.clientHeight || 580;
+      const w = svg.clientWidth || 840;
+      const h = svg.clientHeight || 620;
       graphState.width = w;
       graphState.height = h;
       graphState.cx = w / 2;
       graphState.cy = h / 2;
 
-      // Initialize defs markers
       if (defs) {
         defs.innerHTML = `
           <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
             <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
           </marker>
-          <marker id="arrow-subtle" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-            <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
-          </marker>
         `;
       }
 
-      // 1. Build Nodes Array
       const nodes = [];
       const nodeMap = {};
 
-      // Central Goal Root Node
+      // Central Presentation Theme Root Node
       const rootNode = {
         id: 'root',
-        title: 'Meeting Core Objective',
-        shortTitle: 'CORE GOAL',
+        title: PRESENTATION_DATA.presentationTitle || 'Presentation Theme',
+        shortTitle: 'CORE THEME',
         x: graphState.cx,
         y: graphState.cy,
         vx: 0,
         vy: 0,
-        r: 52,
+        r: 54,
         isRoot: true,
-        topicData: {
-          title: (typeof MEETING_DATA !== 'undefined' && MEETING_DATA.meetingTitle) ? MEETING_DATA.meetingTitle : 'Meeting Core Objective',
-          context: (typeof MEETING_DATA !== 'undefined' && MEETING_DATA.executiveSummary) ? MEETING_DATA.executiveSummary.objective : 'Overall purpose and strategic mission of the meeting.',
-          explanation: (typeof MEETING_DATA !== 'undefined' && MEETING_DATA.executiveSummary && MEETING_DATA.executiveSummary.decisions) ? MEETING_DATA.executiveSummary.decisions.join('; ') : 'Strategic alignment across participants.',
-          rationale: (typeof MEETING_DATA !== 'undefined' && MEETING_DATA.executiveSummary && MEETING_DATA.executiveSummary.impacts) ? MEETING_DATA.executiveSummary.impacts.join('; ') : 'Execution according to architecture and operational milestones.',
-          conclusion: (typeof MEETING_DATA !== 'undefined' && MEETING_DATA.executiveSummary && MEETING_DATA.executiveSummary.risks) ? 'Risks addressed: ' + MEETING_DATA.executiveSummary.risks.join('; ') : 'All participants aligned on target deliverables.'
+        segmentData: {
+          order: 0,
+          title: PRESENTATION_DATA.presentationTitle || 'Presentation Overview',
+          presenter: (PRESENTATION_DATA.presenters || []).join(', '),
+          summary: PRESENTATION_DATA.coreTheme || 'Central theme connecting all chronological presentation segments.',
+          visualsAndMetrics: `Covers ${segments.length} sequential presentation segments.`,
+          takeaway: 'Select any numbered segment node (#1..#N) around the graph to inspect what was presented in chronological order.'
         }
       };
       nodes.push(rootNode);
       nodeMap['root'] = rootNode;
 
-      // Topic Nodes placed around initial perimeter with ample spacing
       const radius = Math.max(Math.min(w, h) * 0.40, 240);
-      const angleStep = (2 * Math.PI) / (topics.length || 1);
+      const angleStep = (2 * Math.PI) / (segments.length || 1);
 
-      topics.forEach((t, idx) => {
-        const id = t.id || `topic-${idx + 1}`;
-        const angle = idx * angleStep - Math.PI / 4;
-        const shortTitle = t.shortTitle || t.title.split(' ').slice(0, 2).join(' ');
+      segments.forEach((s, idx) => {
+        const id = s.id || `seg-${idx + 1}`;
+        const order = s.order || (idx + 1);
+        const angle = idx * angleStep - Math.PI / 2;
+        const shortTitle = s.shortTitle || s.title.split(' ').slice(0, 2).join(' ');
         const node = {
           id: id,
-          title: t.title,
+          order: order,
+          title: s.title,
           shortTitle: shortTitle,
           x: graphState.cx + radius * Math.cos(angle),
           y: graphState.cy + radius * Math.sin(angle),
           vx: 0,
           vy: 0,
-          r: 46,
+          r: 48,
           isRoot: false,
-          topicData: t
+          segmentData: s
         };
         nodes.push(node);
         nodeMap[id] = node;
       });
 
-      // 2. Build Links Array
       const links = [];
-      // Radial links from Root to each Topic
-      topics.forEach((t, idx) => {
-        const id = t.id || `topic-${idx + 1}`;
+      segments.forEach((s, idx) => {
+        const id = s.id || `seg-${idx + 1}`;
         const targetNode = nodeMap[id];
         if (targetNode) {
           links.push({
@@ -1150,13 +906,12 @@
             from: rootNode,
             to: targetNode,
             isRadial: true,
-            targetDist: 240,
+            targetDist: 245,
             strength: 0.025
           });
         }
       });
 
-      // Relationship links between topics
       if (relationships && relationships.length > 0) {
         relationships.forEach((rel, rIdx) => {
           const fromNode = nodeMap[rel.from];
@@ -1178,7 +933,6 @@
       graphState.nodes = nodes;
       graphState.links = links;
 
-      // 3. Render SVG DOM Structure
       viewport.innerHTML = `
         <g class="links-layer" id="graph-links-layer"></g>
         <g class="edges-layer" id="graph-edges-layer"></g>
@@ -1201,7 +955,6 @@
       const rootFill = isLight ? '#0284c7' : '#0369a1';
       const rootStroke = '#38bdf8';
 
-      // Create DOM elements for links
       links.forEach(link => {
         if (link.isRadial) {
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -1227,7 +980,7 @@
 
           if (link.label) {
             labelBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            labelBgRect.setAttribute('width', 74);
+            labelBgRect.setAttribute('width', 82);
             labelBgRect.setAttribute('height', 18);
             labelBgRect.setAttribute('rx', 4);
             labelBgRect.setAttribute('fill', labelBg);
@@ -1252,7 +1005,6 @@
         }
       });
 
-      // Create DOM elements for nodes
       nodes.forEach(node => {
         const nodeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         nodeG.setAttribute('id', `node-g-${node.id}`);
@@ -1261,8 +1013,8 @@
         if (node.isRoot) {
           nodeG.innerHTML = `
             <circle cx="0" cy="0" r="${node.r}" fill="${rootFill}" stroke="${rootStroke}" stroke-width="2.5"/>
-            <text x="0" y="-5" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">CORE GOAL</text>
-            <text x="0" y="9" text-anchor="middle" fill="#e0f2fe" font-size="8.5" font-weight="500">ALIGNMENT</text>
+            <text x="0" y="-5" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700">PRESENTATION</text>
+            <text x="0" y="9" text-anchor="middle" fill="#e0f2fe" font-size="8.5" font-weight="600">CORE THEME</text>
           `;
         } else {
           const words = node.shortTitle.split(' ');
@@ -1270,12 +1022,12 @@
           const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
           nodeG.innerHTML = `
             <circle cx="0" cy="0" r="${node.r}" fill="${nodeFill}" stroke="${nodeBorder}" stroke-width="2"/>
-            <text x="0" y="${line2 ? -4 : 0}" text-anchor="middle" fill="${nodeText1}" font-size="10" font-weight="700">${line1}</text>
-            ${line2 ? `<text x="0" y="11" text-anchor="middle" fill="${nodeText2}" font-size="9" font-weight="500">${line2}</text>` : ''}
+            <text x="0" y="-14" text-anchor="middle" fill="${labelText}" font-size="9" font-weight="700">#${node.order}</text>
+            <text x="0" y="${line2 ? 0 : 4}" text-anchor="middle" fill="${nodeText1}" font-size="10" font-weight="700">${line1}</text>
+            ${line2 ? `<text x="0" y="13" text-anchor="middle" fill="${nodeText2}" font-size="9" font-weight="500">${line2}</text>` : ''}
           `;
         }
 
-        // Mouse & Drag events for node
         nodeG.addEventListener('mousedown', (e) => {
           e.stopPropagation();
           graphState.draggedNode = node;
@@ -1295,7 +1047,6 @@
         node.domG = nodeG;
       });
 
-      // 4. Setup Pan / Zoom & Graph Viewport Events (Once)
       if (!graphState.isInitialized) {
         setupGraphInteractionEvents(svg);
         graphState.isInitialized = true;
@@ -1303,7 +1054,6 @@
 
       updateGraphViewportTransform();
 
-      // 5. Start Physics Animation Loop
       if (graphState.animId) {
         cancelAnimationFrame(graphState.animId);
       }
@@ -1313,23 +1063,21 @@
     function setupGraphInteractionEvents(svg) {
       const container = document.getElementById('graph-stage-container');
 
-      // Mouse wheel zoom
       svg.addEventListener('wheel', (e) => {
         e.preventDefault();
         const rect = svg.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
-        
+
         const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
         const newZoom = Math.min(3.0, Math.max(0.35, graphState.zoom * zoomFactor));
-        
+
         graphState.panX = mouseX - (mouseX - graphState.panX) * (newZoom / graphState.zoom);
         graphState.panY = mouseY - (mouseY - graphState.panY) * (newZoom / graphState.zoom);
         graphState.zoom = newZoom;
         updateGraphViewportTransform();
       }, { passive: false });
 
-      // Graph background mousedown -> pan
       svg.addEventListener('mousedown', (e) => {
         if (e.target === svg || e.target.id === 'graph-viewport' || e.target.tagName === 'line' || e.target.classList.contains('links-layer')) {
           graphState.isPanning = true;
@@ -1379,9 +1127,7 @@
 
       if (!nodes || nodes.length === 0) return;
 
-      // 1. Hard Collision Resolution & Non-Overlap Constraint
-      // Strictly prevents nodes from ever overlapping or covering each other
-      const padding = 30; // Buffer distance between circle borders
+      const padding = 32;
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const n1 = nodes[i];
@@ -1396,7 +1142,6 @@
             const nx = dx / dist;
             const ny = dy / dist;
 
-            // Direct geometric displacement push-apart
             if (n1 === graphState.draggedNode) {
               n2.x += nx * overlap;
               n2.y += ny * overlap;
@@ -1410,7 +1155,6 @@
               n2.y += ny * (overlap * 0.5);
             }
 
-            // Impulse velocity to bounce away from collision
             const impulse = overlap * 0.2;
             n1.vx -= nx * impulse;
             n1.vy -= ny * impulse;
@@ -1420,7 +1164,6 @@
         }
       }
 
-      // 2. Electrostatic Repulsion between all node pairs
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const n1 = nodes[i];
@@ -1440,7 +1183,6 @@
         }
       }
 
-      // 3. Link spring attraction
       for (let i = 0; i < links.length; i++) {
         const l = links[i];
         const dx = l.to.x - l.from.x;
@@ -1456,7 +1198,6 @@
         l.to.vy -= fy;
       }
 
-      // 4. Centering force & integration
       for (let i = 0; i < nodes.length; i++) {
         const n = nodes[i];
         const dx = cx - n.x;
@@ -1465,7 +1206,6 @@
         n.vx += dx * gravity;
         n.vy += dy * gravity;
 
-        // Friction damping
         n.vx *= 0.82;
         n.vy *= 0.82;
 
@@ -1475,8 +1215,6 @@
         }
       }
 
-      // 5. Update SVG elements positions
-      // Radial links
       for (let i = 0; i < links.length; i++) {
         const l = links[i];
         if (l.isRadial && l.domLine) {
@@ -1488,8 +1226,8 @@
           const dx = l.to.x - l.from.x;
           const dy = l.to.y - l.from.y;
           const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
-          const rFrom = l.from.r || 46;
-          const rTo = l.to.r || 46;
+          const rFrom = l.from.r || 48;
+          const rTo = l.to.r || 48;
           if (dist > (rFrom + rTo)) {
             const startX = l.from.x + (dx / dist) * rFrom;
             const startY = l.from.y + (dy / dist) * rFrom;
@@ -1504,7 +1242,7 @@
             if (l.domRect && l.domText) {
               const midX = (startX + endX) / 2;
               const midY = (startY + endY) / 2;
-              l.domRect.setAttribute('x', midX - 37);
+              l.domRect.setAttribute('x', midX - 41);
               l.domRect.setAttribute('y', midY - 9);
               l.domText.setAttribute('x', midX);
               l.domText.setAttribute('y', midY + 4);
@@ -1513,7 +1251,6 @@
         }
       }
 
-      // Node groups
       for (let i = 0; i < nodes.length; i++) {
         const n = nodes[i];
         if (n.domG) {
@@ -1525,10 +1262,9 @@
     }
 
     function selectGraphNode(node) {
-      graphState.activeTopicId = node.id;
-      openInspector(node.topicData);
+      graphState.activeSegmentId = node.id;
+      openInspector(node.segmentData);
 
-      // Highlight active node & connected edges, dim others
       const connectedNodeIds = new Set([node.id]);
       graphState.links.forEach(l => {
         if (l.from.id === node.id) connectedNodeIds.add(l.to.id);
@@ -1562,53 +1298,21 @@
       });
     }
 
-    function syncThemeButton(theme) {
-      const toggleBtn = document.getElementById('theme-toggle-btn');
-      if (toggleBtn) {
-        const nextLabel = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
-        toggleBtn.setAttribute('data-theme-state', theme);
-        toggleBtn.setAttribute('aria-label', nextLabel);
-        toggleBtn.setAttribute('title', nextLabel);
-      }
-    }
-
-    function toggleTheme() {
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      syncThemeButton(newTheme);
-      try {
-        localStorage.setItem('meeting_dashboard_theme', newTheme);
-      } catch (e) {}
-      if (typeof renderKnowledgeGraph === 'function' && typeof MEETING_DATA !== 'undefined' && MEETING_DATA) {
-        renderKnowledgeGraph(MEETING_DATA.topics || [], MEETING_DATA.relationships || []);
-      }
-    }
-
-    (function initTheme() {
-      let savedTheme = 'dark';
-      try {
-        savedTheme = localStorage.getItem('meeting_dashboard_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      } catch (e) {}
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      syncThemeButton(savedTheme);
-    })();
-
-    function openInspector(topic) {
-      if (!topic) return;
-      document.getElementById('inspector-title').innerText = topic.title || 'Topic Detail';
-      document.getElementById('inspector-context').innerText = topic.context || '';
-      document.getElementById('inspector-mechanism').innerText = topic.explanation || '';
-      document.getElementById('inspector-rationale').innerText = topic.rationale || '';
-      document.getElementById('inspector-conclusion').innerText = topic.conclusion || '';
+    function openInspector(seg) {
+      if (!seg) return;
+      const prefix = seg.order ? `Segment #${seg.order}: ` : '';
+      document.getElementById('inspector-title').innerText = prefix + (seg.title || 'Segment Detail');
+      document.getElementById('inspector-presenter').innerText = seg.presenter ? `Presenter: ${seg.presenter}` : '';
+      document.getElementById('inspector-summary').innerText = seg.summary || '';
+      document.getElementById('inspector-visuals').innerText = seg.visualsAndMetrics || 'Not Specified';
+      document.getElementById('inspector-takeaway').innerText = seg.takeaway || '';
       document.getElementById('inspector-drawer').classList.add('open');
     }
 
     function closeInspector() {
       document.getElementById('inspector-drawer').classList.remove('open');
-      graphState.activeTopicId = null;
+      graphState.activeSegmentId = null;
 
-      // Reset node and edge visual opacities
       graphState.nodes.forEach(n => {
         if (n.domG) {
           n.domG.classList.remove('active', 'dimmed');
@@ -1629,11 +1333,13 @@
       }
       let firstMatch = null;
       graphState.nodes.forEach(n => {
+        const s = n.segmentData || {};
         const matches = !n.isRoot && (
-          n.title.toLowerCase().includes(q) || 
-          n.shortTitle.toLowerCase().includes(q) || 
-          (n.topicData.context && n.topicData.context.toLowerCase().includes(q)) ||
-          (n.topicData.rationale && n.topicData.rationale.toLowerCase().includes(q))
+          n.title.toLowerCase().includes(q) ||
+          n.shortTitle.toLowerCase().includes(q) ||
+          (s.summary && s.summary.toLowerCase().includes(q)) ||
+          (s.visualsAndMetrics && s.visualsAndMetrics.toLowerCase().includes(q)) ||
+          (s.takeaway && s.takeaway.toLowerCase().includes(q))
         );
         if (n.domG) {
           if (matches) {
@@ -1649,111 +1355,92 @@
       }
     }
 
-    function renderKanbanBoard(actions, selectedOwner) {
-      const container = document.getElementById('subview-kanban');
+    function renderChronologicalWalkthrough(segments) {
+      const container = document.getElementById('segments-accordion-list');
       if (!container) return;
-
-      const assignees = selectedOwner && selectedOwner !== 'all' 
-        ? [selectedOwner] 
-        : [...new Set(actions.map(a => a.assignee))];
-
-      if (assignees.length === 0) {
-        container.innerHTML = '<div style="color:var(--text-muted); padding:1rem; font-size:0.875rem;">No action items matching the current filter.</div>';
-        return;
-      }
-
-      container.innerHTML = assignees.map(owner => {
-        const tasks = actions.filter(a => a.assignee === owner);
+      container.innerHTML = segments.map((s, idx) => {
+        const stepNum = s.order || (idx + 1);
         return `
-          <div class="kanban-col">
-            <div class="kanban-col-header">
-              <span class="kanban-col-title">${owner}</span>
-              <span class="badge badge-slate">${tasks.length}</span>
-            </div>
-            ${tasks.map(t => `
-              <div class="kanban-card">
-                <div class="kanban-card-title">${t.description}</div>
-                <div class="kanban-card-meta">
-                  <span style="color:var(--accent-blue); font-weight:600;">${t.deadline}</span>
-                  <span class="badge ${t.deliverable ? 'badge-emerald' : 'badge-slate'}">${t.deliverable ? 'Assigned' : 'Pending'}</span>
-                </div>
+          <div class="segment-accordion">
+            <div class="segment-header" onclick="toggleSegment(${idx})">
+              <div>
+                <span class="segment-step-badge">#${stepNum}</span>
+                <span style="font-weight:600; color:var(--text-primary);">${s.title}</span>
+                ${s.presenter ? `<span style="color:var(--text-muted); font-size:0.8rem; margin-left:0.5rem;">(${s.presenter})</span>` : ''}
               </div>
-            `).join('')}
+              <span style="color:var(--text-muted); font-size:0.8rem;">[Expand / Collapse]</span>
+            </div>
+            <div class="segment-body open" id="segment-body-${idx}">
+              <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">What Was Presented & Said:</strong> ${s.summary}</p>
+              ${s.visualsAndMetrics ? `<p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Slide Visuals, Demos & Metrics Cited:</strong> ${s.visualsAndMetrics}</p>` : ''}
+              ${s.takeaway ? `<p><strong style="color:var(--accent-blue);">Stated Key Takeaway:</strong> ${s.takeaway}</p>` : ''}
+            </div>
           </div>
         `;
       }).join('');
     }
 
-    function renderActionTable(actions) {
-      const tbody = document.getElementById('table-body-actions');
-      if (!tbody) return;
-      if (actions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:1.5rem;">No action items match the current filter.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = actions.map(act => `
-        <tr>
-          <td style="font-weight:500; color:var(--text-primary);">${act.description}</td>
-          <td><span class="badge badge-slate">${act.assignee}</span></td>
-          <td style="font-weight:600; color:var(--accent-blue);">${act.deadline}</td>
-          <td>${act.deliverable || ''}</td>
-        </tr>
-      `).join('');
+    function toggleSegment(idx) {
+      const el = document.getElementById('segment-body-' + idx);
+      if (el) el.classList.toggle('open');
     }
 
-    function exportActionItemsCSV() {
-      const actions = MEETING_DATA.actionItems || [];
-      const headers = ["Action Item", "Assigned To", "Deadline", "Acceptance Criteria"];
-      const rows = actions.map(a => [
-        `"${(a.description || '').replace(/"/g, '""')}"`,
-        `"${(a.assignee || '').replace(/"/g, '""')}"`,
-        `"${(a.deadline || '').replace(/"/g, '""')}"`,
-        `"${(a.deliverable || '').replace(/"/g, '""')}"`
-      ]);
-      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-      
-      navigator.clipboard.writeText(csvContent).then(() => {
-        alert("Action items copied to clipboard in CSV format.");
+    function expandAllSegments(openState) {
+      document.querySelectorAll('.segment-body').forEach(el => {
+        if (openState) el.classList.add('open');
+        else el.classList.remove('open');
       });
     }
 
-    function exportActionItemsMarkdown() {
-      const actions = MEETING_DATA.actionItems || [];
-      let md = "| Action Item | Assigned To | Deadline | Acceptance Criteria / Target Deliverable |\n";
-      md += "| :--- | :--- | :--- | :--- |\n";
-      actions.forEach(a => {
-        md += `| ${a.description} | ${a.assignee} | ${a.deadline} | ${a.deliverable || ''} |\n`;
+    function exportChronologicalMarkdown() {
+      const title = PRESENTATION_DATA.presentationTitle || 'Presentation Summary';
+      const date = document.getElementById('display-date').innerText;
+      const presenters = (PRESENTATION_DATA.presenters || []).join(', ') || '[Not Specified]';
+      let md = `# Presentation Summary: ${title}\n\n**Date:** ${date}  \n**Presenter(s):** ${presenters}\n\n---\n\n## Chronological Presentation Summary\n\n`;
+      (PRESENTATION_DATA.segments || []).forEach((s, idx) => {
+        const num = s.order || (idx + 1);
+        md += `### ${num}. ${s.title}\n\n`;
+        if (s.presenter) md += `- **Presenter:** ${s.presenter}\n`;
+        md += `- **What Was Presented & Said:** ${s.summary}\n\n`;
       });
       navigator.clipboard.writeText(md).then(() => {
-        alert("Action items table copied to clipboard in Markdown format.");
+        alert("Chronological presentation summary copied to clipboard in Markdown format.");
       });
     }
 
-    function renderTopicAccordions(topics) {
-      const container = document.getElementById('topics-accordion-list');
-      if (!container) return;
-      container.innerHTML = topics.map((t, idx) => `
-        <div class="topic-accordion">
-          <div class="topic-header" onclick="toggleAccordion(${idx})">
-            <span style="font-weight:600; color:var(--text-primary);">${idx + 1}. ${t.title}</span>
-            <span style="color:var(--text-muted); font-size:0.8rem;">[Expand / Collapse]</span>
-          </div>
-          <div class="topic-body" id="topic-body-${idx}">
-            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Context & Background:</strong> ${t.context}</p>
-            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Technical Mechanism:</strong> ${t.explanation}</p>
-            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Rationale ("Why"):</strong> ${t.rationale}</p>
-            <p><strong style="color:var(--accent-blue);">Key Conclusion:</strong> ${t.conclusion}</p>
-          </div>
-        </div>
-      `).join('');
+    function syncThemeButton(theme) {
+      const toggleBtn = document.getElementById('theme-toggle-btn');
+      if (toggleBtn) {
+        const nextLabel = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+        toggleBtn.setAttribute('data-theme-state', theme);
+        toggleBtn.setAttribute('aria-label', nextLabel);
+        toggleBtn.setAttribute('title', nextLabel);
+      }
     }
 
-    function toggleAccordion(idx) {
-      const el = document.getElementById('topic-body-' + idx);
-      el.classList.toggle('open');
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      syncThemeButton(newTheme);
+      try {
+        localStorage.setItem('meeting_dashboard_theme', newTheme);
+      } catch (e) {}
+      if (typeof renderKnowledgeGraph === 'function' && typeof PRESENTATION_DATA !== 'undefined' && PRESENTATION_DATA) {
+        renderKnowledgeGraph(PRESENTATION_DATA.segments || [], PRESENTATION_DATA.relationships || []);
+      }
     }
 
-    window.onload = () => initDashboard(MEETING_DATA);
+    (function initTheme() {
+      let savedTheme = 'dark';
+      try {
+        savedTheme = localStorage.getItem('meeting_dashboard_theme') || 'dark';
+      } catch (e) {}
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      syncThemeButton(savedTheme);
+    })();
+
+    window.onload = () => initDashboard(PRESENTATION_DATA);
   </script>
 </body>
 </html>
