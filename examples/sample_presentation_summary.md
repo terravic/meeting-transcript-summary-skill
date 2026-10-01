@@ -1,4 +1,4 @@
-# Presentation Summary: Next-Generation Vector Search Engine Architecture Keynote
+# Presentation Summary: Distributed Vector Search Engine Architecture Keynote
 
 **Date:** 2026-09-18  
 **Presenter(s):** Dr. Aris Thorne (Distinguished Systems Engineer)
@@ -10,7 +10,7 @@
 ### 1. Introduction and Slide 1: The Billion-Vector Memory Wall
 
 - **Presenter:** Dr. Aris Thorne
-- **What Was Presented & Said:** Dr. Thorne introduced the architectural keynote on HyperIndex v4, a distributed vector search engine designed to scale billion-vector similarity search while reducing memory usage. Presenting Slide 1 ("The Billion-Vector Memory Wall") and referencing its left chart, he detailed that over the prior 18 months the enterprise search cluster expanded from 120 million embeddings to 1.4 billion 1536-dimensional floating-point vectors. Storing uncompressed FP32 HNSW graphs in DRAM consumed 11.2 terabytes of cluster memory across 180 high-memory nodes. Under peak query loads of 18,000 queries per second (QPS), garbage collection pauses and cross-node scatter-gather fan-out caused p99 query latency to reach 142 milliseconds, exceeding the 30-millisecond search tier target.
+- **What Was Presented & Said:** Dr. Thorne introduced the architectural keynote on HyperIndex v4, a distributed vector search engine designed to scale billion-vector similarity search while reducing memory usage. Presenting Slide 1 ("The Billion-Vector Memory Wall") and referencing its left chart, he detailed that over the prior 18 months the production search cluster expanded from 120 million embeddings to 1.4 billion 1536-dimensional floating-point vectors. Storing uncompressed FP32 HNSW graphs in DRAM consumed 11.2 terabytes of cluster memory across 180 high-memory nodes. Under peak query loads of 18,000 queries per second (QPS), garbage collection pauses and cross-node scatter-gather fan-out caused p99 query latency to reach 142 milliseconds, exceeding the 30-millisecond search tier target.
 
 ### 2. Slide 2: Two-Tier Hybrid Storage and RabitQ Quantization
 
@@ -35,7 +35,7 @@
 ### 5. Slide 5: Production Telemetry and Live Benchmark Readout
 
 - **Presenter:** Dr. Aris Thorne
-- **What Was Presented & Said:** Concluding on Slide 5 ("Production Telemetry and Live Benchmark Readout"), Dr. Thorne displayed a live Grafana dashboard from the `us-east` canary cluster operating on the 1.4-billion vector dataset at 20,000 concurrent QPS and reported three benchmark outcomes:
+- **What Was Presented & Said:** Concluding on Slide 5 ("Production Telemetry and Live Benchmark Readout"), Dr. Thorne displayed a live telemetry monitoring dashboard from the `us-east` canary cluster operating on the 1.4-billion vector dataset at 20,000 concurrent QPS and reported three benchmark outcomes:
   - *Recall Accuracy (Top-Left Panel):* `Recall@10` measured 98.4% relative to exact k-NN ground truth.
   - *Latency Reduction (Center Panel Histogram):* Median p50 latency measured 4.8 milliseconds and p99 tail latency measured 16.2 milliseconds, representing an 88% reduction in p99 latency compared to the legacy v3 cluster.
   - *Infrastructure Cost Savings:* Reducing cluster size from 180 nodes to 64 nodes lowered annual compute and memory costs by $1.14 million per year.

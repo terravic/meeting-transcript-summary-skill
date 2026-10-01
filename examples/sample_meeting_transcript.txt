@@ -1,4 +1,4 @@
-Meeting: Enterprise Event Streaming Migration Architecture Review
+Meeting: Core Event Streaming Migration Architecture Review
 Date: 2026-08-14
 Participants: Sarah Lin (Principal Architect), Marcus Vance (Lead Data Engineer), Elena Rostova (Director of Infrastructure), David Chen (Product Security Lead)
 
@@ -16,7 +16,7 @@ Participants: Sarah Lin (Principal Architect), Marcus Vance (Lead Data Engineer)
 
 [00:02:18] Marcus Vance: Self-hosting the legacy broker currently costs us approximately $14,200 per month in raw compute and block storage, plus an estimated $8,500 per month in dedicated engineering hours for cluster maintenance. The managed cloud messaging platform for our projected monthly volume of 4.2 billion messages (averaging 2 KB payload size) will cost roughly $11,800 per month. Even factoring in standard storage tiering for high-volume, low-criticality logging topics, we project a 28% net infrastructure cost reduction and zero broker patching overhead.
 
-[00:03:02] Elena Rostova: That is a compelling operational win. I approve moving forward with the managed cloud messaging service as our target messaging platform.
+[00:03:02] Elena Rostova: That is a clear operational improvement. I approve moving forward with the managed cloud messaging service as our target messaging platform.
 
 [00:03:15] Sarah Lin: Excellent. Let's move to schema evolution and serialization. Currently, downstream consumers parse arbitrary JSON blobs, leading to silent schema drift and production parser failures. Marcus, what is the recommendation?
 

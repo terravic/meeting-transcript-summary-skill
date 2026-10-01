@@ -1,4 +1,4 @@
-# Meeting Summary: Enterprise Event Streaming Migration Architecture Review
+# Meeting Summary: Core Event Streaming Migration Architecture Review
 
 **Date:** 2026-08-14  
 **Participants:** Sarah Lin (Principal Architect), Marcus Vance (Lead Data Engineer), Elena Rostova (Director of Infrastructure), David Chen (Product Security Lead)
@@ -7,7 +7,7 @@
 
 ## 1. Executive Summary
 
-- **Meeting Objective:** Finalize the architectural, financial, security, and scheduling plans for migrating the enterprise event streaming infrastructure from self-hosted message broker clusters on virtual compute instances to a managed cloud publish-subscribe platform.
+- **Meeting Objective:** Finalize the architectural, financial, security, and scheduling plans for migrating the core event streaming infrastructure from self-hosted message broker clusters on virtual compute instances to a managed cloud publish-subscribe platform.
 - **Key Decisions Made:**
   - Approved full platform migration from the self-hosted broker to the managed cloud messaging platform.
   - Standardized on Protocol Buffers version 3 (Protobuf) for message serialization and schema enforcement, deprecating unvalidated JSON payloads.
@@ -45,7 +45,7 @@
 
 ### Topic 3: Security, Governance, and Compliance Controls
 
-- **Discussion Details (What Was Said):** Migrating production event streams requires strict alignment with enterprise InfoSec compliance, data privacy, and identity governance policies. David Chen established three mandatory security requirements:
+- **Discussion Details (What Was Said):** Migrating production event streams requires strict alignment with organizational InfoSec compliance, data privacy, and identity governance policies. David Chen established three mandatory security requirements:
   1. *Encryption:* Customer-Managed Encryption Keys (CMEK) via Key Management Service (KMS) using the existing `us-central1` key ring for all production topics.
   2. *Network Isolation:* VPC service perimeters surrounding all messaging resources to block exfiltration paths.
   3. *Access Management:* Granular IAM roles (`roles/messaging.publisher`, `roles/messaging.subscriber`) bound to specific resource URIs via short-lived workload identity federation tokens. Long-lived service account JSON keys are strictly prohibited.
@@ -76,4 +76,4 @@
 
 ## 3. Five-Sentence Summary
 
-The enterprise architecture team finalized plans to decommission their self-hosted message broker cluster and migrate all event streaming workloads to a managed cloud publish-subscribe platform by October 3, 2026. This migration resolves chronic consumer rebalancing lag, improves p99 latency to under 26 milliseconds at 65,000 QPS, and yields a 28 percent net infrastructure cost reduction. The organization standardized on Protocol Buffers version 3 with schema registry enforcement at the topic boundary to eliminate downstream schema drift. Production rollout is gated on mandatory InfoSec controls, including Customer-Managed Encryption Keys, Virtual Private Cloud service perimeters, and short-lived identity federation tokens. Staging dual-publishing will launch on September 5, 2026, followed by an InfoSec compliance audit on September 12, 2026, prior to final production cutover.
+The core architecture team finalized plans to decommission their self-hosted message broker cluster and migrate all event streaming workloads to a managed cloud publish-subscribe platform by October 3, 2026. This migration resolves chronic consumer rebalancing lag, improves p99 latency to under 26 milliseconds at 65,000 QPS, and yields a 28 percent net infrastructure cost reduction. The organization standardized on Protocol Buffers version 3 with schema registry enforcement at the topic boundary to eliminate downstream schema drift. Production rollout is gated on mandatory InfoSec controls, including Customer-Managed Encryption Keys, Virtual Private Cloud service perimeters, and short-lived identity federation tokens. Staging dual-publishing will launch on September 5, 2026, followed by an InfoSec compliance audit on September 12, 2026, prior to final production cutover.

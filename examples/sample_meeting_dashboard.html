@@ -92,20 +92,22 @@
       align-items: center;
     }
 
-    /* Theme Toggle Button (Single Icon-Only State Button) */
+    /* Theme Toggle Button */
     .theme-toggle-btn {
       background-color: var(--bg-tertiary);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      width: 34px;
-      height: 34px;
-      border-radius: var(--radius-md);
+      height: 30px;
+      padding: 0 0.65rem;
+      border-radius: var(--radius-sm);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: all 0.15s ease;
-      padding: 0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
     }
 
     .theme-toggle-btn:hover {
@@ -114,18 +116,12 @@
       border-color: var(--accent-blue-hover);
     }
 
-    .theme-toggle-btn svg {
-      width: 18px;
-      height: 18px;
-      pointer-events: none;
-    }
-
-    [data-theme="dark"] .theme-toggle-btn .moon-icon { display: none; }
-    [data-theme="dark"] .theme-toggle-btn .sun-icon { display: block; }
-    [data-theme="light"] .theme-toggle-btn .sun-icon { display: none; }
-    [data-theme="light"] .theme-toggle-btn .moon-icon { display: block; }
-    :root:not([data-theme]) .theme-toggle-btn .moon-icon { display: none; }
-    :root:not([data-theme]) .theme-toggle-btn .sun-icon { display: block; }
+    [data-theme="dark"] .theme-toggle-btn .theme-label-dark { display: none; }
+    [data-theme="dark"] .theme-toggle-btn .theme-label-light { display: inline; }
+    [data-theme="light"] .theme-toggle-btn .theme-label-light { display: none; }
+    [data-theme="light"] .theme-toggle-btn .theme-label-dark { display: inline; }
+    :root:not([data-theme]) .theme-toggle-btn .theme-label-dark { display: none; }
+    :root:not([data-theme]) .theme-toggle-btn .theme-label-light { display: inline; }
 
     .badge {
       display: inline-block;
@@ -279,7 +275,7 @@
     }
 
     .content-list li::before {
-      content: "•";
+      content: "-";
       position: absolute;
       left: 0.25rem;
       color: var(--accent-blue);
@@ -372,26 +368,23 @@
       background-color: var(--bg-tertiary);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      width: 32px;
-      height: 32px;
+      min-width: 44px;
+      height: 28px;
       border-radius: var(--radius-sm);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: all 0.15s ease;
-      padding: 0;
+      padding: 0 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 600;
     }
 
     .graph-ctrl-btn:hover {
       background-color: var(--accent-blue-hover);
       color: #ffffff;
       border-color: var(--accent-blue-hover);
-    }
-
-    .graph-ctrl-btn svg {
-      width: 16px;
-      height: 16px;
     }
 
     /* Node & Link visual states */
@@ -714,20 +707,8 @@
       <div class="meeting-meta">
         <span class="badge badge-primary" id="display-date">Date</span>
         <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle light and dark mode" title="Toggle theme">
-          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
+          <span class="theme-label-light">Light</span>
+          <span class="theme-label-dark">Dark</span>
         </button>
       </div>
     </div>
@@ -791,23 +772,9 @@
 
         <!-- Floating Graph Zoom Controls -->
         <div class="graph-controls">
-          <button class="graph-ctrl-btn" onclick="graphZoomIn()" title="Zoom In" aria-label="Zoom In">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
-          <button class="graph-ctrl-btn" onclick="graphZoomOut()" title="Zoom Out" aria-label="Zoom Out">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
-          <button class="graph-ctrl-btn" onclick="graphResetZoom()" title="Reset View" aria-label="Reset View">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-              <polyline points="3 3 3 8 8 8"></polyline>
-            </svg>
-          </button>
+          <button class="graph-ctrl-btn" onclick="graphZoomIn()" title="Zoom In" aria-label="Zoom In">+</button>
+          <button class="graph-ctrl-btn" onclick="graphZoomOut()" title="Zoom Out" aria-label="Zoom Out">-</button>
+          <button class="graph-ctrl-btn" onclick="graphResetZoom()" title="Reset View" aria-label="Reset View">Reset</button>
         </div>
 
         <div class="graph-stage-area" id="graph-stage-container">
@@ -819,7 +786,7 @@
         <div class="inspector-drawer" id="inspector-drawer">
           <div class="inspector-header">
             <h3 class="inspector-title" id="inspector-title">Topic Title</h3>
-            <button class="inspector-close" onclick="closeInspector()">&times;</button>
+            <button class="inspector-close" onclick="closeInspector()">Close</button>
           </div>
           <div class="inspector-section">
             <div class="inspector-section-label">Context & Background</div>
@@ -887,7 +854,7 @@
   <script>
     // Embedded Data Model Payload
     const MEETING_DATA = {
-      meetingTitle: "Enterprise Event Streaming Migration Architecture Review",
+      meetingTitle: "Core Event Streaming Migration Architecture Review",
       date: "2026-08-14",
       participants: [
         "Sarah Lin (Principal Architect)",
@@ -903,7 +870,7 @@
         targetCutover: "2026-10-03"
       },
       executiveSummary: {
-        objective: "Finalize the architectural, financial, security, and scheduling plans for migrating the enterprise event streaming infrastructure from self-hosted message broker clusters on virtual compute instances to a managed cloud publish-subscribe platform.",
+        objective: "Finalize the architectural, financial, security, and scheduling plans for migrating the core event streaming infrastructure from self-hosted message broker clusters on virtual compute instances to a managed cloud publish-subscribe platform.",
         decisions: [
           "Approved full platform migration from the self-hosted broker to the managed cloud messaging platform.",
           "Standardized on Protocol Buffers version 3 (Protobuf) for message serialization and schema enforcement, deprecating unvalidated JSON payloads.",
@@ -944,7 +911,7 @@
           id: "topic-3",
           title: "Security, Governance, and Compliance Controls",
           shortTitle: "CMEK & Security",
-          context: "Enterprise compliance mandates strict isolation, customer key ownership, and identity governance before routing production traffic.",
+          context: "Organizational compliance mandates strict isolation, customer key ownership, and identity governance before routing production traffic.",
           explanation: "Mandated CMEK encryption using Key Management Service (KMS) key ring in us-central1, VPC service perimeters around messaging endpoints, and short-lived identity federation tokens with granular roles (roles/messaging.publisher, roles/messaging.subscriber).",
           rationale: "Infrastructure-as-code automation in Terraform ensures zero configuration drift and guarantees compliance prior to cutover.",
           conclusion: "Implement all security perimeters and IAM bindings in reusable Terraform modules."
@@ -1669,7 +1636,7 @@
     (function initTheme() {
       let savedTheme = 'dark';
       try {
-        savedTheme = localStorage.getItem('meeting_dashboard_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        savedTheme = localStorage.getItem('meeting_dashboard_theme') || 'dark';
       } catch (e) {}
       document.documentElement.setAttribute('data-theme', savedTheme);
       syncThemeButton(savedTheme);
@@ -1834,7 +1801,26 @@
       el.classList.toggle('open');
     }
 
-    window.onload = () => initDashboard(MEETING_DATA);
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab) {
+        const noTrans = document.createElement('style');
+        noTrans.textContent = '*, *::before, *::after { transition: none !important; }';
+        document.head.appendChild(noTrans);
+      }
+      initDashboard(MEETING_DATA);
+      const btns = document.querySelectorAll('.nav-tabs .tab-btn');
+      if (tab === 'graph' && btns[1]) {
+        switchMainTab('graph', btns[1]);
+        graphState.panX = -160;
+        updateGraphViewportTransform();
+        const firstTopic = graphState.nodes.find(n => !n.isRoot);
+        if (firstTopic) selectGraphNode(firstTopic);
+      } else if (tab === 'actions' && btns[2]) {
+        switchMainTab('actions', btns[2]);
+      }
+    };
   </script>
 </body>
 </html>
