@@ -8,7 +8,7 @@ Use this checklist to audit generated meeting and presentation summaries against
 
 | Criterion | Requirement | Verification Check |
 | :--- | :--- | :--- |
-| **Mandatory Mode Clarification** | Never assume a default mode if the user only provides a transcript without specifying `"meeting mode"` or `"presentation mode"`. | Confirm the agent asked the user to choose `Meeting Mode` or `Presentation Mode` if unspecified in the prompt. |
+| **Mandatory Mode and UI Dashboard Clarification** | Never assume a default mode or dashboard preference if the user omits `"meeting mode"` / `"presentation mode"` or whether to create the interactive UI dashboard (`dashboard.html`) upon completion. | Confirm the agent asked the user upfront for any missing choice (`Meeting Mode` vs. `Presentation Mode` and/or `Yes` vs. `No` for UI dashboard creation) before generating output. |
 | **Pure Factual Grounding and Zero Hallucination** | All statements, numbers, names, slide references, and conclusions derive strictly from what was said in the transcript. | Zero hallucinated facts, invented speakers, unmentioned tools/slides, or fabricated deadlines. |
 | **No External Topic Explanations** | Do not generate external explanations, definitions, tutorials, or background commentary on how topics or technologies work. | All content exclusively documents what speakers articulated during the meeting or presentation. |
 | **Details of What Was Said** | Specific details, metrics, technical points, constraints, slide walkthroughs, and statements made by speakers are recorded. | Detailed points spoken in the transcript are preserved rather than replaced by vague summaries or external definitions. |

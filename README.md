@@ -8,20 +8,20 @@ A standardized agent skill for extracting structured, grounded summaries and int
 
 Generic transcript summaries often reduce spoken content to brief bullet points, losing the technical context, quantitative metrics, and rationale behind decisions. Furthermore, collaborative meetings and single-speaker presentations require distinct summary structures.
 
-This single unified skill (`meeting-transcript-summary`) supports **two selectable processing modes** and **always prompts the user to select a mode if one is not specified in the request**:
+This single unified skill (`meeting-transcript-summary`) supports **two selectable processing modes** and **always prompts the user upfront to specify the processing mode (`Meeting Mode` vs. `Presentation Mode`) and whether to create the interactive UI dashboard (`dashboard.html`) upon completion if either is not specified in the request**:
 
 ### Mode 1: Meeting Mode (`meeting mode`)
 Designed for collaborative meetings with back-and-forth dialogue among participants. Produces a three-part deliverable plus an optional 4-tab Meeting Dashboard:
 1. **Executive Summary:** Strategic briefing covering the primary objective, key decisions made, outcomes and impact, and critical blockers stated by participants.
 2. **Detailed Discussion Record and Action Items:** A comprehensive narrative record organized by logical topic. Captures the specific details of what was said by participants, statements made, and the rationale (arguments exchanged, trade-offs evaluated, alternatives dismissed) without adding external explanations. Concludes with a four-column Action Items table.
 3. **Five-Sentence Summary:** Exactly five complete, self-contained sentences providing a concise briefing of what was said and decided in the meeting.
-4. **Interactive Meeting Web Dashboard:** A 4-tab visual interface (`Executive Brief`, `Knowledge Graph`, `Action Items` Kanban/Table, and `Detailed Record`).
+4. **Interactive Meeting Web Dashboard (when confirmed):** A 4-tab visual interface (`Executive Brief`, `Knowledge Graph`, `Action Items` Kanban/Table, and `Detailed Record`).
 
 ### Mode 2: Presentation Mode (`presentation mode`)
 Designed for presentations, keynotes, lectures, webinars, or demonstrations where one or more presenters speak sequentially (often walking through slides) without back-and-forth meeting debate.
 1. **Chronological Presentation Summary Only:** Outputs the presentation header (`Title`, `Date`, `Presenter(s)`) followed strictly by a numbered, start-to-finish **Chronological Description and Summarization** of what was presented and said (`1. [Segment Title]`, `2. [Segment Title]`, ...).
 2. **Strict Omission of Meeting Sections:** Explicitly omits the Executive Summary, Action Items table, and Five-Sentence Summary.
-3. **Presentation Knowledge Graph Web Dashboard:** Opens **directly to the Interactive Presentation Knowledge Graph** (visualizing the central presentation theme, chronological progression `#1` through `#N`, conceptual links across slides/segments, and a slide-out Segment Inspector drawer) paired with a `Chronological Walkthrough` timeline tab.
+3. **Presentation Knowledge Graph Web Dashboard (when confirmed):** Opens **directly to the Interactive Presentation Knowledge Graph** (visualizing the central presentation theme, chronological progression `#1` through `#N`, conceptual links across slides/segments, and a slide-out Segment Inspector drawer) paired with a `Chronological Walkthrough` timeline tab.
 
 Both modes operate under strict factual grounding rules: zero conversational filler, zero hallucination, and zero external topic explanations.
 
@@ -65,7 +65,7 @@ meeting-transcript-summary-skill/
 
 ## Non-Technical User Guide: How to Use This Skill
 
-You do not need any programming experience to use this skill. Follow the steps below to turn a raw recording transcript into a structured summary or visual dashboard.
+You do not need any programming experience to use this skill. Follow the steps below to turn a raw recording transcript into a structured summary and optional interactive UI dashboard.
 
 ### Step 1: Obtain Your Transcript
 
@@ -74,14 +74,18 @@ Export or copy the text transcript from your video call recording, webinar platf
 - Attached text files (`.txt`)
 - Exported subtitle or caption files (`.vtt` or `.srt`)
 
-### Step 2: Provide the Transcript and Choose a Mode
+### Step 2: Provide the Transcript, Choose a Mode, and Specify UI Dashboard Creation
 
-When you give a transcript to the assistant, you can either **paste the transcript first and let the assistant ask you which mode you want**, or **state the mode directly in your message**.
+Before generating any output, the assistant requires two settings to be confirmed:
+1. **Processing Mode:** `Meeting Mode` or `Presentation Mode`
+2. **Interactive UI Dashboard (`dashboard.html`):** Whether the UI dashboard must be created upon completion (`Yes` or `No`)
 
-#### Option A: Paste the Transcript First, Select the Mode After (Two-Step Flow)
-If you provide a transcript without mentioning whether it is a meeting or a presentation, the assistant will not guess. It will pause and ask you which mode to run.
+You can either **paste the transcript first and let the assistant prompt you** for the mode and UI dashboard preference, or **specify both directly in your initial message**.
 
-**Real-World Example 1 — Weekly Team Planning Call (Pasting Transcript First):**
+#### Option A: Paste the Transcript First, Answer the Prompt After (Two-Step Flow)
+If you provide a transcript without specifying the mode or whether to create the UI dashboard upon completion, the assistant will not guess. It will pause and ask you for the missing choice(s) before generating output.
+
+**Real-World Example 1 — Weekly Team Planning Call (Pasting Transcript Only, Creating Dashboard):**
 1. **You paste into chat:**
    ```text
    Use the meeting-transcript-summary skill on this transcript:
@@ -91,61 +95,76 @@ If you provide a transcript without mentioning whether it is a meeting or a pres
    Sarah Lin (10:03 AM): Approved. Marcus, please publish the cutover runbook by Friday.
    ```
 2. **The assistant asks you:**
-   > Please specify which mode you would like to use for this transcript:
-   > 1. **Meeting Mode** — 3-part summary (Executive Summary, Detailed Logical Discussion Record with Action Items, and 5-Sentence Summary)
-   > 2. **Presentation Mode** — Chronological description and summarization of what was said only
+   > Before processing this transcript, please specify:
+   > 1. **Processing Mode:**
+   >    - **Meeting Mode** — 3-part summary (Executive Summary, Detailed Logical Discussion Record with Action Items, and 5-Sentence Summary)
+   >    - **Presentation Mode** — Chronological description and summarization of what was said only
+   > 2. **Interactive UI Dashboard:** Should the interactive UI dashboard (`dashboard.html`) be created upon completion? (**Yes** / **No**)
 3. **You reply:**
    ```text
-   meeting mode
+   meeting mode, yes create the UI dashboard
    ```
-   The assistant then generates the 3-part meeting summary including the Executive Summary, Detailed Discussion Record, Action Items table (showing Marcus Vance assigned to publish the cutover runbook by Friday), and 5-Sentence Summary.
+   The assistant generates the 3-part meeting summary (Executive Summary, Detailed Discussion Record with the Action Items table, and 5-Sentence Summary) and creates the interactive 4-tab `dashboard.html` artifact upon completion.
 
-**Real-World Example 2 — Recorded Slide Presentation or Webinar (Pasting Transcript First):**
+**Real-World Example 2 — Recorded Slide Presentation or Webinar (Pasting Transcript First, Summary Only):**
 1. **You paste or attach the transcript:**
    ```text
    Apply the meeting-transcript-summary skill to the attached recording transcript.
    ```
-2. **The assistant asks you to choose between Meeting Mode and Presentation Mode.**
+2. **The assistant asks you to select the Processing Mode (`Meeting Mode` vs. `Presentation Mode`) and whether to create the interactive UI dashboard (`Yes` vs. `No`).**
 3. **You reply:**
    ```text
-   presentation mode
+   presentation mode, no dashboard
    ```
-   The assistant generates a start-to-finish chronological walkthrough of what the presenter said on each slide or section, without adding an Executive Summary, Action Items table, or 5-Sentence Summary.
+   The assistant generates only the start-to-finish chronological walkthrough of what the presenter said on each slide or section (without an Executive Summary, Action Items table, 5-Sentence Summary, or HTML dashboard).
+
+**Real-World Example 3 — Specifying Mode Only (Assistant Prompts Only for UI Dashboard Preference):**
+1. **You write in chat:**
+   ```text
+   Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode.
+   ```
+2. **Because the mode was already provided, the assistant asks only the remaining question:**
+   > Should the interactive UI dashboard (`dashboard.html`) be created upon completion? (**Yes** / **No**)
+3. **You reply:**
+   ```text
+   Yes
+   ```
+   The assistant proceeds with Meeting Mode and emits the interactive UI dashboard upon completion.
 
 ---
 
-#### Option B: Specify the Mode Directly in Your First Message (One-Step Flow)
+#### Option B: Specify Both Mode and UI Dashboard Preference in Your First Message (One-Step Flow)
 
-If you already know which mode you want, include `"meeting mode"` or `"presentation mode"` in your initial prompt:
+If you already know both your preferred mode and whether you want the UI dashboard created upon completion, include both in your initial prompt to run in a single step without follow-up prompts:
 
-- **Example 3 — Summarizing a Project Sync in Meeting Mode:**
+- **Example 4 — Meeting Mode + Interactive UI Dashboard Upon Completion:**
   ```text
-  Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode.
+  Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode and create the UI dashboard upon completion.
   ```
-- **Example 4 — Summarizing a Keynote or Lecture in Presentation Mode:**
+- **Example 5 — Meeting Mode + Markdown Summary Only (No UI Dashboard):**
   ```text
-  Summarize the following transcript using the meeting-transcript-summary skill in presentation mode:
+  Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode without creating the UI dashboard.
+  ```
+- **Example 6 — Presentation Mode + Knowledge Graph UI Dashboard Upon Completion:**
+  ```text
+  Summarize the following transcript using the meeting-transcript-summary skill in presentation mode and create the UI dashboard upon completion:
 
   [Paste presentation transcript here]
   ```
-- **Example 5 — Generating an Interactive Visual Dashboard for a Meeting:**
+- **Example 7 — Presentation Mode + Chronological Summary Only (No UI Dashboard):**
   ```text
-  Process the attached transcript with the meeting-transcript-summary skill in meeting mode and generate the interactive dashboard.
+  Summarize the attached transcript using the meeting-transcript-summary skill in presentation mode, summary only (no UI dashboard).
   ```
-- **Example 6 — Generating a Knowledge Graph Dashboard for a Presentation:**
+- **Example 8 — Requesting Dual Output (Rendered + Raw Markdown) with Explicit Dashboard Preference:**
   ```text
-  Process the attached transcript with the meeting-transcript-summary skill in presentation mode and generate the interactive dashboard.
-  ```
-- **Example 7 — Requesting Both Rendered Text and Copyable Markdown Code:**
-  ```text
-  Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode. Provide dual output with both rendered markdown and a raw markdown code block.
+  Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode with no UI dashboard. Provide dual output with both rendered markdown and a raw markdown code block.
   ```
 
 ### Step 3: Use or Share the Output
 
 - **Copying into Word Processors, Docs, or Email:** Highlight and copy the rendered summary directly from the chat window. Headings, bullet lists, and tables retain their formatting when pasted.
 - **Copying into Wikis or Markdown Files:** Request `"raw markdown"` or `"dual output"` and click the copy button on the code block.
-- **Exploring the Interactive Dashboard:** When you request a dashboard, the assistant opens an interactive `dashboard.html` panel where you can click nodes on the Knowledge Graph, inspect slide or topic details, filter tasks by owner, or toggle between dark and light themes.
+- **Exploring the Interactive Dashboard:** When you confirm UI dashboard creation, the assistant opens an interactive `dashboard.html` panel upon completion where you can click nodes on the Knowledge Graph, inspect slide or topic details, filter tasks by owner, or toggle between dark and light themes.
 
 ---
 
@@ -158,7 +177,7 @@ To register this skill in a local or shared workspace:
 1. Copy the skill directory into your environment's skills path (for example, `.agents/skills/meeting-transcript-summary/` relative to the workspace root).
 2. Reference the skill in chat:
    ```text
-   Use the meeting-transcript-summary skill to analyze the transcript in examples/sample_meeting_transcript.txt
+   Use the meeting-transcript-summary skill in meeting mode and create the UI dashboard upon completion for examples/sample_meeting_transcript.txt
    ```
 
 ### 2. Assistant Configuration Interface
@@ -178,8 +197,8 @@ Use the included Python script to strip WebVTT or SRT timestamps before passing 
 # Normalize raw WebVTT or SRT files into consolidated speaker blocks
 python3 scripts/clean_transcript.py raw_recording.vtt --output cleaned_transcript.txt
 
-# Pass the cleaned transcript to a CLI agent runner
-cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summary in presentation mode"
+# Pass the cleaned transcript to a CLI agent runner with mode and dashboard preference specified
+cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summary in presentation mode with no UI dashboard"
 ```
 
 ---
@@ -221,7 +240,7 @@ cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summ
 
 ## Interactive Web Dashboards (Tailored by Mode)
 
-When prompted for an interactive dashboard, the skill emits a self-contained HTML/CSS/JavaScript file named `dashboard.html` (`UserFacing: true`, `Summary: "Interactive Evaluation Dashboard"`, `RequestFeedback: false`).
+When the user confirms that the interactive UI dashboard must be created upon completion, the skill emits a self-contained HTML/CSS/JavaScript file named `dashboard.html` (`UserFacing: true`, `Summary: "Interactive Evaluation Dashboard"`, `RequestFeedback: false`).
 
 ### 1. Meeting Mode Dashboard ([templates/meeting_dashboard_template.html](templates/meeting_dashboard_template.html))
 Includes four tabs designed for multi-participant meetings:
@@ -258,7 +277,7 @@ Tailored specifically for presentations where the focus is on the conceptual str
 
 ## Core Rules and Constraints
 
-- **Mandatory Mode Clarification (Never Assume Mode):** If invoked with a transcript but without `"meeting mode"` or `"presentation mode"` specified, the agent prompts the user to select the mode before generating output.
+- **Mandatory Mode and UI Dashboard Clarification (Never Assume Defaults):** Before generating output, the agent verifies that both the processing mode (`"meeting mode"` or `"presentation mode"`) and whether to create the interactive UI dashboard (`dashboard.html`) upon completion are specified. If either or both are omitted, the agent prompts the user upfront before processing.
 - **Pure Factual Grounding (Zero Hallucination):** Output contains strictly facts, decisions, numbers, slide descriptions, and arguments directly stated in the source transcript.
 - **Strictly Record What Was Said (No External Explanations):** Documents exclusively what speakers articulated during the meeting or presentation without adding external definitions or tutorials.
 - **Direct Factual Prose:** Eliminates conversational filler phrases, pleasantries, and introductory or closing framing.

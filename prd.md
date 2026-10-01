@@ -8,7 +8,7 @@ Collaborative meetings and single-speaker presentations have distinct structural
 - **Interactive Meetings** involve multi-participant debates, trade-offs, decisions, and task assignments that require logical topic synthesis and action item tracking.
 - **Presentations** involve one or more presenters speaking sequentially (typically walking through slides or live demonstrations) without participant debate or task assignment, requiring a chronological record of what was presented and said.
 
-This project provides a single unified skill supporting both **Meeting Mode** and **Presentation Mode**, enforcing explicit mode selection whenever a user provides a transcript without specifying a mode.
+This project provides a single unified skill supporting both **Meeting Mode** and **Presentation Mode**, enforcing explicit mode selection and UI dashboard creation confirmation whenever a user provides a transcript without specifying either setting.
 
 ---
 
@@ -39,10 +39,10 @@ This project provides a single unified skill supporting both **Meeting Mode** an
 
 ## 3. Functional Requirements
 
-### 3.1 Mandatory Mode Selection Gate
-- **Explicit Mode Invocation:** If the user specifies `"meeting mode"` or `"presentation mode"` when invoking the skill (either alongside the transcript or in a subsequent message), the agent executes the specified mode directly.
-- **Unspecified Mode Handling:** If the user invokes the skill and provides transcript text or a file path without specifying which mode to use, the agent **must not assume a default mode**. It must prompt the user to select between `Meeting Mode` and `Presentation Mode` (using the interactive question tool when supported, or a direct text prompt) and wait for confirmation before generating output.
-- **Missing Transcript Handling:** If the user invokes the skill without providing transcript text or a valid file path, the agent prompts the user to provide the transcript input and terminates.
+### 3.1 Mandatory Mode and UI Dashboard Selection Gate
+- **Explicit Invocation:** If the user specifies both the processing mode (`"meeting mode"` or `"presentation mode"`) and whether to create the interactive UI dashboard (`dashboard.html`) upon completion when invoking the skill, the agent executes the specified workflow directly.
+- **Unspecified Mode or UI Dashboard Handling:** If the user invokes the skill and provides transcript text or a file path without specifying the processing mode and/or whether to create the UI dashboard upon completion, the agent **must not assume defaults**. It must prompt the user upfront for the missing choice(s) (`Meeting Mode` vs. `Presentation Mode` and/or `Yes` vs. `No` for creating the UI dashboard upon completion) and wait for confirmation before generating output.
+- **Missing Transcript Handling:** If the user invokes the skill without providing transcript text or a valid file path, the agent prompts the user to provide the transcript input (along with mode and dashboard preference if unspecified) and terminates.
 
 ### 3.2 Transcript Ingestion and Normalization
 - **Supported Formats:** Plain text dialogue blocks, WebVTT (`.vtt`), SubRip (`.srt`), segmented timestamp exports, and inline diarized transcripts as documented in [references/transcript_formats.md](references/transcript_formats.md).
@@ -55,14 +55,14 @@ This project provides a single unified skill supporting both **Meeting Mode** an
 ### 3.3 Factual Grounding and Content Constraints
 - **Zero Hallucination:** Every fact, metric, name, decision, slide reference, and takeaway must originate directly from the source transcript.
 - **No External Explanations:** The output must only report what speakers articulated during the session. It must never inject external definitions, tutorials, or background commentary on concepts or tools mentioned.
-- **Zero Preamble or Postamble:** Once the mode is selected, output starts immediately with the Markdown header and ends immediately after the final section.
+- **Zero Preamble or Postamble:** Once the mode and UI dashboard preference are confirmed, output starts immediately with the Markdown header and ends immediately after the final section.
 
 ### 3.4 Output Delivery Formats
 Both processing modes support four delivery formats:
 1. **Rendered Markdown (Default):** Standard Markdown emitted directly to the response stream.
 2. **Raw Markdown Code Block:** Complete output wrapped in a fenced ` ```markdown ` block.
 3. **Dual Output Mode:** Rendered Markdown followed by a divider and a fenced raw Markdown code block.
-4. **Interactive Web Dashboard Mode:** Self-contained HTML/CSS/JavaScript document emitted as a user-facing artifact named `dashboard.html` (`UserFacing: true`, `Summary: "Interactive Evaluation Dashboard"`, `RequestFeedback: false`).
+4. **Interactive Web Dashboard Mode:** Self-contained HTML/CSS/JavaScript document emitted upon completion (when confirmed by the user) as a user-facing artifact named `dashboard.html` (`UserFacing: true`, `Summary: "Interactive Evaluation Dashboard"`, `RequestFeedback: false`).
 
 ---
 
@@ -105,7 +105,7 @@ meeting-transcript-summary-skill/
 ## 5. Verification and Acceptance Criteria
 
 All outputs generated by the skill are verified against [references/quality_checklist.md](references/quality_checklist.md):
-1. **Mode Confirmation:** When invoked without an explicit mode, the agent prompts the user to select `Meeting Mode` or `Presentation Mode` prior to processing.
+1. **Mode and UI Dashboard Confirmation:** When invoked without an explicit mode or UI dashboard preference, the agent prompts the user upfront to specify `Meeting Mode` vs. `Presentation Mode` and/or whether to create the interactive UI dashboard (`dashboard.html`) upon completion prior to processing.
 2. **Meeting Mode Structural Accuracy:** Contains the Header, Section 1 (Executive Summary), Section 2 (Logical Topic Record + 4-Column Action Items Table), and Section 3 (strictly 5 sentences).
 3. **Presentation Mode Structural Accuracy:** Contains only the Presentation Header and numbered `Chronological Presentation Summary` segments (`1..N`), with zero Executive Summary, Action Items table, or 5-Sentence Summary.
 4. **Dashboard Mode Alignment:** Meeting Mode dashboards use `templates/meeting_dashboard_template.html`; Presentation Mode dashboards use `templates/presentation_dashboard_template.html` and open directly to the `Presentation Knowledge Graph` tab.
