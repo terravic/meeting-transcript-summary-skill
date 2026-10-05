@@ -4,12 +4,14 @@ description: >-
   Analyzes raw meeting or presentation transcripts from video conferencing exports,
   WebVTT, SRT, or plain text in two selectable modes: (1) Meeting Mode — produces a
   three-tier deliverable (Executive Summary, Detailed Discussion Record with Action
-  Items table, and 5-Sentence Summary) plus an optional meeting dashboard; (2)
-  Presentation Mode — produces strictly a chronological description and summarization
-  of what the presenter(s) said (no Executive Summary, Action Items, or 5-Sentence
-  Summary) plus an optional Knowledge Graph-focused presentation dashboard. Always
-  prompts the user upfront to specify the processing mode and whether to create the
-  interactive UI dashboard upon completion if either is not specified. Strictly
+  Items table, and 5-Sentence Summary), an optional fourth section (Action Items for
+  [User Name] brief paragraph) when a target user name is specified, plus an optional
+  meeting dashboard; (2) Presentation Mode — produces strictly a chronological
+  description and summarization of what the presenter(s) said (no Executive Summary,
+  Action Items, or 5-Sentence Summary) plus an optional Knowledge Graph-focused
+  presentation dashboard. Always prompts the user upfront to specify the processing
+  mode and whether to create the interactive UI dashboard upon completion if either
+  is not specified; never prompts for the optional user name parameter. Strictly
   grounded in the transcript with zero hallucination or external explanations.
 ---
 
@@ -19,8 +21,8 @@ description: >-
 
 This skill transforms raw transcripts from interactive meetings or speaker presentations into structured documentation. It supports two distinct processing modes tailored to the nature of the transcript:
 
-1. **Meeting Mode (`meeting mode`):** For interactive meetings with back-and-forth dialogue among participants. Synthesizes what was discussed into three distinct sections (Executive Summary, Detailed Logical Discussion Record with an Action Items table, and a 5-Sentence Summary) and an optional 4-tab Meeting Dashboard.
-2. **Presentation Mode (`presentation mode`):** For presentations, keynotes, lectures, webinars, or demonstrations where one or more presenters speak (often alongside slides) without back-and-forth meeting debate. Produces **only** a sequential, chronological description and summarization of what was said from beginning to end (omitting the Executive Summary, Action Items table, and 5-Sentence Summary) and an optional Presentation Knowledge Graph Dashboard.
+1. **Meeting Mode (`meeting mode`):** For interactive meetings with back-and-forth dialogue among participants. Synthesizes what was discussed into three core sections (Executive Summary, Detailed Logical Discussion Record with an Action Items table, and a 5-Sentence Summary), an optional fourth section (**Action Items for [User Name]** — a brief paragraph combining the action items and task descriptions for a specific user when a user name is provided), and an optional 4-tab Meeting Dashboard.
+2. **Presentation Mode (`presentation mode`):** For presentations, keynotes, lectures, webinars, or demonstrations where one or more presenters speak (often alongside slides) without back-and-forth meeting debate. Produces **only** a sequential, chronological description and summarization of what was said from beginning to end (omitting the Executive Summary, Action Items table, 5-Sentence Summary, and User-Specific Action Items section) and an optional Presentation Knowledge Graph Dashboard.
 
 Both modes strictly capture the specific details, facts, arguments, numbers, and statements spoken in the transcript without introducing external explanations, hallucinations, or ungrounded assumptions.
 
@@ -30,10 +32,11 @@ Both modes strictly capture the specific details, facts, arguments, numbers, and
 
 - **Pure Factual Grounding (Zero Hallucination, Zero Making Things Up):** Strictly include only the details, facts, numbers, arguments, and statements directly and explicitly spoken in the transcript. Never make up information, invent names, fabricate numbers, or hallucinate events or slide contents not mentioned in the transcript.
 - **Strictly Record What Was Said (No External Explanations):** Focus exclusively on reporting the specific details of what was spoken during the meeting or presentation. Do NOT provide external explanations, definitions, tutorials, or general background explanations about the topics discussed. Only capture the facts, arguments, constraints, visual/slide descriptions, and points explicitly articulated by the speakers.
-- **Mandatory Mode and UI Dashboard Clarification (Never Assume Mode or Dashboard Preference):** Before generating any output, verify that the user has explicitly specified **both**:
-  1. **Processing Mode:** `"meeting mode"` or `"presentation mode"`
-  2. **UI Dashboard Creation:** Whether the interactive UI dashboard (`dashboard.html`) must be created upon completion (`yes` / `create dashboard` vs. `no` / `summary only`)
-  If either or both are not explicitly specified in the user's prompt, **DO NOT assume defaults**. Immediately pause and ask the user for the missing choice(s) upfront (using the interactive `ask_question` tool if available in the agent harness, or a single concise text prompt) and wait for their response before generating the summary or dashboard.
+- **Mandatory Mode and UI Dashboard Clarification (Never Assume Mode or Dashboard Preference; User Name Is Optional):** Before generating any output, verify that the user has explicitly specified **both** required settings:
+  1. **Processing Mode (Required):** `"meeting mode"` or `"presentation mode"`
+  2. **UI Dashboard Creation (Required):** Whether the interactive UI dashboard (`dashboard.html`) must be created upon completion (`yes` / `create dashboard` vs. `no` / `summary only`)
+  3. **Target User Name (Optional — Meeting Mode Only):** An optional participant/user name (e.g., `"Marcus Vance"`, `"Marcus"`, `for user Sarah Lin`).
+  If either **Processing Mode** or **UI Dashboard Creation** (or both) is not explicitly specified in the user's prompt, **DO NOT assume defaults**. Immediately pause and ask the user for the missing required choice(s) upfront (using the interactive `ask_question` tool if available in the agent harness, or a single concise text prompt) and wait for their response before generating the summary or dashboard. **Do NOT ask the user for a user name** if one is not specified—if the user name parameter is omitted, simply generate the standard 3-section Meeting Mode output without a fourth section; if a user name is specified in Meeting Mode, generate the fourth section (`## 4. Action Items for [User Name]`).
 - **Direct Factual Prose:** Deliver factual, direct, and unambiguous synthesis. Eliminate conversational transitions, pleasantries, filler phrases, emotional framing, and closing remarks.
 - **Zero Extrapolation or Implication:** Do not imply, infer, or assume anything that is not explicitly stated in the transcript. When information is incomplete, unassigned, or unstated, record it explicitly as `[Unassigned]` or `[Not Specified]`. **Exception — Date Fallback:** If no date is explicitly stated in the transcript, assume today's date (the current date when the skill runs to process the input transcript text) formatted as `YYYY-MM-DD`.
 - **Standard Markdown Formatting:** Structure the deliverable using standard Markdown headings, bulleted lists, and aligned tables.
@@ -46,10 +49,11 @@ Both modes strictly capture the specific details, facts, arguments, numbers, and
 
 ### Mode 1: Meeting Mode (`meeting mode`)
 Use when processing a collaborative or decision-making meeting transcript with back-and-forth dialogue among participants.
-- **Output Deliverable:** Three-part response:
+- **Output Deliverable:** Three-part response (or four-part response when a target user name is specified):
   1. **Section 1: Executive Summary** (Meeting Objective, Key Decisions Made, Strategic Outcomes and Impact, Critical Risks and Blockers)
   2. **Section 2: Detailed Discussion Record and Action Items** (Organized by logical topic, followed by the 4-column Action Items table)
   3. **Section 3: Five-Sentence Summary** (Single paragraph of exactly 5 sentences)
+  4. **Section 4: Action Items for [User Name] (Optional — Only When User Name Is Specified)** (A brief paragraph after the 5-Sentence Summary combining the action items assigned to the specified user with a concise description of what needs to be done. Omitted if no user name is provided.)
 - **Interactive Dashboard (when UI dashboard creation is confirmed):** Uses [templates/meeting_dashboard_template.html](templates/meeting_dashboard_template.html), featuring four tabs: `Executive Brief`, `Knowledge Graph`, `Action Items` (Kanban and Data Table), and `Detailed Record`.
 
 ### Mode 2: Presentation Mode (`presentation mode`)
@@ -57,16 +61,16 @@ Use when processing a presentation, keynote, lecture, demonstration, or briefing
 - **Output Deliverable:** Single chronological deliverable:
   - **Document Header** (`# Presentation Summary: [Title]`, `Date`, `Presenter(s)`)
   - **Chronological Presentation Summary** (`### 1. [Segment Title]`, `### 2. [Segment Title]`, ...) describing and summarizing what was said in strict chronological order from start to finish.
-  - **Strict Omissions:** Do **NOT** generate an Executive Summary, do **NOT** generate an Action Items table, and do **NOT** generate a Five-Sentence Summary.
+  - **Strict Omissions:** Do **NOT** generate an Executive Summary, do **NOT** generate an Action Items table, do **NOT** generate a Five-Sentence Summary, and do **NOT** generate a User-Specific Action Items section.
 - **Interactive Dashboard (when UI dashboard creation is confirmed):** Uses [templates/presentation_dashboard_template.html](templates/presentation_dashboard_template.html), opening **directly to the Interactive Presentation Knowledge Graph** (mapping the central presentation theme, chronological flow `#1` through `#N`, and conceptual links across slides/segments with a slide-out Segment Inspector), paired with a `Chronological Walkthrough` tab. Omits Executive Brief metrics and Action Items tabs.
 
-### How Mode and UI Dashboard Selection Works
+### How Mode, UI Dashboard, and Optional User Name Selection Works
 
 1. **Neither Mode nor UI Dashboard Preference Is Specified (Two-Turn Flow):**
-   - If the user provides a transcript and invokes the skill without specifying the mode (`"meeting mode"` or `"presentation mode"`) or whether to create the interactive UI dashboard upon completion, **ask the user for both before processing**:
+   - If the user provides a transcript and invokes the skill without specifying the mode (`"meeting mode"` or `"presentation mode"`) or whether to create the interactive UI dashboard upon completion, **ask the user for both required settings before processing** (do **not** ask for a user name):
      - If the `ask_question` tool is available, call `ask_question` with two questions:
        1. Question 1: `"Which processing mode would you like to use for this transcript?"`
-          - `Meeting Mode — 3-part response (Executive Summary, Detailed Logical Discussion Record + Action Items, and 5-Sentence Summary)`
+          - `Meeting Mode — 3-part response (Executive Summary, Detailed Logical Discussion Record + Action Items, and 5-Sentence Summary; plus optional Section 4 if a user name is provided)`
           - `Presentation Mode — Chronological description and summarization of what the presenter(s) said only`
        2. Question 2: `"Should the interactive UI dashboard (dashboard.html) be created upon completion?"`
           - `Yes — Create the interactive UI dashboard upon completion`
@@ -74,15 +78,17 @@ Use when processing a presentation, keynote, lecture, demonstration, or briefing
      - If `ask_question` is not available, output a single direct prompt:
        > Before processing this transcript, please specify:
        > 1. **Processing Mode:**
-       >    - **Meeting Mode** — 3-part summary (Executive Summary, Detailed Logical Discussion Record with Action Items, and 5-Sentence Summary)
+       >    - **Meeting Mode** — 3-part summary (Executive Summary, Detailed Logical Discussion Record with Action Items, and 5-Sentence Summary; plus optional Section 4 if a user name is specified)
        >    - **Presentation Mode** — Chronological description and summarization of what was said only
        > 2. **Interactive UI Dashboard:** Should the interactive UI dashboard (`dashboard.html`) be created upon completion? (**Yes** / **No**)
-   - Once the user replies (e.g., `"meeting mode, yes"`, `"presentation mode, no dashboard"`, `"1, yes"`), immediately execute the chosen mode workflow and create (or skip) the UI dashboard accordingly.
-2. **Only One Requirement Is Specified Upfront (Partial Specification):**
-   - **Mode specified, UI Dashboard preference unspecified** (e.g., `"Summarize this transcript in meeting mode"` without mentioning the dashboard): Pause and ask **only** whether the interactive UI dashboard (`dashboard.html`) must be created upon completion (`Yes` vs. `No`), without re-asking the mode.
-   - **UI Dashboard preference specified, Mode unspecified** (e.g., `"Summarize this transcript and create the UI dashboard"` or `"Summarize this transcript without a dashboard"`): Pause and ask **only** which processing mode to use (`Meeting Mode` vs. `Presentation Mode`), without re-asking the dashboard preference.
+   - Once the user replies (e.g., `"meeting mode, yes"`, `"presentation mode, no dashboard"`, `"meeting mode, no dashboard, for Marcus Vance"`), immediately execute the chosen mode workflow, include Section 4 if a user name was specified in either the initial prompt or reply, and create (or skip) the UI dashboard accordingly.
+2. **Only One Required Setting Is Specified Upfront (Partial Specification):**
+   - **Mode specified, UI Dashboard preference unspecified** (e.g., `"Summarize this transcript in meeting mode"` or `"Summarize this transcript in meeting mode for Marcus Vance"` without mentioning the dashboard): Pause and ask **only** whether the interactive UI dashboard (`dashboard.html`) must be created upon completion (`Yes` vs. `No`), without re-asking the mode or asking for a user name.
+   - **UI Dashboard preference specified, Mode unspecified** (e.g., `"Summarize this transcript and create the UI dashboard"` or `"Summarize this transcript without a dashboard"`): Pause and ask **only** which processing mode to use (`Meeting Mode` vs. `Presentation Mode`), without re-asking the dashboard preference or asking for a user name.
 3. **Both Mode and UI Dashboard Preference Are Specified Upfront (One-Turn Flow):**
-   - If the user includes both the mode (`"meeting mode"` or `"presentation mode"`) and their UI dashboard preference (e.g., `"and create the UI dashboard"`, `"with dashboard"`, `"no dashboard"`, `"without UI dashboard"`, or `"summary only"`) in their initial prompt, proceed directly to the corresponding workflow without asking follow-up questions.
+   - If the user includes both the mode (`"meeting mode"` or `"presentation mode"`) and their UI dashboard preference (e.g., `"and create the UI dashboard"`, `"with dashboard"`, `"no dashboard"`, `"without UI dashboard"`, or `"summary only"`) in their initial prompt, proceed directly to the corresponding workflow without asking follow-up questions:
+     - If a target **user name** is also included in the prompt (in Meeting Mode), generate Sections 1, 2, 3, and 4.
+     - If no **user name** is included in the prompt (in Meeting Mode), do not ask for one; generate Sections 1, 2, and 3 only.
 
 ---
 
@@ -91,11 +97,12 @@ Use when processing a presentation, keynote, lecture, demonstration, or briefing
 Follow these steps sequentially:
 
 ```text
-1. Ingestion, Mode, and UI Dashboard Verification
+1. Ingestion, Mode, UI Dashboard, and Optional User Name Verification
    ├── Verify transcript text or file path is provided (if missing, prompt for transcript + mode + dashboard preference and terminate)
-   ├── Check if user specified "Meeting Mode" or "Presentation Mode"
-   ├── Check if user specified whether the interactive UI dashboard must be created upon completion ("Yes" or "No")
-   │   └── If either or both are unspecified: Prompt user upfront for the missing choice(s) and wait (DO NOT assume defaults)
+   ├── Check if user specified "Meeting Mode" or "Presentation Mode" (Required)
+   ├── Check if user specified whether the interactive UI dashboard must be created upon completion ("Yes" or "No") (Required)
+   │   └── If either Mode or UI Dashboard preference (or both) is unspecified: Prompt user upfront for the missing required choice(s) and wait (DO NOT assume defaults; DO NOT prompt for user name)
+   ├── Check if user optionally specified a target "User Name" for user-specific action items (Optional — do not prompt if omitted)
    ├── Parse speaker tags, timestamps, slide transitions, and diarization markers
    ├── Extract the date from the transcript, or default to today's date (the date the skill runs) in YYYY-MM-DD format if no date is given
    └── Filter out small talk, greetings, audio/screen-share checks, and off-topic logistics
@@ -114,7 +121,12 @@ Follow these steps sequentially:
    ├── Step 3 — Section 3 Synthesis: Five-Sentence Summary
    │   ├── Draft exactly five grammatically complete sentences summarizing what was said
    │   └── Verify sentence count equals five before finalizing
-   └── Step 4 — Meeting Dashboard Generation (When user confirmed UI Dashboard creation = Yes)
+   ├── Step 4 — Section 4 Synthesis: Action Items for [User Name] (Conditional — ONLY when a User Name is specified)
+   │   ├── Match the specified user name (full or partial/first name) to the corresponding participant in the transcript
+   │   ├── Identify all action items and responsibilities assigned to that user in the transcript
+   │   ├── Draft a single brief paragraph combining the user's action items with a concise description of what needs to be done, including spoken context, target deliverables/acceptance criteria, and deadlines
+   │   └── If no action items were assigned to the specified user in the transcript, state explicitly in a single factual sentence that no action items were assigned to [User Name] during the meeting (omit Section 4 entirely if no user name was specified in the command)
+   └── Step 5 — Meeting Dashboard Generation (When user confirmed UI Dashboard creation = Yes)
        ├── Ingest synthesized meeting data (metrics, decisions, topics, rationale, action items)
        ├── Populate data schema into templates/meeting_dashboard_template.html
        └── Emit dashboard.html as a user-facing artifact via write_to_file
@@ -127,7 +139,7 @@ Follow these steps sequentially:
    │   ├── For each segment in chronological order, describe and summarize what the presenter(s) said
    │   ├── Capture all specific facts, technical mechanisms, numbers, benchmarks, slide visuals/charts explicitly described aloud, demonstrations, and stated takeaways
    │   ├── Strictly avoid external explanations, tutorials, or unmentioned concept definitions
-   │   └── Strictly omit Executive Summary, Action Items table, and Five-Sentence Summary
+   │   └── Strictly omit Executive Summary, Action Items table, Five-Sentence Summary, and User-Specific Action Items section
    └── Step 3 — Presentation Dashboard Generation (When user confirmed UI Dashboard creation = Yes)
        ├── Ingest chronological presentation segments, core presentation theme, and conceptual/chronological relationships
        ├── Populate PRESENTATION_DATA schema into templates/presentation_dashboard_template.html (opening directly to the Presentation Knowledge Graph + Chronological Walkthrough tab)
@@ -198,11 +210,29 @@ A single paragraph containing exactly five complete sentences summarizing what w
 [Sentence 1: Context and primary purpose of the meeting.] [Sentence 2: Core technical or strategic challenge addressed.] [Sentence 3: Primary decision or consensus reached.] [Sentence 4: Major secondary outcome, resource commitment, or architectural shift.] [Sentence 5: Immediate next milestone and critical path timeline.]
 ```
 
+#### Conditional Section 4 (Include ONLY When a User Name Is Specified):
+
+If and only if the user specifies a target user name when invoking the skill (e.g., `"for Marcus Vance"`, `"user: Sarah Lin"`), append `## 4. Action Items for [User Name]` immediately after Section 3. If no user name is specified, **do not output Section 4**.
+
+```markdown
+---
+
+## 4. Action Items for [User Name]
+
+[A single brief paragraph combining the specific action items assigned to the given user with a concise description of what needs to be done, incorporating the relevant context from the discussion, required deliverables/acceptance criteria, and stated deadlines.]
+```
+
+#### Section 4 Formatting and Grounding Rules:
+1. **Optional & Conditional:** Only generate `## 4. Action Items for [User Name]` when a user name is explicitly provided in the user's request. Never prompt the user to provide a user name if omitted.
+2. **Brief Paragraph Format:** Write a cohesive, brief prose paragraph (not a bulleted list or table) that combines the action items assigned to that user with a clear description of what the user is supposed to do, the target deliverables, and any stated deadlines.
+3. **Participant Name Resolution:** If a partial or first name is given (e.g., `"Marcus"`), resolve it to the full participant name from the transcript (e.g., `"Marcus Vance"`) if unambiguous.
+4. **Zero-Task Fallback:** If a user name is specified in the request, still generate Section 4, but if that user has zero assigned action items in the transcript, state explicitly in a single factual sentence that no action items were assigned to `[User Name]` during the meeting. Never invent tasks.
+
 ---
 
 ### Mode 2: Presentation Mode Output Structure
 
-When running in **Presentation Mode**, output **only** the document header and the chronological description and summarization of what was said. Do **NOT** output an Executive Summary, Action Items table, or Five-Sentence Summary.
+When running in **Presentation Mode**, output **only** the document header and the chronological description and summarization of what was said. Do **NOT** output an Executive Summary, Action Items table, Five-Sentence Summary, or User-Specific Action Items section.
 
 ```markdown
 # Presentation Summary: [Insert Presentation Title / Topic]
@@ -233,7 +263,7 @@ Provide a sequential, chronological description and summarization of what was sa
 #### Presentation Mode Rules:
 1. **Strict Chronological Order:** Segments must follow the exact sequential order in which the presenter(s) spoke from start to finish (do not reorder or merge disparate timestamps into non-chronological thematic buckets).
 2. **Slide and Visual References:** If the presenter explicitly mentions slides, charts, architecture diagrams, code walkthroughs, or live demonstrations (e.g., *"On slide 4, you can see the latency curve..."*), describe what the presenter stated about those visuals. Never fabricate visual details that were not spoken or included in the transcript.
-3. **No Meeting-Mode Sections:** Never include an Executive Summary, Key Decisions list, Action Items table, or Five-Sentence Summary in Presentation Mode.
+3. **No Meeting-Mode Sections:** Never include an Executive Summary, Key Decisions list, Action Items table, Five-Sentence Summary, or User-Specific Action Items section in Presentation Mode.
 
 ---
 
@@ -255,11 +285,11 @@ Within either processing mode (`Meeting Mode` or `Presentation Mode`), the skill
 
 Before outputting the response, verify compliance against these standards:
 
-1. **Mode and UI Dashboard Verification Check:** Confirm that the user either explicitly specified both (a) the processing mode (`"meeting mode"` or `"presentation mode"`) and (b) whether the interactive UI dashboard must be created upon completion (`Yes` / `No`), or was prompted upfront to specify the missing choice(s) before generation.
+1. **Mode, UI Dashboard, and Optional User Name Verification Check:** Confirm that the user either explicitly specified both required settings—(a) the processing mode (`"meeting mode"` or `"presentation mode"`) and (b) whether the interactive UI dashboard must be created upon completion (`Yes` / `No`)—or was prompted upfront to specify the missing required choice(s) before generation. Confirm that the agent **never** prompts for the optional user name parameter if omitted.
 2. **Mode-Specific Structural Compliance:**
-   - **If Meeting Mode:** Confirm all 3 sections are present (`1. Executive Summary`, `2. Detailed Discussion Record and Action Items` with the 4-column table, and `3. Five-Sentence Summary` containing exactly 5 terminal periods / 5 complete sentences), and topics are grouped logically with spoken rationale/trade-offs preserved.
-   - **If Presentation Mode:** Confirm the output contains **only** the Presentation Summary header and the `Chronological Presentation Summary` organized in strict start-to-finish chronological order, and confirm that **zero** Executive Summary, Action Items table, or 5-Sentence Summary sections are included.
+   - **If Meeting Mode:** Confirm all 3 core sections are present (`1. Executive Summary`, `2. Detailed Discussion Record and Action Items` with the 4-column table, and `3. Five-Sentence Summary` containing exactly 5 terminal periods / 5 complete sentences), and topics are grouped logically with spoken rationale/trade-offs preserved. Furthermore, confirm that `4. Action Items for [User Name]` is included after Section 3 as a brief paragraph **if and only if** a user name was specified in the request, and completely omitted if no user name was specified.
+   - **If Presentation Mode:** Confirm the output contains **only** the Presentation Summary header and the `Chronological Presentation Summary` organized in strict start-to-finish chronological order, and confirm that **zero** Executive Summary, Action Items table, 5-Sentence Summary, or User-Specific Action Items sections are included.
 3. **Details of What Was Said:** Verify that the summary captures the precise details, facts, numbers, and statements spoken in the transcript, rather than vague or generic summaries.
-4. **No External Explanations or Hallucinations:** Verify that zero external explanations, definitions, unmentioned concepts, or hallucinated facts have been added. Everything in the summary must be directly traceable to spoken dialogue in the transcript.
+4. **No External Explanations or Hallucinations:** Verify that zero external explanations, definitions, unmentioned concepts, or hallucinated facts have been added. Everything in the summary (including any user-specific action item description in Section 4) must be directly traceable to spoken dialogue in the transcript.
 5. **Factual Prose Check:** Verify that the output maintains an objective, direct structure with zero conversational pleasantries and zero meta-commentary.
 6. **Pure Factual Grounding and Zero Opinion:** Verify that all facts, numbers, dates, technical claims, arguments, and takeaways derive solely from what was said in the transcript. Confirm that zero personal opinions, editorial interpretations, external advice, or unstated implications were added.

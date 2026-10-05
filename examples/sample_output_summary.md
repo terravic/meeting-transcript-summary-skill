@@ -77,3 +77,9 @@
 ## 3. Five-Sentence Summary
 
 The core architecture team finalized plans to decommission their self-hosted message broker cluster and migrate all event streaming workloads to a managed cloud publish-subscribe platform by October 3, 2026. This migration resolves chronic consumer rebalancing lag, improves p99 latency to under 26 milliseconds at 65,000 QPS, and yields a 28 percent net infrastructure cost reduction. The organization standardized on Protocol Buffers version 3 with schema registry enforcement at the topic boundary to eliminate downstream schema drift. Production rollout is gated on mandatory InfoSec controls, including Customer-Managed Encryption Keys, Virtual Private Cloud service perimeters, and short-lived identity federation tokens. Staging dual-publishing will launch on September 5, 2026, followed by an InfoSec compliance audit on September 12, 2026, prior to final production cutover.
+
+---
+
+## 4. Action Items for Marcus Vance
+
+Marcus Vance is responsible for establishing a central Git repository for Protocol Buffers version 3 (`.proto`) schema definitions with automated CI linting to enforce strict backward compatibility at the topic boundary. By September 5, 2026, he must build and deploy the dual-publishing adapter in the core event gateway so that staging events are published simultaneously to both the legacy broker and the managed cloud messaging platform for a two-week shadow traffic validation run verifying message delivery guarantees and consumer offset behavior. Contingent on zero data loss during staging shadow testing by September 19, 2026, and InfoSec compliance approval, Marcus will execute the production cutover to the managed cloud messaging platform over the weekend of October 3, 2026, and initiate the legacy broker decommission plan.

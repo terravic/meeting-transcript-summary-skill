@@ -16,11 +16,12 @@ This project provides a single unified skill supporting both **Meeting Mode** an
 
 ### 2.1 Mode 1: Meeting Mode (`meeting mode`)
 - **Target Input:** Transcripts from collaborative meetings with back-and-forth participant discussions.
-- **Markdown Deliverable (Three-Part Structure):**
+- **Markdown Deliverable (Three-Part Core Structure + Optional Fourth Section):**
   1. **Document Header:** Meeting Title, Date (`YYYY-MM-DD`, defaulting to the current execution date if unstated in the transcript), and Participants list.
   2. **Section 1 — Executive Summary:** Meeting Objective, Key Decisions Made, Strategic Outcomes and Impact, and Critical Risks and Blockers.
   3. **Section 2 — Detailed Discussion Record and Action Items:** Narrative record grouped by logical topic (capturing Discussion Details of what was said, Points Raised and Rationale, and Key Conclusions), followed by a four-column Action Items table (`Action Item`, `Assigned To`, `Deadline`, `Acceptance Criteria / Target Deliverable`).
   4. **Section 3 — Five-Sentence Summary:** A single paragraph containing strictly five grammatically complete sentences summarizing the meeting purpose, core challenge, primary decision, secondary outcome, and immediate next milestone.
+  5. **Section 4 — Action Items for [User Name] (Optional — Only When User Name Is Specified):** A brief paragraph appended after Section 3 combining the specific action items assigned to a given user with a concise description of what needs to be done, relevant discussion context, deliverables, and stated deadlines. If the user does not specify a user name when invoking the skill, Section 4 is omitted.
 - **Interactive Web Dashboard (`templates/meeting_dashboard_template.html`):**
   - Four-tab interface: `Executive Brief` (default active tab with summary metrics and cards), `Knowledge Graph` (SVG topic node-link topology and slide-out inspector), `Action Items` (Kanban by Owner board and filterable data table with CSV/Markdown export), and `Detailed Record` (collapsible topic accordions).
 
@@ -29,7 +30,7 @@ This project provides a single unified skill supporting both **Meeting Mode** an
 - **Markdown Deliverable (Chronological Structure Only):**
   1. **Document Header:** Presentation Title (`# Presentation Summary: [Title]`), Date (`YYYY-MM-DD`, defaulting to the current execution date if unstated), and `Presenter(s)`.
   2. **Chronological Presentation Summary:** Sequential, numbered segments (`### 1. [Segment Title]`, `### 2. [Segment Title]`, ...) following the exact start-to-finish chronological progression of the talk track, slides, and demonstrations. Records the presenter name and a detailed description and summarization of what was said, including spoken references to slide visuals, charts, architectures, and metrics.
-  3. **Omitted Sections:** Explicitly omits the Executive Summary, Action Items table, and Five-Sentence Summary.
+  3. **Omitted Sections:** Explicitly omits the Executive Summary, Action Items table, Five-Sentence Summary, and User-Specific Action Items section.
 - **Interactive Web Dashboard (`templates/presentation_dashboard_template.html`):**
   - Two-tab interface tailored for presentations:
     1. `Presentation Knowledge Graph` (default active tab on load): Visualizes the central `PRESENTATION CORE THEME` node connected to numbered chronological segment nodes (`#1` through `#N`) with directed edges representing sequential slide progression and conceptual links, paired with a slide-out Segment Inspector drawer (`What Was Presented & Said`, `Slide Visuals, Demos & Metrics Cited`, and `Stated Key Takeaway`).
@@ -39,9 +40,13 @@ This project provides a single unified skill supporting both **Meeting Mode** an
 
 ## 3. Functional Requirements
 
-### 3.1 Mandatory Mode and UI Dashboard Selection Gate
-- **Explicit Invocation:** If the user specifies both the processing mode (`"meeting mode"` or `"presentation mode"`) and whether to create the interactive UI dashboard (`dashboard.html`) upon completion when invoking the skill, the agent executes the specified workflow directly.
-- **Unspecified Mode or UI Dashboard Handling:** If the user invokes the skill and provides transcript text or a file path without specifying the processing mode and/or whether to create the UI dashboard upon completion, the agent **must not assume defaults**. It must prompt the user upfront for the missing choice(s) (`Meeting Mode` vs. `Presentation Mode` and/or `Yes` vs. `No` for creating the UI dashboard upon completion) and wait for confirmation before generating output.
+### 3.1 Mandatory Mode and UI Dashboard Selection Gate (and Optional User Name Parameter)
+- **Execution Parameters:**
+  1. **Processing Mode (Required):** `"meeting mode"` or `"presentation mode"`.
+  2. **UI Dashboard Flag (Required):** Whether to build the interactive UI dashboard (`dashboard.html`) upon completion (`Yes` / `No`).
+  3. **User Name (Optional — Meeting Mode Only):** A target participant/user name (e.g., `"Marcus Vance"`). When specified in Meeting Mode, triggers generation of `Section 4: Action Items for [User Name]` after Section 3. When omitted, Section 4 is not generated.
+- **Explicit Invocation:** If the user specifies both required settings—the processing mode (`"meeting mode"` or `"presentation mode"`) and whether to create the interactive UI dashboard (`dashboard.html`) upon completion—when invoking the skill, the agent executes the specified workflow directly (including Section 4 if a user name was provided, or omitting Section 4 if no user name was provided).
+- **Unspecified Mode or UI Dashboard Handling:** If the user invokes the skill and provides transcript text or a file path without specifying the processing mode and/or whether to create the UI dashboard upon completion, the agent **must not assume defaults**. It must prompt the user upfront for the missing required choice(s) (`Meeting Mode` vs. `Presentation Mode` and/or `Yes` vs. `No` for creating the UI dashboard upon completion) and wait for confirmation before generating output. The agent **must not prompt for a user name** if none was provided.
 - **Missing Transcript Handling:** If the user invokes the skill without providing transcript text or a valid file path, the agent prompts the user to provide the transcript input (along with mode and dashboard preference if unspecified) and terminates.
 
 ### 3.2 Transcript Ingestion and Normalization
@@ -78,6 +83,7 @@ meeting-transcript-summary-skill/
 ├── LICENSE                                         # Apache 2.0 License
 ├── assets/
 │   ├── skill_workflow_diagram.png                  # System workflow diagram covering both modes
+│   ├── user_interaction_diagram.png                # Execution parameters & user-specific Section 4 flow diagram
 │   ├── dashboard_executive_brief.png               # Meeting Mode Executive Brief view
 │   ├── dashboard_knowledge_graph.png               # Meeting Mode Topic Knowledge Graph view
 │   ├── dashboard_action_items.png                  # Meeting Mode Action Items Kanban view
@@ -91,7 +97,7 @@ meeting-transcript-summary-skill/
 │   └── quality_checklist.md                        # Verification rubric for Meeting and Presentation modes
 ├── examples/
 │   ├── sample_meeting_transcript.txt               # Synthetic multi-participant meeting transcript
-│   ├── sample_output_summary.md                    # Reference 3-part output for Meeting Mode
+│   ├── sample_output_summary.md                    # Reference output for Meeting Mode (including optional Section 4)
 │   ├── sample_meeting_dashboard.html               # Working interactive dashboard for Meeting Mode
 │   ├── sample_presentation_transcript.txt          # Synthetic single-presenter keynote transcript
 │   ├── sample_presentation_summary.md              # Reference chronological output for Presentation Mode
@@ -105,8 +111,8 @@ meeting-transcript-summary-skill/
 ## 5. Verification and Acceptance Criteria
 
 All outputs generated by the skill are verified against [references/quality_checklist.md](references/quality_checklist.md):
-1. **Mode and UI Dashboard Confirmation:** When invoked without an explicit mode or UI dashboard preference, the agent prompts the user upfront to specify `Meeting Mode` vs. `Presentation Mode` and/or whether to create the interactive UI dashboard (`dashboard.html`) upon completion prior to processing.
-2. **Meeting Mode Structural Accuracy:** Contains the Header, Section 1 (Executive Summary), Section 2 (Logical Topic Record + 4-Column Action Items Table), and Section 3 (strictly 5 sentences).
-3. **Presentation Mode Structural Accuracy:** Contains only the Presentation Header and numbered `Chronological Presentation Summary` segments (`1..N`), with zero Executive Summary, Action Items table, or 5-Sentence Summary.
+1. **Mode and UI Dashboard Confirmation (Optional User Name):** When invoked without an explicit mode or UI dashboard preference, the agent prompts the user upfront to specify `Meeting Mode` vs. `Presentation Mode` and/or whether to create the interactive UI dashboard (`dashboard.html`) upon completion prior to processing, and never prompts for the optional user name parameter if omitted.
+2. **Meeting Mode Structural Accuracy:** Contains the Header, Section 1 (Executive Summary), Section 2 (Logical Topic Record + 4-Column Action Items Table), Section 3 (strictly 5 sentences), and—if and only if a user name was specified in the command—Section 4 (`Action Items for [User Name]`, formatted as a brief paragraph combining the user's assigned action items with a description of what needs to be done).
+3. **Presentation Mode Structural Accuracy:** Contains only the Presentation Header and numbered `Chronological Presentation Summary` segments (`1..N`), with zero Executive Summary, Action Items table, 5-Sentence Summary, or User-Specific Action Items section.
 4. **Dashboard Mode Alignment:** Meeting Mode dashboards use `templates/meeting_dashboard_template.html`; Presentation Mode dashboards use `templates/presentation_dashboard_template.html` and open directly to the `Presentation Knowledge Graph` tab.
 5. **Strict Grounding:** Zero fabricated metrics, unmentioned concepts, or external explanations.
