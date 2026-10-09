@@ -8,21 +8,27 @@ A standardized agent skill for extracting structured, grounded summaries and int
 
 Generic transcript summaries often reduce spoken content to brief bullet points, losing the technical context, quantitative metrics, and rationale behind decisions. Furthermore, collaborative meetings and single-speaker presentations require distinct summary structures.
 
-This single unified skill (`meeting-transcript-summary`) supports **two selectable processing modes** and **always prompts the user upfront to specify the processing mode (`Meeting Mode` vs. `Presentation Mode`) and whether to create the interactive UI dashboard (`dashboard.html`) upon completion if either is not specified in the request** (along with an **optional** `user name` parameter in Meeting Mode that is never prompted for if omitted):
+This single unified skill (`meeting-transcript-summary`) is designed for **immediate, single-turn execution**: you can simply invoke the skill and paste (or attach) a transcript to run immediately without answering follow-up questions. It uses three default settings that can be explicitly overridden in your prompt:
 
-### Mode 1: Meeting Mode (`meeting mode`)
-Designed for collaborative meetings with back-and-forth dialogue among participants. Produces a three-part core deliverable (plus a fourth user-specific section when a user name is provided) and an optional 4-tab Meeting Dashboard:
+| Parameter | Default Value | Default Behavior (When Omitted) | How to Explicitly Override in Your Prompt |
+| :--- | :--- | :--- | :--- |
+| **1. Processing Mode** | **`meeting`** (`Meeting Mode`) | Runs **Meeting Mode** (3-section summary) by default. | Explicitly set the mode to presentation in your prompt (e.g., `"presentation mode"`, `"mode: presentation"`, `"in presentation mode"`). |
+| **2. Interactive UI Dashboard** | **`no dashboard`** (Summary only) | Outputs the Markdown summary only; does **not** build `dashboard.html`. | Explicitly request a dashboard in your prompt (e.g., `"yes dashboard"`, `"build dashboard"`, `"create dashboard"`, `"with dashboard"`). |
+| **3. Target User Name** | **`none`** (Omitted) | Generates the standard 3-section Meeting Mode output (omits Section 4). | Explicitly specify a participant name in Meeting Mode (e.g., `"for user Marcus Vance"`, `"for Marcus"`, `"user: Sarah Lin"`). |
+
+### Mode 1: Meeting Mode (`meeting mode` - Default)
+Used by default whenever Presentation Mode is not explicitly specified in the prompt. Designed for collaborative meetings with back-and-forth dialogue among participants. Produces a three-part core deliverable (plus a fourth user-specific section when a user name is provided) and an optional 4-tab Meeting Dashboard (when explicitly requested):
 1. **Executive Summary:** Strategic briefing covering the primary objective, key decisions made, outcomes and impact, and critical blockers stated by participants.
 2. **Detailed Discussion Record and Action Items:** A comprehensive narrative record organized by logical topic. Captures the specific details of what was said by participants, statements made, and the rationale (arguments exchanged, trade-offs evaluated, alternatives dismissed) without adding external explanations. Concludes with a four-column Action Items table.
 3. **Five-Sentence Summary:** Exactly five complete, self-contained sentences providing a concise briefing of what was said and decided in the meeting.
-4. **Action Items for [User Name] (Optional — Only When User Name Is Specified):** A brief paragraph placed after the Five-Sentence Summary combining the specific action items assigned to a given user with a concise description of what needs to be done, deliverables, and deadlines. If no user name is specified in the command, this fourth section is not created.
-5. **Interactive Meeting Web Dashboard (when confirmed):** A 4-tab visual interface (`Executive Brief`, `Knowledge Graph`, `Action Items` Kanban/Table, and `Detailed Record`).
+4. **Action Items for [User Name] (Optional - Default: `none`; Included Only When User Name Is Specified):** A brief paragraph placed after the Five-Sentence Summary combining the specific action items assigned to a given user with a concise description of what needs to be done, deliverables, and deadlines. When no user name is specified in the prompt, this fourth section is omitted.
+5. **Interactive Meeting Web Dashboard (Optional - Default: `no dashboard`; Built Only When Explicitly Requested):** A 4-tab visual interface (`Executive Brief`, `Knowledge Graph`, `Action Items` Kanban/Table, and `Detailed Record`) emitted as `dashboard.html` when requested via `"yes dashboard"` or `"build dashboard"`.
 
-### Mode 2: Presentation Mode (`presentation mode`)
-Designed for presentations, keynotes, lectures, webinars, or demonstrations where one or more presenters speak sequentially (often walking through slides) without back-and-forth meeting debate.
+### Mode 2: Presentation Mode (`presentation mode` - Explicit Override Only)
+Activated **only** when `"presentation mode"` (or equivalent) is explicitly set in the prompt. Designed for presentations, keynotes, lectures, webinars, or demonstrations where one or more presenters speak sequentially (often walking through slides) without back-and-forth meeting debate:
 1. **Chronological Presentation Summary Only:** Outputs the presentation header (`Title`, `Date`, `Presenter(s)`) followed strictly by a numbered, start-to-finish **Chronological Description and Summarization** of what was presented and said (`1. [Segment Title]`, `2. [Segment Title]`, ...).
 2. **Strict Omission of Meeting Sections:** Explicitly omits the Executive Summary, Action Items table, Five-Sentence Summary, and User-Specific Action Items section.
-3. **Presentation Knowledge Graph Web Dashboard (when confirmed):** Opens **directly to the Interactive Presentation Knowledge Graph** (visualizing the central presentation theme, chronological progression `#1` through `#N`, conceptual links across slides/segments, and a slide-out Segment Inspector drawer) paired with a `Chronological Walkthrough` timeline tab.
+3. **Presentation Knowledge Graph Web Dashboard (Optional - Default: `no dashboard`; Built Only When Explicitly Requested):** Opens **directly to the Interactive Presentation Knowledge Graph** (visualizing the central presentation theme, chronological progression `#1` through `#N`, conceptual links across slides/segments, and a slide-out Segment Inspector drawer) paired with a `Chronological Walkthrough` timeline tab.
 
 Both modes operate under strict factual grounding rules: zero conversational filler, zero hallucination, and zero external topic explanations.
 
@@ -67,7 +73,7 @@ meeting-transcript-summary-skill/
 
 ## Non-Technical User Guide: How to Use This Skill
 
-You do not need any programming experience to use this skill. Follow the steps below to turn a raw recording transcript into a structured summary and optional interactive UI dashboard.
+You do not need any programming experience to use this skill. Simply invoke the skill and paste or attach your transcript-it runs immediately in a single step using sensible defaults.
 
 ### Step 1: Obtain Your Transcript
 
@@ -76,114 +82,76 @@ Export or copy the text transcript from your video call recording, webinar platf
 - Attached text files (`.txt`)
 - Exported subtitle or caption files (`.vtt` or `.srt`)
 
-### Step 2: Provide the Transcript, Choose a Mode, Specify UI Dashboard Creation, and Optionally Provide a User Name
+### Step 2: Invoke the Skill and Paste Your Transcript (With Optional Overrides)
 
-Before generating any output, the assistant checks for **two required settings** and **one optional setting**:
-1. **Processing Mode (Required):** `Meeting Mode` or `Presentation Mode`
-2. **Interactive UI Dashboard (`dashboard.html`) (Required):** Whether the UI dashboard must be created upon completion (`Yes` or `No`)
-3. **User Name (Optional — Meeting Mode Only):** A participant's name (for example, `Marcus Vance`). If specified in Meeting Mode, the assistant adds a **fourth section (`## 4. Action Items for [User Name]`)** after the 5-sentence summary with a brief paragraph combining the action items assigned to that user and a concise description of what needs to be done. Because this parameter is optional, the assistant will **never** prompt you for a user name if you omit it—it simply generates the 3 standard sections.
+When you invoke the skill with a transcript, the assistant immediately applies **three default settings** unless you explicitly override them in your prompt:
+1. **Processing Mode (Default: `meeting`):** Runs **Meeting Mode** by default. It only switches to **Presentation Mode** when you explicitly include `"presentation mode"` in your prompt.
+2. **Interactive UI Dashboard (Default: `no dashboard`):** Generates the Markdown summary only by default. It only builds the interactive `dashboard.html` when you explicitly add a request such as `"yes dashboard"` or `"build dashboard"` to your prompt.
+3. **Target User Name (Default: `none` - Meeting Mode Only):** Generates the standard 3-section summary by default. If you explicitly include a participant's name (for example, `"for user Marcus Vance"` or `"for Marcus"`), the assistant adds a **fourth section (`## 4. Action Items for [User Name]`)** after the 5-sentence summary with a brief paragraph combining the action items assigned to that user and a concise description of what needs to be done.
 
 ![Skill Execution Parameters and User-Specific Action Items Interaction](assets/user_interaction_diagram.png)
 
-You can either **paste the transcript first and let the assistant prompt you** for the mode and UI dashboard preference, or **specify your settings directly in your initial message**.
+#### Option A: Just Invoke the Skill and Paste the Transcript (Default Zero-Flag Execution)
+To get a standard 3-section Meeting Mode summary with no HTML dashboard, simply invoke the skill and paste (or attach) the transcript-no flags or follow-up replies needed:
 
-#### Option A: Paste the Transcript First, Answer the Prompt After (Two-Step Flow)
-If you provide a transcript without specifying the mode or whether to create the UI dashboard upon completion, the assistant will not guess. It will pause and ask you **only** for the missing required choice(s) (`Mode` and/or `UI Dashboard`)—never asking for a user name—before generating output.
+- **Example 1 - Pasting Transcript Only (Defaults: `mode = meeting`, `dashboard = no dashboard`, `user = none`):**
+  ```text
+  Use the meeting-transcript-summary skill on this transcript:
 
-**Real-World Example 1 — Weekly Team Planning Call (Pasting Transcript Only, Creating Dashboard + Optional User Name in Reply):**
-1. **You paste into chat:**
-   ```text
-   Use the meeting-transcript-summary skill on this transcript:
-
-   Sarah Lin (10:01 AM): Let's finalize our Q4 database migration schedule.
-   Marcus Vance (10:02 AM): Staging tests completed with zero data loss. I can run the production cutover on October 3.
-   Sarah Lin (10:03 AM): Approved. Marcus, please publish the cutover runbook by Friday.
-   ```
-2. **The assistant asks you for the two required settings (Mode and UI Dashboard):**
-   > Before processing this transcript, please specify:
-   > 1. **Processing Mode:**
-   >    - **Meeting Mode** — 3-part summary (Executive Summary, Detailed Logical Discussion Record with Action Items, and 5-Sentence Summary; plus optional Section 4 if a user name is specified)
-   >    - **Presentation Mode** — Chronological description and summarization of what was said only
-   > 2. **Interactive UI Dashboard:** Should the interactive UI dashboard (`dashboard.html`) be created upon completion? (**Yes** / **No**)
-3. **You reply (either with or without an optional user name):**
-   - **Standard 3-section reply (no user name):**
-     ```text
-     meeting mode, yes create the UI dashboard
-     ```
-     The assistant generates the 3-part meeting summary (Sections 1–3) and creates the interactive 4-tab `dashboard.html` artifact upon completion.
-   - **User-specific 4-section reply (with optional user name):**
-     ```text
-     meeting mode, yes create the UI dashboard, for user Marcus Vance
-     ```
-     The assistant generates all 3 core sections **plus** `## 4. Action Items for Marcus Vance` (a brief paragraph detailing what Marcus Vance needs to do) and creates the interactive `dashboard.html` artifact upon completion.
-
-**Real-World Example 2 — Recorded Slide Presentation or Webinar (Pasting Transcript First, Summary Only):**
-1. **You paste or attach the transcript:**
-   ```text
-   Apply the meeting-transcript-summary skill to the attached recording transcript.
-   ```
-2. **The assistant asks you to select the Processing Mode (`Meeting Mode` vs. `Presentation Mode`) and whether to create the interactive UI dashboard (`Yes` vs. `No`).**
-3. **You reply:**
-   ```text
-   presentation mode, no dashboard
-   ```
-   The assistant generates only the start-to-finish chronological walkthrough of what the presenter said on each slide or section (without an Executive Summary, Action Items table, 5-Sentence Summary, User Action Items section, or HTML dashboard).
-
-**Real-World Example 3 — Specifying Mode and Optional User Name Upfront (Assistant Prompts Only for UI Dashboard Preference):**
-1. **You write in chat:**
-   ```text
-   Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode for user Sarah Lin.
-   ```
-2. **Because the mode (and optional user name) were already provided, the assistant asks only the remaining required question:**
-   > Should the interactive UI dashboard (`dashboard.html`) be created upon completion? (**Yes** / **No**)
-3. **You reply:**
-   ```text
-   No
-   ```
-   The assistant proceeds with Meeting Mode, generates Sections 1–3 plus `## 4. Action Items for Sarah Lin`, and skips the HTML dashboard.
+  Sarah Lin (10:01 AM): Let's finalize our Q4 database migration schedule.
+  Marcus Vance (10:02 AM): Staging tests completed with zero data loss. I can run the production cutover on October 3.
+  Sarah Lin (10:03 AM): Approved. Marcus, please publish the cutover runbook by Friday.
+  ```
+  **Result:** Executes immediately in one turn using **Meeting Mode**, generating the 3-part Markdown summary (`1. Executive Summary`, `2. Detailed Discussion Record and Action Items`, and `3. Five-Sentence Summary`) with no Section 4 and no HTML dashboard.
 
 ---
 
-#### Option B: Specify Mode and UI Dashboard Preference (Plus Optional User Name) in Your First Message (One-Step Flow)
+#### Option B: Add Explicit Overrides to Your Prompt (Dashboard, Presentation Mode, or Target User Name)
 
-If you already know both your preferred mode and whether you want the UI dashboard created upon completion (plus an optional user name if you want Section 4), include them in your initial prompt to run in a single step without follow-up prompts:
+Whenever you want to build the interactive `dashboard.html`, include user-specific action items (Section 4), or switch to Presentation Mode, simply add the corresponding phrase to your prompt:
 
-- **Example 4 — Meeting Mode + UI Dashboard + User Name Specified (4 Sections + Dashboard):**
+- **Example 2 - Requesting the Interactive Dashboard (`"yes dashboard"` or `"build dashboard"`):**
   ```text
-  Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode, create the UI dashboard upon completion, and include action items for user Marcus Vance.
+  Use the meeting-transcript-summary skill on the attached transcript, build dashboard.
   ```
-- **Example 5 — Meeting Mode + No UI Dashboard + User Name Specified (4 Sections, Summary Only):**
+  **Result:** Runs **Meeting Mode** (default), outputs Sections 1-3, and builds the 4-tab interactive `dashboard.html` artifact upon completion.
+
+- **Example 3 - Requesting User-Specific Action Items (`"for user Marcus Vance"`, Default No Dashboard):**
   ```text
-  Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode without creating the UI dashboard, for user Marcus Vance.
+  Use the meeting-transcript-summary skill on the attached transcript for user Marcus Vance.
   ```
-- **Example 6 — Meeting Mode + UI Dashboard, No User Name (3 Sections + Dashboard):**
+  **Result:** Runs **Meeting Mode** (default), outputs Sections 1-3 **plus** `## 4. Action Items for Marcus Vance` (a brief paragraph detailing what Marcus Vance needs to do), and skips the HTML dashboard (`no dashboard` default).
+
+- **Example 4 - Requesting Both the Dashboard and User-Specific Action Items (`"yes dashboard, for user Marcus Vance"`):**
   ```text
-  Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode and create the UI dashboard upon completion.
+  Use the meeting-transcript-summary skill on the attached transcript, yes dashboard, for user Marcus Vance.
   ```
-- **Example 7 — Meeting Mode + No UI Dashboard, No User Name (3 Sections, Summary Only):**
+  **Result:** Runs **Meeting Mode** (default), outputs all 4 sections (including `## 4. Action Items for Marcus Vance`), and emits `dashboard.html`.
+
+- **Example 5 - Switching to Presentation Mode (`"presentation mode"`, Default No Dashboard):**
   ```text
-  Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode without creating the UI dashboard.
-  ```
-- **Example 8 — Presentation Mode + Knowledge Graph UI Dashboard Upon Completion:**
-  ```text
-  Summarize the following transcript using the meeting-transcript-summary skill in presentation mode and create the UI dashboard upon completion:
+  Use the meeting-transcript-summary skill in presentation mode on the following transcript:
 
   [Paste presentation transcript here]
   ```
-- **Example 9 — Presentation Mode + Chronological Summary Only (No UI Dashboard):**
+  **Result:** Switches to **Presentation Mode** and generates only the start-to-finish chronological walkthrough of what the presenter said (no Executive Summary, no Action Items table, no 5-Sentence Summary, no Section 4, and no HTML dashboard).
+
+- **Example 6 - Switching to Presentation Mode + Building the Presentation Dashboard (`"presentation mode, build dashboard"`):**
   ```text
-  Summarize the attached transcript using the meeting-transcript-summary skill in presentation mode, summary only (no UI dashboard).
+  Use the meeting-transcript-summary skill in presentation mode, build dashboard, on the attached transcript.
   ```
-- **Example 10 — Requesting Dual Output (Rendered + Raw Markdown) with User Name and Dashboard Preference:**
+  **Result:** Switches to **Presentation Mode**, outputs the chronological summary, and emits the Presentation Knowledge Graph `dashboard.html` artifact upon completion.
+
+- **Example 7 - Requesting Dual Output (Rendered + Raw Markdown) with User Name:**
   ```text
-  Summarize the attached transcript using the meeting-transcript-summary skill in meeting mode with no UI dashboard, for user Elena Rostova. Provide dual output with both rendered markdown and a raw markdown code block.
+  Use the meeting-transcript-summary skill on the attached transcript for user Elena Rostova. Provide dual output with both rendered markdown and a raw markdown code block.
   ```
 
 ### Step 3: Use or Share the Output
 
 - **Copying into Word Processors, Docs, or Email:** Highlight and copy the rendered summary directly from the chat window. Headings, bullet lists, and tables retain their formatting when pasted.
 - **Copying into Wikis or Markdown Files:** Request `"raw markdown"` or `"dual output"` and click the copy button on the code block.
-- **Exploring the Interactive Dashboard:** When you confirm UI dashboard creation, the assistant opens an interactive `dashboard.html` panel upon completion where you can click nodes on the Knowledge Graph, inspect slide or topic details, filter tasks by owner, or toggle between dark and light themes.
+- **Exploring the Interactive Dashboard:** When you explicitly request a dashboard (`"yes dashboard"` or `"build dashboard"`), the assistant opens an interactive `dashboard.html` panel upon completion where you can click nodes on the Knowledge Graph, inspect slide or topic details, filter tasks by owner, or toggle between dark and light themes.
 
 ---
 
@@ -194,13 +162,16 @@ If you already know both your preferred mode and whether you want the UI dashboa
 To register this skill in a local or shared workspace:
 
 1. Copy the skill directory into your environment's skills path (for example, `.agents/skills/meeting-transcript-summary/` relative to the workspace root).
-2. Reference the skill in chat with the required **mode** and **UI dashboard flag**, plus an optional **user name**:
+2. Invoke the skill in chat by pasting or referencing a transcript (with optional overrides as needed):
    ```text
-   # 3-section summary + UI dashboard (no user name specified)
-   Use the meeting-transcript-summary skill in meeting mode and create the UI dashboard upon completion for examples/sample_meeting_transcript.txt
+   # Default execution (Meeting Mode, 3 sections, no UI dashboard)
+   Use the meeting-transcript-summary skill on examples/sample_meeting_transcript.txt
 
-   # 4-section summary (with Section 4 for Marcus Vance) + UI dashboard
-   Use the meeting-transcript-summary skill in meeting mode, create the UI dashboard upon completion, and generate action items for user Marcus Vance on examples/sample_meeting_transcript.txt
+   # With interactive UI dashboard and Section 4 for Marcus Vance
+   Use the meeting-transcript-summary skill on examples/sample_meeting_transcript.txt, build dashboard, for user Marcus Vance
+
+   # Presentation Mode (chronological summary only, no UI dashboard)
+   Use the meeting-transcript-summary skill in presentation mode on examples/sample_presentation_transcript.txt
    ```
 
 ### 2. Assistant Configuration Interface
@@ -214,23 +185,26 @@ To configure this skill in a web-based assistant environment:
 
 ### 3. Command Line Preprocessing and Agent Harness CLI Usage
 
-Use the included Python script to strip WebVTT or SRT timestamps before passing a transcript to an automated CLI agent runner. Always pass the required **mode** (`meeting mode` or `presentation mode`) and **UI dashboard flag** (`with UI dashboard` or `no UI dashboard`) in your CLI prompt so the agent runs non-interactively in a single turn, and optionally include a **user name** (`for user "<Name>"`) when you want the fourth section generated in Meeting Mode:
+Use the included Python script to strip WebVTT or SRT timestamps before passing a transcript to an automated CLI agent runner. Because the skill defaults to `meeting` mode, `no dashboard`, and `user = none`, it runs non-interactively in a single turn with zero flags required:
 
 ```bash
 # 1. Normalize raw WebVTT or SRT files into consolidated speaker blocks
 python3 scripts/clean_transcript.py raw_recording.vtt --output cleaned_transcript.txt
 
-# 2A. Meeting Mode (3 sections, no UI dashboard, no user name specified)
-cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summary in meeting mode with no UI dashboard"
+# 2A. Default Execution: Meeting Mode (3 sections, no UI dashboard, no user name)
+cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summary"
 
 # 2B. Meeting Mode + Optional User Name (4 sections including Section 4 for Marcus Vance, no UI dashboard)
-cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summary in meeting mode with no UI dashboard for user Marcus Vance"
+cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summary for user Marcus Vance"
 
 # 2C. Meeting Mode + UI Dashboard + Optional User Name (4 sections + emits dashboard.html)
-cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summary in meeting mode and create the UI dashboard for user Marcus Vance"
+cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summary, build dashboard, for user Marcus Vance"
 
-# 2D. Presentation Mode (chronological summary only, no UI dashboard)
-cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summary in presentation mode with no UI dashboard"
+# 2D. Presentation Mode Override (chronological summary only, no UI dashboard)
+cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summary in presentation mode"
+
+# 2E. Presentation Mode Override + UI Dashboard (chronological summary + emits dashboard.html)
+cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summary in presentation mode, yes dashboard"
 ```
 
 ---
@@ -258,7 +232,7 @@ cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summ
 #### 3. Five-Sentence Summary
 - Exactly 5 complete sentences in a single paragraph summarizing the meeting purpose, core challenge, primary decision, secondary outcome, and immediate next milestone.
 
-#### 4. Action Items for [User Name] (Optional — Only When User Name Is Specified)
+#### 4. Action Items for [User Name] (Optional - Only When User Name Is Specified)
 - Generated immediately after Section 3 **only** if a user name is specified when executing the skill (omitted if no user name is provided).
 - Consists of a single brief paragraph combining the action items assigned to that user with a concise description of what needs to be done, incorporating relevant discussion context, target deliverables/acceptance criteria, and stated deadlines (or stating explicitly in one factual sentence if no action items were assigned to that user).
 
@@ -276,7 +250,7 @@ cat cleaned_transcript.txt | agent-cli --prompt "Execute meeting-transcript-summ
 
 ## Interactive Web Dashboards (Tailored by Mode)
 
-When the user confirms that the interactive UI dashboard must be created upon completion, the skill emits a self-contained HTML/CSS/JavaScript file named `dashboard.html` (`UserFacing: true`, `Summary: "Interactive Evaluation Dashboard"`, `RequestFeedback: false`).
+By default, no dashboard is built (`dashboard = no dashboard`). Only when the user explicitly requests a dashboard in the prompt (e.g., `"yes dashboard"`, `"build dashboard"`, `"create dashboard"`, `"with dashboard"`), the skill emits a self-contained HTML/CSS/JavaScript file named `dashboard.html` (`UserFacing: true`, `Summary: "Interactive Evaluation Dashboard"`, `RequestFeedback: false`).
 
 ### 1. Meeting Mode Dashboard ([templates/meeting_dashboard_template.html](templates/meeting_dashboard_template.html))
 Includes four tabs designed for multi-participant meetings:
@@ -313,7 +287,7 @@ Tailored specifically for presentations where the focus is on the conceptual str
 
 ## Core Rules and Constraints
 
-- **Mandatory Mode and UI Dashboard Clarification (Optional User Name):** Before generating output, the agent verifies that both required settings—the processing mode (`"meeting mode"` or `"presentation mode"`) and whether to create the interactive UI dashboard (`dashboard.html`) upon completion—are specified. If either or both are omitted, the agent prompts the user upfront before processing. The `user name` parameter is optional and is never prompted for if omitted.
+- **Default-Driven Single-Turn Execution (Mode = `meeting`, Dashboard = `no dashboard`, User = `none`):** When invoked with a transcript, the agent executes immediately in a single turn without pausing to ask for mode, dashboard preference, or user name. It defaults to **Meeting Mode** (switching to **Presentation Mode** only when explicitly set in the prompt), defaults to **No Dashboard** (building `dashboard.html` only when explicitly requested via phrases like `"yes dashboard"` or `"build dashboard"`), and defaults the target **User Name** to `none` (generating Section 4 in Meeting Mode only when a user name is explicitly provided in the prompt).
 - **Pure Factual Grounding (Zero Hallucination):** Output contains strictly facts, decisions, numbers, slide descriptions, and arguments directly stated in the source transcript.
 - **Strictly Record What Was Said (No External Explanations):** Documents exclusively what speakers articulated during the meeting or presentation without adding external definitions or tutorials.
 - **Direct Factual Prose:** Eliminates conversational filler phrases, pleasantries, and introductory or closing framing.

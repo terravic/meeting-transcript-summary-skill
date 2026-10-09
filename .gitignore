@@ -8,32 +8,25 @@ dist/
 .venv/
 venv/
 env/
-.health-venv/
 .python-version
 
-# --- Jupyter / Colab ---
+# --- Notebooks ---
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
-# --- Node / A2UI tooling ---
+# --- Node ---
 node_modules/
 npm-debug.log*
 yarn-error.log*
 
-# --- Secrets / credentials (never commit) ---
+# --- Secrets / credentials ---
 *.env
 *-service-account*.json
 *credentials*.json
 *.pem
 *.key
 
-# --- Terraform ---
-.terraform/
-*.tfstate
-*.tfstate.*
-*.tfvars
-
-# --- Data (keep out of git; use BigQuery / GCS) ---
+# --- Data ---
 *.csv
 *.parquet
 *.avro
@@ -47,20 +40,7 @@ Thumbs.db
 .vscode/
 *.swp
 
-CLAUDE.md
-.claude/
-
-.refs/
-
-.adk/
-
-# --- Local / Personal Notes ---
+# --- Local notes ---
 TODO*.md
 *.local.md
-
 notes/
-
-# Per-component build backlogs — dev working docs, deliberately unshared. The committed
-# per-component README carries what a reader needs; BUILD-NOTES carries what is still owed.
-BUILD-NOTES.md
-

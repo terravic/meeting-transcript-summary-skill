@@ -9,7 +9,7 @@ This document outlines the architecture, layout specifications, and mode-tailore
 Agent harnesses render dynamic user interfaces by executing self-contained HTML, CSS, and JavaScript inside a sandboxed `<iframe>`.
 
 ### Key Runtime Characteristics:
-- **Artifact Emission Standard:** When generating or updating the interactive HTML dashboard in either mode, you MUST emit the standalone HTML file as a user-facing artifact named `dashboard.html` (using `write_to_file` with `ArtifactMetadata: { UserFacing: true, Summary: "Interactive Evaluation Dashboard", RequestFeedback: false }`). This ensures the dashboard immediately opens and renders directly in the preview pane with no need to manually copy or open links in a browser.
+- **Artifact Emission Standard:** By default, no dashboard is built (`dashboard = no dashboard`). Only when the user explicitly requests a dashboard in the prompt (e.g., `"yes dashboard"`, `"build dashboard"`, `"create dashboard"`, `"with dashboard"`), you MUST emit the standalone HTML file as a user-facing artifact named `dashboard.html` (using `write_to_file` with `ArtifactMetadata: { UserFacing: true, Summary: "Interactive Evaluation Dashboard", RequestFeedback: false }`). This ensures the dashboard immediately opens and renders directly in the preview pane with no need to manually copy or open links in a browser.
 - **Mode-Tailored Templates:**
   - **Meeting Mode Dashboard:** Uses [templates/meeting_dashboard_template.html](templates/meeting_dashboard_template.html) to present collaborative meeting records (`Executive Brief`, `Knowledge Graph`, `Action Items` Kanban/Table, and `Detailed Record`).
   - **Presentation Mode Dashboard:** Uses [templates/presentation_dashboard_template.html](templates/presentation_dashboard_template.html) to focus directly on the **Presentation Knowledge Graph** (active on load) and the sequential **Chronological Walkthrough**, omitting meeting-specific Executive Brief metrics and Action Items.
@@ -52,7 +52,7 @@ When running in **Presentation Mode**, there is no back-and-forth meeting debate
 - **Immediate Graph Focus:** Opens directly to the interactive SVG Knowledge Graph (`#tab-graph` active on load) accompanied by a top **Presentation Focus** banner stating the presentation's overarching theme.
 - **Chronological and Conceptual Topology:**
   - **Central Node:** Represents the `PRESENTATION CORE THEME`.
-  - **Chronological Segment Nodes (`#1..#N`):** Each node displays its chronological sequence badge (`#1`, `#2`, `#3`, ...) above its concise 2–3 word `shortTitle`, enabling users to trace the presentation's progression visually.
+  - **Chronological Segment Nodes (`#1..#N`):** Each node displays its chronological sequence badge (`#1`, `#2`, `#3`, ...) above its concise 2-3 word `shortTitle`, enabling users to trace the presentation's progression visually.
   - **Directed Relationship Edges:** Connect sequential segments (`Leads to`, `Next: Slide 4`) as well as conceptual dependencies across slides and demonstrations (`Demonstrates`, `Benchmarks`, `Accelerated by`, `Validated in`).
 - **Slide / Segment Detail Inspector Drawer:** Clicking any node slides out the Presentation Inspector displaying:
   - **Segment Sequence and Presenter:** e.g., `Segment #2: Two-Tier Hybrid Storage - Presenter: Dr. Aris Thorne`
@@ -156,10 +156,10 @@ Used in [templates/presentation_dashboard_template.html](templates/presentation_
 
 ## 4. Design and Styling Standards
 
-- **Light and Dark Mode Toggle:** The header in both templates contains a theme toggle button (`#theme-toggle-btn`) that switches state between Light and Dark modes, toggling between Sun and Moon SVG graphics. Theme preferences are persisted via `localStorage` and dynamically re-render SVG knowledge graph elements.
+- **Light and Dark Mode Toggle:** The header in both templates contains a theme toggle button (`#theme-toggle-btn`) that switches state between Light and Dark modes, toggling between `Light` and `Dark` text labels. Theme preferences are persisted via `localStorage` and dynamically re-render SVG knowledge graph elements.
 - **Dual Color Palettes:**
   - **Dark Mode (Default):** Neutral slate background (`#0f172a`), card surfaces (`#1e293b`, `#334155`), blue accents (`#38bdf8`, `#0284c7`), and clear text hierarchy (`#94a3b8`, `#f8fafc`).
   - **Light Mode:** Slate background (`#f8fafc`), white card surfaces (`#ffffff`, `#f1f5f9`), blue accents (`#0284c7`, `#0369a1`), and dark text hierarchy (`#475569`, `#0f172a`).
 - **Typography:** Standard system sans-serif stack (`system-ui, -apple-system, Segoe UI, Roboto, sans-serif`).
-- **Visual Hierarchy:** Visual hierarchy is communicated using typography, geometric SVG indicators, color badges, sequence numbers (`#1..#N` in Presentation Mode), and status labels.
+- **Visual Hierarchy:** Visual hierarchy is communicated using typography, color badges, sequence numbers (`#1..#N` in Presentation Mode), and status labels.
 - **Responsive Layout:** CSS Grid and Flexbox layouts adapt across full-width monitors, split-screen views, and mobile viewports.
