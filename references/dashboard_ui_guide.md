@@ -1,165 +1,87 @@
 # Interactive Web Dashboard Guide
 
-This document outlines the architecture, layout specifications, and mode-tailored data contracts for rendering interactive HTML/JS/CSS dashboards in web-based artifact runtimes.
+This document outlines the architecture, layout specifications, and mode-tailored data contracts for rendering interactive HTML/JS/CSS dashboards in web-based Canvas runtimes, strictly adhering to [DESIGN.md](../DESIGN.md).
 
 ---
 
 ## 1. Dashboard Architecture
 
-Agent harnesses render dynamic user interfaces by executing self-contained HTML, CSS, and JavaScript inside a sandboxed `<iframe>`.
+Agent harnesses render dynamic user interfaces by executing self-contained HTML5, modern CSS, and vanilla JavaScript inside a sandboxed `<iframe>`.
 
 ### Key Runtime Characteristics:
-- **Artifact Emission Standard:** By default, no dashboard is built (`dashboard = no dashboard`). Only when the user explicitly requests a dashboard in the prompt (e.g., `"yes dashboard"`, `"build dashboard"`, `"create dashboard"`, `"with dashboard"`), you MUST emit the standalone HTML file as a user-facing artifact named `dashboard.html` (using `write_to_file` with `ArtifactMetadata: { UserFacing: true, Summary: "Interactive Evaluation Dashboard", RequestFeedback: false }`). This ensures the dashboard immediately opens and renders directly in the preview pane with no need to manually copy or open links in a browser.
+- **Artifact Emission Standard:** By default, no dashboard is built (`dashboard = no dashboard`). Only when the user explicitly requests a dashboard in the prompt (e.g., `"yes dashboard"`, `"build dashboard"`, `"create dashboard"`, `"with dashboard"`), you MUST emit the standalone HTML file as a user-facing artifact named `dashboard.html` (using `write_to_file` with `ArtifactMetadata: { UserFacing: true, Summary: "Interactive Evaluation Dashboard", RequestFeedback: false }`). This ensures the dashboard immediately opens and renders directly in the preview pane.
 - **Mode-Tailored Templates:**
-  - **Meeting Mode Dashboard:** Uses [templates/meeting_dashboard_template.html](templates/meeting_dashboard_template.html) to present collaborative meeting records (`Executive Brief`, `Knowledge Graph`, `Action Items` Kanban/Table, and `Detailed Record`).
-  - **Presentation Mode Dashboard:** Uses [templates/presentation_dashboard_template.html](templates/presentation_dashboard_template.html) to focus directly on the **Presentation Knowledge Graph** (active on load) and the sequential **Chronological Walkthrough**, omitting meeting-specific Executive Brief metrics and Action Items.
-- **Zero-Dependency Self-Containment:** All styles (CSS) and logic (JavaScript) are embedded directly within a single `.html` document or code block. This avoids network timeouts, blocked external CDN requests, and version conflicts.
-- **Client-Side Interactivity:** Supports full DOM manipulation, SVG graphical rendering, tab switching, search filtering, and clipboard interactions.
-- **Sandboxed Execution:** Scripts execute within standard iframe security constraints (`allow-scripts`, isolated local storage, no parent window cross-origin access).
+  - **Meeting Mode Dashboard:** Uses [templates/meeting_dashboard_template.html](../templates/meeting_dashboard_template.html) to present collaborative meeting records (`Executive Brief`, `Interactive Relationship Node Map`, `Action Items` Monospace Table / Flat Owner Lanes, and `Discussion Record`).
+  - **Presentation Mode Dashboard:** Uses [templates/presentation_dashboard_template.html](../templates/presentation_dashboard_template.html) to focus directly on the **Interactive Relationship Node Map** (active on load) and the sequential **Chronological Walkthrough**, omitting meeting-specific Executive Brief metrics and Action Items.
+- **Zero AI Slop Compliance ([DESIGN.md](../DESIGN.md)):**
+  - **Typography:** Uses `'DM Sans'` for UI/headers paired with `'IBM Plex Mono'` for all tabular data, dates, and numeric readouts. Never use `Inter` or `Roboto`.
+  - **No Purple/Lavender Gradients:** Uses flat solid surfaces and `1px solid` hairline borders (`6px` to `8px` radius).
+  - **No Card-in-Card Nesting:** Uses flat bento-style grids separated by `1px solid` hairline dividers.
+  - **Critical-Only Status Indicators:** Only displays status badges when an item is in an error, warning, or critical blocker state (e.g., `UNASSIGNED BLOCKER` in `#E11D48` or `HARD GATE` in `#D97706`).
 
 ---
 
 ## 2A. Meeting Mode Dashboard Components
 
-When running in **Meeting Mode**, the dashboard ([templates/meeting_dashboard_template.html](templates/meeting_dashboard_template.html)) comprises four primary interface modules:
+When running in **Meeting Mode**, the dashboard ([templates/meeting_dashboard_template.html](../templates/meeting_dashboard_template.html)) comprises four primary interface modules:
 
-### 2A.1 Executive Overview and Metrics
-- **Metric Badges:** Counts for decisions made, topics analyzed, assigned action items, and target milestone dates.
-- **Executive Summary Cards:** Structured cards displaying Meeting Objectives, Approved Decisions, Strategic Impacts, and Critical Risks. (Note: The strict Five-Sentence Summary is generated exclusively in the primary text/markdown output and omitted from the interactive dashboard).
+### 2A.1 Executive Brief (Flat Bento Grid & Data Visualizations)
+- **KPI Strip:** Flat 4-column bento grid displaying monospaced counts for approved decisions, architecture domains, tracked deliverables, and target cutover dates.
+- **Data Visualizations:**
+  - **Telemetry, Cost & Payload Benchmarks:** Vibrant SVG comparison chart using the semantic visualization palette (`#0D9488`, `#D97706`, `#4F46E5`, `#059669`, `#E11D48`) over faint chart gridlines (`#E7E5E4` light / `#292A30` dark).
+  - **Topic & Owner Coverage Matrix (Heatmap):** High-contrast gradient heatmap matrix mapping participants to architecture domains, highlighting unassigned critical gaps in Deep Rose (`#E11D48`).
+- **Executive Summary Bento:** Flat 2×2 bento grid displaying `Objective`, `Approved Decisions`, `Strategic Outcomes & Impact`, and `Critical Risks & Blockers`.
 
-### 2A.2 Interactive Topic Knowledge Graph
-- **Visual Topology and Physics Engine:** An interactive SVG node-link graph representing the central meeting objective, radiating outwards to distinct topic nodes labeled with concise, descriptive short titles (e.g. `Platform Migration`, `Protobuf Schemas`, `Security Controls`, `Staging & Cutover`).
-- **Collision Avoidance and Visibility:** Employs a hard elastic collision resolution algorithm (`padding >= 28px`) and electrostatic Coulomb repulsion so nodes do not overlap or occlude one another during layout or dragging.
-- **Inter-Topic Relationships:** Explicit directed edges link interdependent topics with relationship badge labels (e.g. `Enforces`, `Requires`, `Tested in`, `Gates`).
-- **Node Selection and Inspector:** Clicking any node opens a slide-out Detail Inspector drawer presenting the full Context, Technical Mechanism, Rationale / Debates ("Why"), and Key Conclusions.
+### 2A.2 Interactive Relationship Node Map
+- **Visual Topology:** An interactive SVG node-link map representing the central meeting objective (`#0D9488` Vibrant Teal), radiating outwards to distinct topic nodes colored from the approved 5-color visualization palette (`#4F46E5`, `#059669`, `#D97706`, `#E11D48`).
+- **Semi-Transparent Color-Matched Edges:** Directed edges use semi-transparent versions of the source node color with faint background chart gridlines (`#E7E5E4` in light mode, `#292A30` in dark mode).
+- **Node Selection and Inspector:** Clicking any node opens a slide-out Detail Inspector drawer presenting the full Context, Technical Mechanism, Spoken Rationale, and Key Conclusion.
 
-### 2A.3 Action Items Visualizer (Multi-View and Filter Toolbar)
-- **Filtering Toolbar:** Owner Dropdown Filter (`All Owners` default), Live Search Input, CSV and Markdown export buttons, and Live Item Count.
+### 2A.3 Action Items (Monospace Table & Flat Owner Lanes)
+- **Filtering Toolbar:** View switcher (`Monospace Table` | `Owner Lanes`), Live Search Input, Owner Dropdown Filter, CSV and Markdown export buttons, and Monospace Row Count.
 - **Views:**
-  1. **Kanban by Owner Board (Default):** Columns organized per participant (plus an `Unassigned` backlog column).
-  2. **Structured Interactive Table:** A tabular view displaying all four standardized columns.
+  1. **Monospace Table (Default):** Tabular view using `'IBM Plex Mono'` with thin `1px solid` horizontal dividers and zero vertical borders.
+  2. **Owner Lanes:** Flat bento columns organized per owner with thin horizontal dividers and zero card-in-card nesting.
 
-### 2A.4 Detailed Narrative Discussion Explorer
-- Collapsible topic accordions allowing deep reading of the complete meeting record.
+### 2A.4 Discussion Record
+- Flat collapsible topic rows separated by `1px solid` horizontal dividers.
 
 ---
 
 ## 2B. Presentation Mode Dashboard Components
 
-When running in **Presentation Mode**, there is no back-and-forth meeting debate or action item assignment. The dashboard ([templates/presentation_dashboard_template.html](templates/presentation_dashboard_template.html)) is tailored specifically to visualize the presentation's conceptual and chronological flow, comprising two focused tabs:
+When running in **Presentation Mode**, the dashboard ([templates/presentation_dashboard_template.html](../templates/presentation_dashboard_template.html)) comprises two focused tabs:
 
-### 2B.1 Presentation Knowledge Graph (Default Active View on Load)
-- **Immediate Graph Focus:** Opens directly to the interactive SVG Knowledge Graph (`#tab-graph` active on load) accompanied by a top **Presentation Focus** banner stating the presentation's overarching theme.
+### 2B.1 Interactive Relationship Node Map (Default Active View on Load)
+- **Immediate Graph Focus:** Opens directly to the interactive SVG Node Map (`#tab-graph` active on load) accompanied by a flat bento header displaying the presentation's `Core Theme`.
 - **Chronological and Conceptual Topology:**
-  - **Central Node:** Represents the `PRESENTATION CORE THEME`.
-  - **Chronological Segment Nodes (`#1..#N`):** Each node displays its chronological sequence badge (`#1`, `#2`, `#3`, ...) above its concise 2-3 word `shortTitle`, enabling users to trace the presentation's progression visually.
-  - **Directed Relationship Edges:** Connect sequential segments (`Leads to`, `Next: Slide 4`) as well as conceptual dependencies across slides and demonstrations (`Demonstrates`, `Benchmarks`, `Accelerated by`, `Validated in`).
-- **Slide / Segment Detail Inspector Drawer:** Clicking any node slides out the Presentation Inspector displaying:
-  - **Segment Sequence and Presenter:** e.g., `Segment #2: Two-Tier Hybrid Storage - Presenter: Dr. Aris Thorne`
-  - **What Was Presented and Said:** Detailed chronological summary of what the presenter explained.
-  - **Slide Visuals, Demos and Metrics Cited:** Specific benchmarks, diagrams, architectures, or live demonstration outputs explicitly referenced aloud by the presenter.
-  - **Stated Key Takeaway:** The primary takeaway stated by the presenter for that segment.
+  - **Central Node:** Represents the `CORE THEME` (`#0D9488` Vibrant Teal).
+  - **Chronological Segment Nodes (`#1..#N`):** Each node displays its monospaced chronological sequence number (`#1`, `#2`, ...) above its concise `shortTitle`, colored from the 5-color visualization palette.
+  - **Slide / Segment Detail Inspector Drawer:** Clicking any node slides out the Inspector displaying `What Was Presented & Said`, `Slide Visuals, Demos & Metrics Cited`, and `Stated Key Takeaway`.
 
-### 2B.2 Chronological Walkthrough Timeline (Tab 2)
-- Sequential, numbered accordion cards (`#1` through `#N`) presenting the chronological description and summarization of what was said from beginning to end.
-- Includes `Expand All`, `Collapse All`, and `Copy Chronological Markdown` toolbar actions.
+### 2B.2 Chronological Walkthrough (Tab 2)
+- Sequential, numbered flat accordion rows (`#01` through `#0N`) presenting the chronological description and summarization of what was said from beginning to end.
 
 ---
 
-## 3. Dashboard Data Contracts (JSON Schemas)
+## 3. Light and Dark Theme Specifications ([DESIGN.md](../DESIGN.md))
 
-### 3A. Meeting Mode Data Contract (`MEETING_DATA`)
-Used in [templates/meeting_dashboard_template.html](templates/meeting_dashboard_template.html):
-
-```json
-{
-  "mode": "meeting",
-  "meetingTitle": "string",
-  "date": "YYYY-MM-DD (use transcript date; if no date is given, assume today's date when the skill runs)",
-  "participants": ["string"],
-  "metrics": {
-    "decisionsCount": 0,
-    "topicsCount": 0,
-    "actionsCount": 0,
-    "targetCutover": "YYYY-MM-DD"
-  },
-  "executiveSummary": {
-    "objective": "string",
-    "decisions": ["string"],
-    "impacts": ["string"],
-    "risks": ["string"]
-  },
-  "topics": [
-    {
-      "id": "topic-1",
-      "title": "string",
-      "shortTitle": "string (2-3 words for node label)",
-      "context": "string",
-      "explanation": "string",
-      "rationale": "string",
-      "conclusion": "string"
-    }
-  ],
-  "relationships": [
-    {
-      "from": "topic-1",
-      "to": "topic-2",
-      "label": "string (e.g. Enforces, Requires, Tested in, Gates)"
-    }
-  ],
-  "actionItems": [
-    {
-      "id": "act-1",
-      "description": "string",
-      "assignee": "string",
-      "deadline": "YYYY-MM-DD",
-      "deliverable": "string",
-      "status": "Assigned | In Progress | Unassigned"
-    }
-  ]
-}
-```
-
-### 3B. Presentation Mode Data Contract (`PRESENTATION_DATA`)
-Used in [templates/presentation_dashboard_template.html](templates/presentation_dashboard_template.html):
-
-```json
-{
-  "mode": "presentation",
-  "presentationTitle": "string",
-  "date": "YYYY-MM-DD (use transcript date; if no date is given, assume today's date when the skill runs)",
-  "presenters": ["string"],
-  "coreTheme": "string (1-2 sentence overview of what the presentation covers as stated by the presenter)",
-  "segments": [
-    {
-      "id": "seg-1",
-      "order": 1,
-      "title": "string (Full chronological segment / slide title)",
-      "shortTitle": "string (2-3 words for graph node label)",
-      "presenter": "string",
-      "summary": "string (Detailed chronological description and summarization of what was said)",
-      "visualsAndMetrics": "string (Slides, charts, architectures, live demos, or numbers explicitly cited aloud)",
-      "takeaway": "string (Key conclusion or takeaway stated by the presenter for this segment)"
-    }
-  ],
-  "relationships": [
-    {
-      "from": "seg-1",
-      "to": "seg-2",
-      "label": "string (e.g. Solved by, Accelerated by, Next: Slide 4, Validated in)"
-    }
-  ]
-}
-```
-
----
-
-## 4. Design and Styling Standards
-
-- **Light and Dark Mode Toggle:** The header in both templates contains a theme toggle button (`#theme-toggle-btn`) that switches state between Light and Dark modes, toggling between `Light` and `Dark` text labels. Theme preferences are persisted via `localStorage` and dynamically re-render SVG knowledge graph elements.
-- **Dual Color Palettes:**
-  - **Dark Mode (Default):** Neutral slate background (`#0f172a`), card surfaces (`#1e293b`, `#334155`), blue accents (`#38bdf8`, `#0284c7`), and clear text hierarchy (`#94a3b8`, `#f8fafc`).
-  - **Light Mode:** Slate background (`#f8fafc`), white card surfaces (`#ffffff`, `#f1f5f9`), blue accents (`#0284c7`, `#0369a1`), and dark text hierarchy (`#475569`, `#0f172a`).
-- **Typography:** Standard system sans-serif stack (`system-ui, -apple-system, Segoe UI, Roboto, sans-serif`).
-- **Visual Hierarchy:** Visual hierarchy is communicated using typography, color badges, sequence numbers (`#1..#N` in Presentation Mode), and status labels.
-- **Responsive Layout:** CSS Grid and Flexbox layouts adapt across full-width monitors, split-screen views, and mobile viewports.
+- **Theme Switcher (`#theme-toggle-btn`):** A single, minimalist, textless icon button toggling between an inline SVG sun icon and moon icon.
+- **Light Mode (`[data-theme="light"]`):**
+  - Background: `#FAFAF9`
+  - Cards & Surfaces: `#FFFFFF`
+  - Borders & Chart Gridlines: `#E7E5E4` (`1px solid`, `6px` to `8px` border-radius)
+  - Text Primary: `#1C1917`
+  - Text Secondary: `#787774`
+- **Dark Mode (`:root, [data-theme="dark"]`):**
+  - Background: `#0D0E11`
+  - Cards & Surfaces: `#16171D`
+  - Borders & Chart Gridlines: `#292A30` (`1px solid`, `6px` to `8px` border-radius)
+  - Text Primary: `#ECE8E2`
+  - Text Secondary: `#9A9895`
+- **Data Visualization Palette:**
+  - **Vibrant Teal:** `#0D9488`
+  - **Energetic Amber:** `#D97706`
+  - **Vivid Indigo:** `#4F46E5`
+  - **Functional Emerald:** `#059669`
+  - **Deep Rose:** `#E11D48`

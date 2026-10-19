@@ -1,46 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Presentation Knowledge Graph & Chronological Dashboard</title>
+  <meta name="description" content="Interactive Relationship Node Map and Chronological Walkthrough for Distributed Vector Search Engine Architecture Keynote">
+  <title>Distributed Vector Search Engine Architecture Keynote — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root, [data-theme="dark"] {
-      --bg-primary: #0f172a;
-      --bg-secondary: #1e293b;
-      --bg-tertiary: #334155;
-      --bg-drawer: #0b1120;
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --accent-blue: #38bdf8;
-      --accent-blue-hover: #0284c7;
-      --accent-emerald: #34d399;
-      --accent-amber: #fbbf24;
-      --accent-violet: #a78bfa;
-      --border-color: #334155;
-      --border-subtle: #1e293b;
-      --radius-sm: 4px;
+      --bg-canvas: #0D0E11;
+      --bg-surface: #16171D;
+      --border-color: #292A30;
+      --text-primary: #ECE8E2;
+      --text-secondary: #9A9895;
+      --chart-grid: #292A30;
+      --surface-hover: rgba(236, 232, 226, 0.04);
+      --surface-subtle: rgba(236, 232, 226, 0.025);
+
+      /* Data Visualization Palette (DESIGN.md Section 5) */
+      --viz-teal: #0D9488;
+      --viz-amber: #D97706;
+      --viz-indigo: #4F46E5;
+      --viz-emerald: #059669;
+      --viz-rose: #E11D48;
+
+      --radius-sm: 6px;
       --radius-md: 8px;
-      --radius-lg: 12px;
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
     [data-theme="light"] {
-      --bg-primary: #f8fafc;
-      --bg-secondary: #ffffff;
-      --bg-tertiary: #f1f5f9;
-      --bg-drawer: #ffffff;
-      --text-primary: #0f172a;
-      --text-secondary: #475569;
-      --text-muted: #64748b;
-      --accent-blue: #0284c7;
-      --accent-blue-hover: #0369a1;
-      --accent-emerald: #059669;
-      --accent-amber: #d97706;
-      --accent-violet: #7c3aed;
-      --border-color: #e2e8f0;
-      --border-subtle: #cbd5e1;
+      --bg-canvas: #FAFAF9;
+      --bg-surface: #FFFFFF;
+      --border-color: #E7E5E4;
+      --text-primary: #1C1917;
+      --text-secondary: #787774;
+      --chart-grid: #E7E5E4;
+      --surface-hover: rgba(28, 25, 23, 0.035);
+      --surface-subtle: rgba(28, 25, 23, 0.02);
     }
 
     * {
@@ -50,155 +50,133 @@
     }
 
     body {
-      background-color: var(--bg-primary);
+      background-color: var(--bg-canvas);
       color: var(--text-primary);
       font-family: var(--font-sans);
       line-height: 1.5;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      transition: background-color 0.2s ease, color 0.2s ease;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Top Navigation Header */
     header {
-      background-color: var(--bg-secondary);
+      background-color: var(--bg-surface);
       border-bottom: 1px solid var(--border-color);
-      padding: 1rem 1.5rem;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
+      padding: 1rem 1.5rem 0 1.5rem;
+    }
+
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
     }
 
     .header-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 0.75rem;
+      gap: 1rem;
+      padding-bottom: 0.875rem;
       flex-wrap: wrap;
-      gap: 0.75rem;
     }
 
-    .presentation-title {
+    .title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    h1.presentation-title {
       font-size: 1.25rem;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text-primary);
       letter-spacing: -0.02em;
     }
 
-    .presentation-meta {
+    .presenters-row {
       display: flex;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      align-items: center;
       flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
     }
 
-    /* Theme Toggle Button */
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+
+    .mono-chip {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 0.25rem 0.625rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-canvas);
+    }
+
+    /* Single, Minimalist, Textless Icon Theme Switcher */
     .theme-toggle-btn {
-      background-color: var(--bg-tertiary);
+      background-color: var(--bg-canvas);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      height: 30px;
-      padding: 0 0.65rem;
+      width: 32px;
+      height: 32px;
       border-radius: var(--radius-sm);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.15s ease;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
+      transition: border-color 0.15s ease, color 0.15s ease;
     }
 
     .theme-toggle-btn:hover {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
-      border-color: var(--accent-blue-hover);
+      border-color: var(--viz-teal);
+      color: var(--viz-teal);
     }
 
-    [data-theme="dark"] .theme-toggle-btn .theme-label-dark { display: none; }
-    [data-theme="dark"] .theme-toggle-btn .theme-label-light { display: inline; }
-    [data-theme="light"] .theme-toggle-btn .theme-label-light { display: none; }
-    [data-theme="light"] .theme-toggle-btn .theme-label-dark { display: inline; }
-    :root:not([data-theme]) .theme-toggle-btn .theme-label-dark { display: none; }
-    :root:not([data-theme]) .theme-toggle-btn .theme-label-light { display: inline; }
+    [data-theme="dark"] .theme-toggle-btn .icon-moon { display: none; }
+    [data-theme="dark"] .theme-toggle-btn .icon-sun { display: block; }
+    [data-theme="light"] .theme-toggle-btn .icon-sun { display: none; }
+    [data-theme="light"] .theme-toggle-btn .icon-moon { display: block; }
 
-    .badge {
-      display: inline-block;
-      padding: 0.2rem 0.55rem;
-      border-radius: var(--radius-sm);
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .badge-primary { background: #0369a1; color: #e0f2fe; }
-    .badge-emerald { background: #065f46; color: #d1fae5; }
-    .badge-violet { background: #4c1d95; color: #ede9fe; }
-    .badge-slate { background: #334155; color: #e2e8f0; }
-
-    [data-theme="light"] .badge-primary { background: #e0f2fe; color: #0369a1; }
-    [data-theme="light"] .badge-emerald { background: #d1fae5; color: #065f46; }
-    [data-theme="light"] .badge-violet { background: #ede9fe; color: #5b21b6; }
-    [data-theme="light"] .badge-slate { background: #e2e8f0; color: #334155; }
-
-    .presenters-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      margin-top: 0.3rem;
-      align-items: center;
-    }
-
-    .presenter-pill {
-      background-color: var(--bg-tertiary);
-      color: var(--text-secondary);
-      font-size: 0.75rem;
-      padding: 0.15rem 0.55rem;
-      border-radius: 9999px;
-      font-weight: 500;
-    }
-
-    /* Tab Navigation */
     .nav-tabs {
       display: flex;
-      gap: 0.5rem;
-      border-top: 1px solid var(--border-color);
-      padding-top: 0.75rem;
+      gap: 1.5rem;
       overflow-x: auto;
-      align-items: center;
     }
 
     .tab-btn {
       background: none;
-      border: 1px solid transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
       color: var(--text-secondary);
-      padding: 0.5rem 1rem;
+      padding: 0.625rem 0.125rem;
+      font-family: var(--font-sans);
       font-size: 0.875rem;
       font-weight: 500;
-      border-radius: var(--radius-md);
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: color 0.15s ease, border-color 0.15s ease;
       white-space: nowrap;
     }
 
     .tab-btn:hover {
-      background-color: var(--bg-tertiary);
       color: var(--text-primary);
     }
 
     .tab-btn.active {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
+      color: var(--text-primary);
+      border-bottom-color: var(--viz-teal);
       font-weight: 600;
     }
 
-    /* Main Container */
     main {
       flex: 1;
-      padding: 1.25rem 1.5rem;
+      padding: 1.5rem;
       max-width: 1440px;
       width: 100%;
       margin: 0 auto;
@@ -209,70 +187,48 @@
     }
 
     .tab-content.active {
-      display: block;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
     }
 
-    /* Presentation Core Theme Banner */
-    .theme-banner {
-      background-color: var(--bg-secondary);
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      background-color: var(--border-color);
       border: 1px solid var(--border-color);
-      border-left: 4px solid var(--accent-blue);
       border-radius: var(--radius-md);
-      padding: 0.85rem 1.15rem;
-      margin-bottom: 1rem;
+      gap: 1px;
+      overflow: hidden;
+    }
+
+    .bento-cell {
+      background-color: var(--bg-surface);
+      padding: 1rem 1.25rem;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 0.4rem;
     }
 
-    .theme-banner-text {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      flex: 1;
-      min-width: 260px;
-    }
-
-    .theme-banner-text strong {
-      color: var(--text-primary);
-      margin-right: 0.35rem;
-    }
-
-    .graph-legend {
-      display: flex;
-      gap: 1rem;
+    .cell-title {
       font-size: 0.75rem;
-      color: var(--text-muted);
-      align-items: center;
-      flex-wrap: wrap;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
     }
 
-    .legend-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
-    .legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    /* Knowledge Graph Layout */
-    .graph-container {
+    .graph-wrapper {
       position: relative;
-      background-color: var(--bg-secondary);
+      background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      height: 640px;
+      height: 620px;
       overflow: hidden;
       display: flex;
     }
 
-    .graph-stage-area {
+    .graph-canvas-area {
       flex: 1;
       height: 100%;
       position: relative;
@@ -280,77 +236,73 @@
       user-select: none;
     }
 
-    .graph-stage-area.grabbing {
+    .graph-canvas-area.grabbing {
       cursor: grabbing;
     }
 
-    .graph-search-bar {
+    .graph-toolbar-overlay {
       position: absolute;
       top: 1rem;
       left: 1rem;
       z-index: 10;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 0.5rem 0.75rem;
       display: flex;
       gap: 0.5rem;
-      width: 300px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
+      align-items: center;
+      flex-wrap: wrap;
     }
 
-    .graph-search-bar input {
-      background: none;
-      border: none;
+    .graph-search-input {
+      background-color: var(--bg-canvas);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.75rem;
       color: var(--text-primary);
-      font-size: 0.875rem;
-      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+      width: 260px;
       outline: none;
     }
 
-    /* Floating Graph Zoom Controls */
+    .graph-search-input:focus {
+      border-color: var(--viz-teal);
+    }
+
     .graph-controls {
       position: absolute;
       bottom: 1rem;
       right: 1rem;
       z-index: 15;
       display: flex;
-      flex-direction: column;
       gap: 0.35rem;
-      background: var(--bg-secondary);
+      background-color: var(--bg-canvas);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 0.35rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 0.25rem;
     }
 
-    .graph-ctrl-btn {
-      background-color: var(--bg-tertiary);
+    .ctrl-btn {
+      background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      min-width: 44px;
-      height: 28px;
-      border-radius: var(--radius-sm);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      padding: 0 0.4rem;
+      font-family: var(--font-mono);
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 500;
+      height: 28px;
+      min-width: 32px;
+      padding: 0 0.55rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease;
     }
 
-    .graph-ctrl-btn:hover {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
-      border-color: var(--accent-blue-hover);
+    .ctrl-btn:hover {
+      border-color: var(--viz-teal);
+      color: var(--viz-teal);
     }
 
-    /* Node & Link visual states */
     .node-group {
       cursor: grab;
-      transition: opacity 0.2s ease, filter 0.2s ease;
+      transition: opacity 0.2s ease;
     }
 
     .node-group:active {
@@ -362,19 +314,8 @@
       pointer-events: none;
     }
 
-    .node-group circle {
-      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
-      transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
-    }
-
-    .node-group.active circle {
-      stroke: var(--accent-blue) !important;
-      stroke-width: 3.5px !important;
-      filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.8)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
-    }
-
     .node-group.dimmed {
-      opacity: 0.25;
+      opacity: 0.2;
     }
 
     .edge-group {
@@ -382,26 +323,20 @@
     }
 
     .edge-group.dimmed {
-      opacity: 0.15;
+      opacity: 0.12;
     }
 
-    .edge-group.highlighted line {
-      stroke: var(--accent-blue) !important;
-      stroke-width: 2.5px !important;
-    }
-
-    /* Detail Inspector Drawer */
     .inspector-drawer {
-      width: 400px;
-      background-color: var(--bg-drawer);
+      width: 390px;
+      background-color: var(--bg-surface);
       border-left: 1px solid var(--border-color);
-      padding: 1.5rem;
+      padding: 1.25rem;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 1rem;
       transform: translateX(100%);
-      transition: transform 0.25s ease-in-out;
+      transition: transform 0.2s ease-out;
       position: absolute;
       right: 0;
       top: 0;
@@ -417,225 +352,242 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 0.5rem;
+      gap: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
     }
 
     .inspector-title {
-      font-size: 1.1rem;
-      font-weight: 700;
+      font-size: 1rem;
+      font-weight: 600;
       color: var(--text-primary);
     }
 
     .inspector-meta {
+      font-family: var(--font-mono);
       font-size: 0.75rem;
-      color: var(--accent-blue);
-      font-weight: 600;
+      color: var(--viz-teal);
       margin-top: 0.2rem;
     }
 
-    .inspector-close {
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
+    .inspector-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
     }
 
-    .inspector-section {
-      border-top: 1px solid var(--border-color);
-      padding-top: 0.75rem;
+    .inspector-block:last-child {
+      border-bottom: none;
     }
 
-    .inspector-section-label {
-      font-size: 0.75rem;
+    .inspector-label {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
       font-weight: 600;
-      color: var(--accent-blue);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-bottom: 0.35rem;
+      color: var(--viz-teal);
     }
 
-    .inspector-text {
-      font-size: 0.875rem;
+    .inspector-body {
+      font-size: 0.8125rem;
       color: var(--text-secondary);
       line-height: 1.55;
     }
 
-    /* Chronological Walkthrough Timeline */
     .walkthrough-toolbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
       flex-wrap: wrap;
       gap: 0.5rem;
     }
 
-    .btn-action {
-      background-color: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 0.4rem 0.75rem;
-      font-size: 0.75rem;
-      font-weight: 500;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: background 0.15s ease;
-    }
-
-    .btn-action:hover {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
-    }
-
-    .segment-accordion {
-      background-color: var(--bg-secondary);
+    .record-surface {
+      background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      margin-bottom: 0.85rem;
       overflow: hidden;
     }
 
-    .segment-header {
+    .record-item {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .record-item:last-child {
+      border-bottom: none;
+    }
+
+    .record-header {
+      width: 100%;
+      background: none;
+      border: none;
       padding: 1rem 1.25rem;
+      text-align: left;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: var(--bg-secondary);
-      user-select: none;
-      gap: 0.75rem;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      transition: background-color 0.15s ease;
     }
 
-    .segment-header:hover {
-      background-color: var(--bg-tertiary);
+    .record-header:hover {
+      background-color: var(--surface-hover);
     }
 
-    .segment-step-badge {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 0.2rem 0.55rem;
-      border-radius: var(--radius-sm);
-      margin-right: 0.5rem;
-    }
-
-    .segment-body {
-      padding: 1.25rem;
-      border-top: 1px solid var(--border-color);
-      background-color: var(--bg-drawer);
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-      line-height: 1.6;
+    .record-body {
       display: none;
+      padding: 0 1.25rem 1.25rem 1.25rem;
+      border-top: 1px solid var(--border-color);
+      background-color: var(--surface-subtle);
     }
 
-    .segment-body.open {
-      display: block;
+    .record-body.open {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      padding-top: 1rem;
+    }
+
+    .record-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .record-field-label {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--viz-teal);
+    }
+
+    .record-field-text {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    @media (max-width: 960px) {
+      .bento-grid { grid-template-columns: 1fr; }
+      .record-body.open { grid-template-columns: 1fr; }
+      .inspector-drawer { width: 100%; }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="header-top">
-      <div>
-        <h1 class="presentation-title" id="display-title">Presentation Title</h1>
-        <div class="presenters-list" id="display-presenters"></div>
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="title-group">
+          <h1 class="presentation-title" id="display-title">Distributed Vector Search Engine Architecture Keynote</h1>
+          <div class="presenters-row" id="display-presenters"></div>
+        </div>
+        <div class="header-controls">
+          <span class="mono-chip" id="badge-segments">5 Segments</span>
+          <span class="mono-chip" id="display-date">2026-09-18</span>
+          <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">
+            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+            </svg>
+            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
       </div>
-      <div class="presentation-meta">
-        <span class="badge badge-violet">Presentation Mode</span>
-        <span class="badge badge-slate" id="badge-segments">0 Segments</span>
-        <span class="badge badge-primary" id="display-date">Date</span>
-        <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle light and dark mode" title="Toggle theme">
-          <span class="theme-label-light">Light</span>
-          <span class="theme-label-dark">Dark</span>
-        </button>
-      </div>
-    </div>
-    <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchMainTab('graph', this)">Presentation Knowledge Graph</button>
-      <button class="tab-btn" onclick="switchMainTab('walkthrough', this)">Chronological Walkthrough</button>
+
+      <nav class="nav-tabs" aria-label="Presentation views">
+        <button type="button" class="tab-btn active" onclick="switchMainTab('graph', this)">Interactive Relationship Node Map</button>
+        <button type="button" class="tab-btn" onclick="switchMainTab('walkthrough', this)">Chronological Walkthrough</button>
+      </nav>
     </div>
   </header>
 
   <main>
-    <!-- TAB 1: PRESENTATION KNOWLEDGE GRAPH (DEFAULT ACTIVE VIEW) -->
     <section id="tab-graph" class="tab-content active">
-      <div class="theme-banner">
-        <div class="theme-banner-text">
-          <strong>Presentation Focus:</strong>
-          <span id="display-core-theme">Interactive topology of presentation segments, slide progression, and technical concepts spoken by the presenter(s).</span>
+      <div class="bento-grid">
+        <div class="bento-cell">
+          <span class="cell-title">Core Theme</span>
+          <p id="display-core-theme" style="font-size: 0.875rem; color: var(--text-primary);"></p>
         </div>
-        <div class="graph-legend">
-          <span class="legend-item"><span class="legend-dot" style="background:#0284c7;"></span> Core Theme</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#38bdf8;"></span> Chronological Segment (#1..#N)</span>
-          <span class="legend-item">Click any node to inspect what was said</span>
+        <div class="bento-cell">
+          <span class="cell-title">Canary Readout (1.4B Vectors @ 20k QPS)</span>
+          <div style="display: flex; gap: 1.25rem; font-family: var(--font-mono); font-size: 0.8125rem; margin-top: 0.2rem; flex-wrap: wrap;">
+            <span><strong style="color: var(--viz-teal);">-64%</strong> DRAM (4.0 TB)</span>
+            <span><strong style="color: var(--viz-emerald);">16.2ms</strong> p99 (-88%)</span>
+            <span><strong style="color: var(--viz-amber);">$1.14M</strong> / yr saved</span>
+          </div>
         </div>
       </div>
 
-      <div class="graph-container">
-        <div class="graph-search-bar">
-          <input type="text" id="graph-search-input" placeholder="Search slides, concepts, or metrics..." oninput="filterGraphNodes(this.value)">
+      <div class="graph-wrapper">
+        <div class="graph-toolbar-overlay">
+          <input type="text" class="graph-search-input" id="graph-search-input" placeholder="Filter slides, concepts, or metrics..." oninput="filterGraphNodes(this.value)">
         </div>
 
-        <!-- Floating Graph Zoom Controls -->
         <div class="graph-controls">
-          <button class="graph-ctrl-btn" onclick="graphZoomIn()" title="Zoom In" aria-label="Zoom In">+</button>
-          <button class="graph-ctrl-btn" onclick="graphZoomOut()" title="Zoom Out" aria-label="Zoom Out">-</button>
-          <button class="graph-ctrl-btn" onclick="graphResetZoom()" title="Reset View" aria-label="Reset View">Reset</button>
+          <button type="button" class="ctrl-btn" onclick="graphZoomIn()" title="Zoom In" aria-label="Zoom In">+</button>
+          <button type="button" class="ctrl-btn" onclick="graphZoomOut()" title="Zoom Out" aria-label="Zoom Out">&minus;</button>
+          <button type="button" class="ctrl-btn" onclick="graphResetZoom()" title="Reset View" aria-label="Reset View">Reset</button>
         </div>
 
-        <div class="graph-stage-area" id="graph-stage-container">
+        <div class="graph-canvas-area" id="graph-stage-container">
           <svg id="graph-svg" width="100%" height="100%">
             <defs id="graph-defs"></defs>
+            <g id="graph-grid-layer"></g>
             <g id="graph-viewport"></g>
           </svg>
         </div>
 
-        <!-- Slide / Segment Detail Inspector Drawer -->
-        <div class="inspector-drawer" id="inspector-drawer">
+        <aside class="inspector-drawer" id="inspector-drawer" aria-label="Segment detail inspector">
           <div class="inspector-header">
             <div>
-              <h3 class="inspector-title" id="inspector-title">Segment Title</h3>
+              <h2 class="inspector-title" id="inspector-title">Segment Title</h2>
               <div class="inspector-meta" id="inspector-presenter">Presenter</div>
             </div>
-            <button class="inspector-close" onclick="closeInspector()">Close</button>
+            <button type="button" class="ctrl-btn" onclick="closeInspector()">Close</button>
           </div>
-          <div class="inspector-section">
-            <div class="inspector-section-label">What Was Presented & Said</div>
-            <p class="inspector-text" id="inspector-summary"></p>
+          <div class="inspector-block">
+            <div class="inspector-label">What Was Presented &amp; Said</div>
+            <p class="inspector-body" id="inspector-summary"></p>
           </div>
-          <div class="inspector-section">
-            <div class="inspector-section-label">Slide Visuals, Demos & Metrics Cited</div>
-            <p class="inspector-text" id="inspector-visuals"></p>
+          <div class="inspector-block">
+            <div class="inspector-label">Slide Visuals, Demos &amp; Metrics Cited</div>
+            <p class="inspector-body" id="inspector-visuals"></p>
           </div>
-          <div class="inspector-section">
-            <div class="inspector-section-label">Stated Key Takeaway</div>
-            <p class="inspector-text" id="inspector-takeaway"></p>
+          <div class="inspector-block">
+            <div class="inspector-label">Stated Key Takeaway</div>
+            <p class="inspector-body" id="inspector-takeaway"></p>
           </div>
-        </div>
+        </aside>
       </div>
     </section>
 
-    <!-- TAB 2: CHRONOLOGICAL WALKTHROUGH -->
     <section id="tab-walkthrough" class="tab-content">
       <div class="walkthrough-toolbar">
-        <span style="font-size:0.875rem; color:var(--text-secondary);">Sequential chronological record of what was presented from start to finish:</span>
+        <span class="cell-title">Chronological Sequence (#1 – #5)</span>
         <div style="display:flex; gap:0.5rem;">
-          <button class="btn-action" onclick="expandAllSegments(true)">Expand All</button>
-          <button class="btn-action" onclick="expandAllSegments(false)">Collapse All</button>
-          <button class="btn-action" onclick="exportChronologicalMarkdown()">Copy Chronological Markdown</button>
+          <button type="button" class="ctrl-btn" onclick="expandAllSegments(true)">Expand All</button>
+          <button type="button" class="ctrl-btn" onclick="expandAllSegments(false)">Collapse All</button>
+          <button type="button" class="ctrl-btn" onclick="exportChronologicalMarkdown()">Copy Markdown</button>
         </div>
       </div>
-      <div id="segments-accordion-list"></div>
+      <div class="record-surface" id="segments-accordion-list"></div>
     </section>
   </main>
 
   <script>
-    // Embedded Presentation Data Model Payload (Synthetic Data Example)
     const PRESENTATION_DATA = {
       mode: "presentation",
       presentationTitle: "Distributed Vector Search Engine Architecture Keynote",
@@ -648,6 +600,7 @@
           order: 1,
           title: "Introduction & Slide 1: The Billion-Vector Memory Wall",
           shortTitle: "Memory Wall",
+          color: "#E11D48",
           presenter: "Dr. Aris Thorne",
           summary: "Introduced HyperIndex v4 and walked through Slide 1 detailing how the production search cluster grew over 18 months from 120 million embeddings to 1.4 billion 1536-dimensional floating-point vectors. Storing uncompressed FP32 HNSW graphs in DRAM consumed 11.2 TB across 180 high-memory nodes, while garbage collection pauses and cross-node scatter-gather fan-out at 18,000 QPS pushed p99 query latency to 142 ms.",
           visualsAndMetrics: "Slide 1 left chart: 1.4B 1536D vectors, 11.2 TB DRAM across 180 nodes, 18,000 QPS peak load, 142 ms p99 latency vs. 30 ms SLA target.",
@@ -658,6 +611,7 @@
           order: 2,
           title: "Slide 2: Two-Tier Hybrid Storage and RabitQ Quantization",
           shortTitle: "Hybrid Storage",
+          color: "#4F46E5",
           presenter: "Dr. Aris Thorne",
           summary: "Presented Slide 2's two-tier hybrid storage engine. Tier 1 (CPU L3 cache and DRAM) compresses 1536D vectors via asymmetric binary quantization with corrective scalar residuals, shrinking memory usage by 64% to 4.0 TB across 64 nodes. Tier 2 stores full-precision FP16 vectors on local NVMe SSDs in 16 KB aligned blocks. Queries traverse the compressed Tier 1 graph to find the top 250 candidate IDs and issue a single batched io_uring NVMe read to rescore those 250 candidates.",
           visualsAndMetrics: "Slide 2 bottom architecture diagram: 64% memory reduction (11.2 TB to 4.0 TB), node count reduced from 180 to 64, 16 KB aligned NVMe blocks, top-250 candidate batched rescoring.",
@@ -668,6 +622,7 @@
           order: 3,
           title: "Slide 3: Zero-Copy Kernel Bypass and SIMD Distance Kernels",
           shortTitle: "Kernel Bypass",
+          color: "#0D9488",
           presenter: "Dr. Aris Thorne",
           summary: "Explained on Slide 3 that profiling the NVMe rescoring step showed Linux page cache copies consumed 38% of CPU cycles. The engine bypasses the kernel page cache using direct asynchronous io_uring submission queues paired with pre-pinned hugepage ring buffers, feeding a custom AVX-512 SIMD inner-product kernel that computes exact cosine distances.",
           visualsAndMetrics: "Slide 3 pipeline diagram: 38% CPU previously spent in page cache copies; AVX-512 SIMD inner-product kernel achieves 1.8 billion vector comparisons per second per core.",
@@ -678,6 +633,7 @@
           order: 4,
           title: "Slide 4: Dynamic Predicate Pushdown During Graph Traversal",
           shortTitle: "Predicate Pushdown",
+          color: "#D97706",
           presenter: "Dr. Aris Thorne",
           summary: "Demonstrated on Slide 4 how post-filtering fails when metadata filters (such as tenant ID or date range) match only 1% of documents. HyperIndex v4 uses an adaptive bitmap pushdown engine that checks filter cardinality via Roaring Bitmaps before traversal: above 15% selectivity it evaluates the bitmap inline during HNSW hops, and below 2% selectivity it switches to a bitmap-driven brute-force scan over quantized vectors.",
           visualsAndMetrics: "Slide 4 adaptive query planner diagram: Roaring Bitmaps cardinality check with >15% inline HNSW hop evaluation and <2% quantized scan threshold, delivering 100% filter completeness.",
@@ -688,6 +644,7 @@
           order: 5,
           title: "Slide 5: Production Telemetry and Live Benchmark Readout",
           shortTitle: "Live Benchmarks",
+          color: "#059669",
           presenter: "Dr. Aris Thorne",
           summary: "Displayed the live telemetry monitoring dashboard on Slide 5 from the us-east canary cluster running 1.4 billion vectors at 20,000 concurrent QPS. Reported 98.4% Recall@10, 4.8 ms median p50 latency, 16.2 ms p99 latency (an 88% reduction vs. v3), and $1.14 million annual infrastructure savings from dropping from 180 nodes to 64 nodes.",
           visualsAndMetrics: "Slide 5 live telemetry monitoring dashboard (us-east canary, 1.4B vectors, 20k QPS): 98.4% Recall@10, 4.8 ms p50, 16.2 ms p99 (-88% vs v3), $1.14M/year cost savings.",
@@ -703,6 +660,16 @@
       ]
     };
 
+    const PALETTE = ['#0D9488', '#4F46E5', '#059669', '#D97706', '#E11D48'];
+
+    function hexToRgba(hex, alpha) {
+      const clean = (hex || '#0D9488').replace('#', '');
+      const r = parseInt(clean.substring(0, 2), 16) || 13;
+      const g = parseInt(clean.substring(2, 4), 16) || 148;
+      const b = parseInt(clean.substring(4, 6), 16) || 136;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
     function initDashboard(data) {
       document.getElementById('display-title').innerText = data.presentationTitle || 'Presentation Summary';
       const todayIso = new Date().toISOString().split('T')[0];
@@ -712,16 +679,15 @@
       document.getElementById('display-date').innerText = presDate;
 
       const presenters = data.presenters || [];
-      const pContainer = document.getElementById('display-presenters');
-      pContainer.innerHTML = presenters.map(p => `<span class="presenter-pill">Presenter: ${p}</span>`).join('');
+      document.getElementById('display-presenters').innerHTML = presenters.map(p => `<span>${p}</span>`).join(' · ');
 
       const segments = data.segments || [];
-      document.getElementById('badge-segments').innerText = `${segments.length} Chronological Segments`;
+      document.getElementById('badge-segments').innerText = `${segments.length} Segments`;
       if (data.coreTheme) {
         document.getElementById('display-core-theme').innerText = data.coreTheme;
       }
 
-      renderKnowledgeGraph(segments, data.relationships || []);
+      renderRelationshipNodeMap(segments, data.relationships || []);
       renderChronologicalWalkthrough(segments);
     }
 
@@ -731,11 +697,10 @@
       btn.classList.add('active');
       document.getElementById('tab-' + tabKey).classList.add('active');
       if (tabKey === 'graph') {
-        renderKnowledgeGraph(PRESENTATION_DATA.segments || [], PRESENTATION_DATA.relationships || []);
+        renderRelationshipNodeMap(PRESENTATION_DATA.segments || [], PRESENTATION_DATA.relationships || []);
       }
     }
 
-    // Physics Simulation & Presentation Knowledge Graph Engine
     let graphState = {
       nodes: [],
       links: [],
@@ -749,10 +714,11 @@
       draggedNode: null,
       hasDraggedMoved: false,
       animId: null,
+      ticksRemaining: 0,
       cx: 420,
-      cy: 310,
+      cy: 300,
       width: 840,
-      height: 620,
+      height: 600,
       isInitialized: false
     };
 
@@ -766,8 +732,8 @@
     function graphZoomIn() {
       const svg = document.getElementById('graph-svg');
       const cx = (svg ? svg.clientWidth : 840) / 2;
-      const cy = (svg ? svg.clientHeight : 620) / 2;
-      const newZoom = Math.min(3.0, graphState.zoom * 1.25);
+      const cy = (svg ? svg.clientHeight : 600) / 2;
+      const newZoom = Math.min(2.75, graphState.zoom * 1.2);
       graphState.panX = cx - (cx - graphState.panX) * (newZoom / graphState.zoom);
       graphState.panY = cy - (cy - graphState.panY) * (newZoom / graphState.zoom);
       graphState.zoom = newZoom;
@@ -777,8 +743,8 @@
     function graphZoomOut() {
       const svg = document.getElementById('graph-svg');
       const cx = (svg ? svg.clientWidth : 840) / 2;
-      const cy = (svg ? svg.clientHeight : 620) / 2;
-      const newZoom = Math.max(0.35, graphState.zoom * 0.8);
+      const cy = (svg ? svg.clientHeight : 600) / 2;
+      const newZoom = Math.max(0.4, graphState.zoom * 0.82);
       graphState.panX = cx - (cx - graphState.panX) * (newZoom / graphState.zoom);
       graphState.panY = cy - (cy - graphState.panY) * (newZoom / graphState.zoom);
       graphState.zoom = newZoom;
@@ -792,73 +758,91 @@
       updateGraphViewportTransform();
     }
 
-    function renderKnowledgeGraph(segments, relationships) {
+    function renderRelationshipNodeMap(segments, relationships) {
       const svg = document.getElementById('graph-svg');
       const defs = document.getElementById('graph-defs');
+      const gridLayer = document.getElementById('graph-grid-layer');
       const viewport = document.getElementById('graph-viewport');
       if (!svg || !viewport) return;
 
-      const w = svg.clientWidth || 840;
-      const h = svg.clientHeight || 620;
+      const w = svg.clientWidth || 880;
+      const h = svg.clientHeight || 600;
       graphState.width = w;
       graphState.height = h;
       graphState.cx = w / 2;
       graphState.cy = h / 2;
 
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const gridStroke = isLight ? '#E7E5E4' : '#292A30';
+      const surfaceFill = isLight ? '#FFFFFF' : '#16171D';
+      const textPrimary = isLight ? '#1C1917' : '#ECE8E2';
+      const textSecondary = isLight ? '#787774' : '#9A9895';
+
       if (defs) {
-        defs.innerHTML = `
-          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+        defs.innerHTML = PALETTE.map((col, idx) => `
+          <marker id="arrow-${idx}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="${col}" fill-opacity="0.85"/>
           </marker>
+        `).join('') + `
+          <pattern id="chart-grid-pattern" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="${gridStroke}" stroke-width="0.75" stroke-opacity="0.65"/>
+          </pattern>
         `;
+      }
+
+      if (gridLayer) {
+        gridLayer.innerHTML = `<rect width="100%" height="100%" fill="url(#chart-grid-pattern)" />`;
       }
 
       const nodes = [];
       const nodeMap = {};
 
-      // Central Presentation Theme Root Node
       const rootNode = {
         id: 'root',
-        title: PRESENTATION_DATA.presentationTitle || 'Presentation Theme',
+        title: PRESENTATION_DATA.presentationTitle,
         shortTitle: 'CORE THEME',
+        color: '#0D9488',
+        paletteIdx: 0,
         x: graphState.cx,
         y: graphState.cy,
         vx: 0,
         vy: 0,
-        r: 54,
+        r: 52,
         isRoot: true,
-        segmentData: {
+        segData: {
           order: 0,
-          title: PRESENTATION_DATA.presentationTitle || 'Presentation Overview',
+          title: PRESENTATION_DATA.presentationTitle,
           presenter: (PRESENTATION_DATA.presenters || []).join(', '),
-          summary: PRESENTATION_DATA.coreTheme || 'Central theme connecting all chronological presentation segments.',
-          visualsAndMetrics: `Covers ${segments.length} sequential presentation segments.`,
-          takeaway: 'Select any numbered segment node (#1..#N) around the graph to inspect what was presented in chronological order.'
+          summary: PRESENTATION_DATA.coreTheme,
+          visualsAndMetrics: `${segments.length} chronological segments (#1 through #${segments.length})`,
+          takeaway: PRESENTATION_DATA.coreTheme
         }
       };
       nodes.push(rootNode);
       nodeMap['root'] = rootNode;
 
-      const radius = Math.max(Math.min(w, h) * 0.40, 240);
+      const radius = Math.max(Math.min(w, h) * 0.36, 220);
       const angleStep = (2 * Math.PI) / (segments.length || 1);
 
       segments.forEach((s, idx) => {
         const id = s.id || `seg-${idx + 1}`;
-        const order = s.order || (idx + 1);
         const angle = idx * angleStep - Math.PI / 2;
-        const shortTitle = s.shortTitle || s.title.split(' ').slice(0, 2).join(' ');
+        const pIdx = idx % PALETTE.length;
+        const nodeColor = s.color || PALETTE[pIdx];
         const node = {
           id: id,
-          order: order,
+          order: s.order || (idx + 1),
           title: s.title,
-          shortTitle: shortTitle,
+          shortTitle: s.shortTitle || s.title.split(' ').slice(0, 2).join(' '),
+          color: nodeColor,
+          paletteIdx: PALETTE.indexOf(nodeColor) !== -1 ? PALETTE.indexOf(nodeColor) : pIdx,
           x: graphState.cx + radius * Math.cos(angle),
           y: graphState.cy + radius * Math.sin(angle),
           vx: 0,
           vy: 0,
-          r: 48,
+          r: 46,
           isRoot: false,
-          segmentData: s
+          segData: s
         };
         nodes.push(node);
         nodeMap[id] = node;
@@ -874,73 +858,60 @@
             from: rootNode,
             to: targetNode,
             isRadial: true,
-            targetDist: 245,
-            strength: 0.025
+            color: targetNode.color,
+            targetDist: 220,
+            strength: 0.03
           });
         }
       });
 
-      if (relationships && relationships.length > 0) {
-        relationships.forEach((rel, rIdx) => {
-          const fromNode = nodeMap[rel.from];
-          const toNode = nodeMap[rel.to];
-          if (fromNode && toNode) {
-            links.push({
-              id: `link-rel-${rIdx}`,
-              from: fromNode,
-              to: toNode,
-              label: rel.label,
-              isRadial: false,
-              targetDist: 220,
-              strength: 0.020
-            });
-          }
-        });
-      }
+      (relationships || []).forEach((rel, rIdx) => {
+        const fromNode = nodeMap[rel.from];
+        const toNode = nodeMap[rel.to];
+        if (fromNode && toNode) {
+          links.push({
+            id: `link-rel-${rIdx}`,
+            from: fromNode,
+            to: toNode,
+            label: rel.label,
+            isRadial: false,
+            color: fromNode.color,
+            paletteIdx: fromNode.paletteIdx,
+            targetDist: 200,
+            strength: 0.022
+          });
+        }
+      });
 
       graphState.nodes = nodes;
       graphState.links = links;
 
       viewport.innerHTML = `
-        <g class="links-layer" id="graph-links-layer"></g>
-        <g class="edges-layer" id="graph-edges-layer"></g>
-        <g class="nodes-layer" id="graph-nodes-layer"></g>
+        <g id="graph-links-layer"></g>
+        <g id="graph-edges-layer"></g>
+        <g id="graph-nodes-layer"></g>
       `;
 
       const linksLayer = document.getElementById('graph-links-layer');
       const edgesLayer = document.getElementById('graph-edges-layer');
       const nodesLayer = document.getElementById('graph-nodes-layer');
 
-      const isLight = (document.documentElement.getAttribute('data-theme') === 'light');
-      const edgeStroke = isLight ? '#cbd5e1' : '#334155';
-      const labelBg = isLight ? '#ffffff' : '#0b1120';
-      const labelBorder = isLight ? '#e2e8f0' : '#334155';
-      const labelText = isLight ? '#0284c7' : '#38bdf8';
-      const nodeFill = isLight ? '#ffffff' : '#1e293b';
-      const nodeBorder = isLight ? '#0284c7' : '#38bdf8';
-      const nodeText1 = isLight ? '#0f172a' : '#f8fafc';
-      const nodeText2 = isLight ? '#475569' : '#94a3b8';
-      const rootFill = isLight ? '#0284c7' : '#0369a1';
-      const rootStroke = '#38bdf8';
-
       links.forEach(link => {
         if (link.isRadial) {
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('id', link.id);
-          line.setAttribute('stroke', edgeStroke);
+          line.setAttribute('stroke', hexToRgba(link.color, 0.35));
           line.setAttribute('stroke-width', '1.5');
-          line.setAttribute('stroke-dasharray', '4 3');
+          line.setAttribute('stroke-dasharray', '4 4');
           linksLayer.appendChild(line);
           link.domLine = line;
         } else {
           const edgeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-          edgeG.setAttribute('id', link.id);
           edgeG.setAttribute('class', 'edge-group');
 
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('stroke', '#0284c7');
+          line.setAttribute('stroke', hexToRgba(link.color, 0.55));
           line.setAttribute('stroke-width', '2');
-          line.setAttribute('marker-end', 'url(#arrow)');
+          line.setAttribute('marker-end', `url(#arrow-${link.paletteIdx})`);
           edgeG.appendChild(line);
 
           let labelBgRect = null;
@@ -951,14 +922,15 @@
             labelBgRect.setAttribute('width', 82);
             labelBgRect.setAttribute('height', 18);
             labelBgRect.setAttribute('rx', 4);
-            labelBgRect.setAttribute('fill', labelBg);
-            labelBgRect.setAttribute('stroke', labelBorder);
+            labelBgRect.setAttribute('fill', surfaceFill);
+            labelBgRect.setAttribute('stroke', hexToRgba(link.color, 0.6));
             labelBgRect.setAttribute('stroke-width', '1');
             edgeG.appendChild(labelBgRect);
 
             labelTextEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             labelTextEl.setAttribute('text-anchor', 'middle');
-            labelTextEl.setAttribute('fill', labelText);
+            labelTextEl.setAttribute('fill', link.color);
+            labelTextEl.setAttribute('font-family', 'IBM Plex Mono, monospace');
             labelTextEl.setAttribute('font-size', '9');
             labelTextEl.setAttribute('font-weight', '600');
             labelTextEl.textContent = link.label;
@@ -975,24 +947,23 @@
 
       nodes.forEach(node => {
         const nodeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        nodeG.setAttribute('id', `node-g-${node.id}`);
         nodeG.setAttribute('class', 'node-group');
 
         if (node.isRoot) {
           nodeG.innerHTML = `
-            <circle cx="0" cy="0" r="${node.r}" fill="${rootFill}" stroke="${rootStroke}" stroke-width="2.5"/>
-            <text x="0" y="-5" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700">PRESENTATION</text>
-            <text x="0" y="9" text-anchor="middle" fill="#e0f2fe" font-size="8.5" font-weight="600">CORE THEME</text>
+            <circle cx="0" cy="0" r="${node.r}" fill="${node.color}" stroke="${textPrimary}" stroke-width="2"/>
+            <text x="0" y="3" text-anchor="middle" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="600">CORE THEME</text>
           `;
         } else {
           const words = node.shortTitle.split(' ');
           const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
           const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
           nodeG.innerHTML = `
-            <circle cx="0" cy="0" r="${node.r}" fill="${nodeFill}" stroke="${nodeBorder}" stroke-width="2"/>
-            <text x="0" y="-14" text-anchor="middle" fill="${labelText}" font-size="9" font-weight="700">#${node.order}</text>
-            <text x="0" y="${line2 ? 0 : 4}" text-anchor="middle" fill="${nodeText1}" font-size="10" font-weight="700">${line1}</text>
-            ${line2 ? `<text x="0" y="13" text-anchor="middle" fill="${nodeText2}" font-size="9" font-weight="500">${line2}</text>` : ''}
+            <circle cx="0" cy="0" r="${node.r}" fill="${surfaceFill}" stroke="${node.color}" stroke-width="2.5"/>
+            <circle cx="0" cy="0" r="${node.r - 5}" fill="${hexToRgba(node.color, 0.1)}" stroke="none"/>
+            <text x="0" y="-14" text-anchor="middle" fill="${node.color}" font-family="IBM Plex Mono, monospace" font-size="9.5" font-weight="600">#${node.order}</text>
+            <text x="0" y="${line2 ? 0 : 4}" text-anchor="middle" fill="${textPrimary}" font-family="DM Sans, sans-serif" font-size="10" font-weight="600">${line1}</text>
+            ${line2 ? `<text x="0" y="13" text-anchor="middle" fill="${textSecondary}" font-family="DM Sans, sans-serif" font-size="9" font-weight="500">${line2}</text>` : ''}
           `;
         }
 
@@ -1002,6 +973,7 @@
           graphState.dragStartX = e.clientX;
           graphState.dragStartY = e.clientY;
           graphState.hasDraggedMoved = false;
+          wakeLayoutCalculation(90);
         });
 
         nodeG.addEventListener('click', (e) => {
@@ -1021,11 +993,14 @@
       }
 
       updateGraphViewportTransform();
+      wakeLayoutCalculation(120);
+    }
 
-      if (graphState.animId) {
-        cancelAnimationFrame(graphState.animId);
+    function wakeLayoutCalculation(ticks) {
+      graphState.ticksRemaining = Math.max(graphState.ticksRemaining, ticks || 80);
+      if (!graphState.animId) {
+        graphState.animId = requestAnimationFrame(stepNodeLayout);
       }
-      runPhysicsSimulation();
     }
 
     function setupGraphInteractionEvents(svg) {
@@ -1036,10 +1011,8 @@
         const rect = svg.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
-
-        const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
-        const newZoom = Math.min(3.0, Math.max(0.35, graphState.zoom * zoomFactor));
-
+        const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
+        const newZoom = Math.min(2.75, Math.max(0.4, graphState.zoom * zoomFactor));
         graphState.panX = mouseX - (mouseX - graphState.panX) * (newZoom / graphState.zoom);
         graphState.panY = mouseY - (mouseY - graphState.panY) * (newZoom / graphState.zoom);
         graphState.zoom = newZoom;
@@ -1047,7 +1020,7 @@
       }, { passive: false });
 
       svg.addEventListener('mousedown', (e) => {
-        if (e.target === svg || e.target.id === 'graph-viewport' || e.target.tagName === 'line' || e.target.classList.contains('links-layer')) {
+        if (e.target === svg || e.target.tagName === 'rect' || e.target.id === 'graph-viewport') {
           graphState.isPanning = true;
           graphState.panStartX = e.clientX - graphState.panX;
           graphState.panStartY = e.clientY - graphState.panY;
@@ -1067,12 +1040,11 @@
             graphState.hasDraggedMoved = true;
           }
           const rect = svg.getBoundingClientRect();
-          const mouseX = (e.clientX - rect.left - graphState.panX) / graphState.zoom;
-          const mouseY = (e.clientY - rect.top - graphState.panY) / graphState.zoom;
-          graphState.draggedNode.x = mouseX;
-          graphState.draggedNode.y = mouseY;
+          graphState.draggedNode.x = (e.clientX - rect.left - graphState.panX) / graphState.zoom;
+          graphState.draggedNode.y = (e.clientY - rect.top - graphState.panY) / graphState.zoom;
           graphState.draggedNode.vx = 0;
           graphState.draggedNode.vy = 0;
+          wakeLayoutCalculation(40);
         }
       });
 
@@ -1087,15 +1059,20 @@
       });
     }
 
-    function runPhysicsSimulation() {
+    function stepNodeLayout() {
       const nodes = graphState.nodes;
       const links = graphState.links;
       const cx = graphState.cx;
       const cy = graphState.cy;
 
-      if (!nodes || nodes.length === 0) return;
+      if (!nodes || nodes.length === 0 || (graphState.ticksRemaining <= 0 && !graphState.draggedNode)) {
+        graphState.animId = null;
+        return;
+      }
 
-      const padding = 32;
+      graphState.ticksRemaining--;
+
+      const padding = 28;
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const n1 = nodes[i];
@@ -1109,7 +1086,6 @@
             const overlap = minDist - dist;
             const nx = dx / dist;
             const ny = dy / dist;
-
             if (n1 === graphState.draggedNode) {
               n2.x += nx * overlap;
               n2.y += ny * overlap;
@@ -1122,27 +1098,12 @@
               n2.x += nx * (overlap * 0.5);
               n2.y += ny * (overlap * 0.5);
             }
-
-            const impulse = overlap * 0.2;
-            n1.vx -= nx * impulse;
-            n1.vy -= ny * impulse;
-            n2.vx += nx * impulse;
-            n2.vy += ny * impulse;
           }
-        }
-      }
 
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const n1 = nodes[i];
-          const n2 = nodes[j];
-          const dx = n2.x - n1.x;
-          const dy = n2.y - n1.y;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
-          if (dist < 700) {
-            const force = -22000 / (dist * dist + 1600);
-            const fx = (dx / dist) * force;
-            const fy = (dy / dist) * force;
+          if (dist < 620) {
+            const repulse = -18000 / (dist * dist + 1400);
+            const fx = (dx / dist) * repulse;
+            const fy = (dy / dist) * repulse;
             n1.vx += fx;
             n1.vy += fy;
             n2.vx -= fx;
@@ -1156,8 +1117,7 @@
         const dx = l.to.x - l.from.x;
         const dy = l.to.y - l.from.y;
         const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
-        const displacement = dist - l.targetDist;
-        const force = displacement * l.strength;
+        const force = (dist - l.targetDist) * l.strength;
         const fx = (dx / dist) * force;
         const fy = (dy / dist) * force;
         l.from.vx += fx;
@@ -1168,15 +1128,11 @@
 
       for (let i = 0; i < nodes.length; i++) {
         const n = nodes[i];
-        const dx = cx - n.x;
-        const dy = cy - n.y;
-        const gravity = n.isRoot ? 0.06 : 0.004;
-        n.vx += dx * gravity;
-        n.vy += dy * gravity;
-
-        n.vx *= 0.82;
-        n.vy *= 0.82;
-
+        const pull = n.isRoot ? 0.08 : 0.005;
+        n.vx += (cx - n.x) * pull;
+        n.vy += (cy - n.y) * pull;
+        n.vx *= 0.8;
+        n.vy *= 0.8;
         if (n !== graphState.draggedNode) {
           n.x += n.vx;
           n.y += n.vy;
@@ -1194,8 +1150,8 @@
           const dx = l.to.x - l.from.x;
           const dy = l.to.y - l.from.y;
           const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
-          const rFrom = l.from.r || 48;
-          const rTo = l.to.r || 48;
+          const rFrom = l.from.r || 46;
+          const rTo = l.to.r || 46;
           if (dist > (rFrom + rTo)) {
             const startX = l.from.x + (dx / dist) * rFrom;
             const startY = l.from.y + (dy / dist) * rFrom;
@@ -1213,7 +1169,7 @@
               l.domRect.setAttribute('x', midX - 41);
               l.domRect.setAttribute('y', midY - 9);
               l.domText.setAttribute('x', midX);
-              l.domText.setAttribute('y', midY + 4);
+              l.domText.setAttribute('y', midY + 3.5);
             }
           }
         }
@@ -1226,12 +1182,12 @@
         }
       }
 
-      graphState.animId = requestAnimationFrame(runPhysicsSimulation);
+      graphState.animId = requestAnimationFrame(stepNodeLayout);
     }
 
     function selectGraphNode(node) {
       graphState.activeSegmentId = node.id;
-      openInspector(node.segmentData);
+      openInspector(node.segData);
 
       const connectedNodeIds = new Set([node.id]);
       graphState.links.forEach(l => {
@@ -1241,13 +1197,9 @@
 
       graphState.nodes.forEach(n => {
         if (n.domG) {
-          if (n.id === node.id) {
-            n.domG.classList.add('active');
+          if (connectedNodeIds.has(n.id)) {
             n.domG.classList.remove('dimmed');
-          } else if (connectedNodeIds.has(n.id)) {
-            n.domG.classList.remove('active', 'dimmed');
           } else {
-            n.domG.classList.remove('active');
             n.domG.classList.add('dimmed');
           }
         }
@@ -1256,10 +1208,8 @@
       graphState.links.forEach(l => {
         if (l.domG) {
           if (l.from.id === node.id || l.to.id === node.id) {
-            l.domG.classList.add('highlighted');
             l.domG.classList.remove('dimmed');
           } else {
-            l.domG.classList.remove('highlighted');
             l.domG.classList.add('dimmed');
           }
         }
@@ -1268,11 +1218,10 @@
 
     function openInspector(seg) {
       if (!seg) return;
-      const prefix = seg.order ? `Segment #${seg.order}: ` : '';
-      document.getElementById('inspector-title').innerText = prefix + (seg.title || 'Segment Detail');
-      document.getElementById('inspector-presenter').innerText = seg.presenter ? `Presenter: ${seg.presenter}` : '';
+      document.getElementById('inspector-title').innerText = seg.order ? `#${seg.order} · ${seg.title}` : seg.title;
+      document.getElementById('inspector-presenter').innerText = seg.presenter || '';
       document.getElementById('inspector-summary').innerText = seg.summary || '';
-      document.getElementById('inspector-visuals').innerText = seg.visualsAndMetrics || 'Not Specified';
+      document.getElementById('inspector-visuals').innerText = seg.visualsAndMetrics || '';
       document.getElementById('inspector-takeaway').innerText = seg.takeaway || '';
       document.getElementById('inspector-drawer').classList.add('open');
     }
@@ -1280,17 +1229,8 @@
     function closeInspector() {
       document.getElementById('inspector-drawer').classList.remove('open');
       graphState.activeSegmentId = null;
-
-      graphState.nodes.forEach(n => {
-        if (n.domG) {
-          n.domG.classList.remove('active', 'dimmed');
-        }
-      });
-      graphState.links.forEach(l => {
-        if (l.domG) {
-          l.domG.classList.remove('highlighted', 'dimmed');
-        }
-      });
+      graphState.nodes.forEach(n => n.domG && n.domG.classList.remove('dimmed'));
+      graphState.links.forEach(l => l.domG && l.domG.classList.remove('dimmed'));
     }
 
     function filterGraphNodes(query) {
@@ -1301,13 +1241,11 @@
       }
       let firstMatch = null;
       graphState.nodes.forEach(n => {
-        const s = n.segmentData || {};
         const matches = !n.isRoot && (
           n.title.toLowerCase().includes(q) ||
           n.shortTitle.toLowerCase().includes(q) ||
-          (s.summary && s.summary.toLowerCase().includes(q)) ||
-          (s.visualsAndMetrics && s.visualsAndMetrics.toLowerCase().includes(q)) ||
-          (s.takeaway && s.takeaway.toLowerCase().includes(q))
+          (n.segData.summary && n.segData.summary.toLowerCase().includes(q)) ||
+          (n.segData.visualsAndMetrics && n.segData.visualsAndMetrics.toLowerCase().includes(q))
         );
         if (n.domG) {
           if (matches) {
@@ -1326,89 +1264,86 @@
     function renderChronologicalWalkthrough(segments) {
       const container = document.getElementById('segments-accordion-list');
       if (!container) return;
-      container.innerHTML = segments.map((s, idx) => {
-        const stepNum = s.order || (idx + 1);
-        return `
-          <div class="segment-accordion">
-            <div class="segment-header" onclick="toggleSegment(${idx})">
-              <div>
-                <span class="segment-step-badge">#${stepNum}</span>
-                <span style="font-weight:600; color:var(--text-primary);">${s.title}</span>
-                ${s.presenter ? `<span style="color:var(--text-muted); font-size:0.8rem; margin-left:0.5rem;">(${s.presenter})</span>` : ''}
-              </div>
-              <span style="color:var(--text-muted); font-size:0.8rem;">[Expand / Collapse]</span>
+      container.innerHTML = segments.map((s, idx) => `
+        <div class="record-item">
+          <button type="button" class="record-header" onclick="toggleSegment(${idx})">
+            <span><span style="font-family: var(--font-mono); color: ${s.color || PALETTE[idx % PALETTE.length]}; margin-right: 0.6rem;">#0${s.order || (idx + 1)}</span>${s.title}</span>
+            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary);" id="seg-ind-${idx}">CLOSE</span>
+          </button>
+          <div class="record-body open" id="segment-body-${idx}">
+            <div class="record-field">
+              <span class="record-field-label">What Was Presented &amp; Said (${s.presenter || 'Presenter'})</span>
+              <p class="record-field-text">${s.summary || ''}</p>
             </div>
-            <div class="segment-body open" id="segment-body-${idx}">
-              <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">What Was Presented & Said:</strong> ${s.summary}</p>
-              ${s.visualsAndMetrics ? `<p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Slide Visuals, Demos & Metrics Cited:</strong> ${s.visualsAndMetrics}</p>` : ''}
-              ${s.takeaway ? `<p><strong style="color:var(--accent-blue);">Stated Key Takeaway:</strong> ${s.takeaway}</p>` : ''}
+            <div class="record-field">
+              <span class="record-field-label">Slide Visuals, Demos &amp; Metrics Cited</span>
+              <p class="record-field-text">${s.visualsAndMetrics || ''}</p>
+            </div>
+            <div class="record-field" style="grid-column: 1 / -1;">
+              <span class="record-field-label" style="color: var(--viz-emerald);">Stated Key Takeaway</span>
+              <p class="record-field-text" style="color: var(--text-primary); font-weight: 500;">${s.takeaway || ''}</p>
             </div>
           </div>
-        `;
-      }).join('');
+        </div>
+      `).join('');
     }
 
     function toggleSegment(idx) {
       const el = document.getElementById('segment-body-' + idx);
-      if (el) el.classList.toggle('open');
+      const ind = document.getElementById('seg-ind-' + idx);
+      if (el) {
+        const isOpen = el.classList.toggle('open');
+        if (ind) ind.innerText = isOpen ? 'CLOSE' : 'OPEN';
+      }
     }
 
     function expandAllSegments(openState) {
-      document.querySelectorAll('.segment-body').forEach(el => {
+      document.querySelectorAll('.record-body').forEach((el, idx) => {
         if (openState) el.classList.add('open');
         else el.classList.remove('open');
+        const ind = document.getElementById('seg-ind-' + idx);
+        if (ind) ind.innerText = openState ? 'CLOSE' : 'OPEN';
       });
     }
 
     function exportChronologicalMarkdown() {
-      const title = PRESENTATION_DATA.presentationTitle || 'Presentation Summary';
-      const date = document.getElementById('display-date').innerText;
-      const presenters = (PRESENTATION_DATA.presenters || []).join(', ') || '[Not Specified]';
-      let md = `# Presentation Summary: ${title}\n\n**Date:** ${date}  \n**Presenter(s):** ${presenters}\n\n---\n\n## Chronological Presentation Summary\n\n`;
-      (PRESENTATION_DATA.segments || []).forEach((s, idx) => {
-        const num = s.order || (idx + 1);
-        md += `### ${num}. ${s.title}\n\n`;
+      const d = PRESENTATION_DATA;
+      let md = `# Presentation Summary: ${d.presentationTitle}\n\n`;
+      md += `**Date:** ${d.date}  \n`;
+      md += `**Presenter(s):** ${(d.presenters || []).join(', ')}\n\n---\n\n`;
+      md += `## Chronological Presentation Summary\n\n`;
+      (d.segments || []).forEach((s, idx) => {
+        md += `### ${s.order || (idx + 1)}. ${s.title}\n\n`;
         if (s.presenter) md += `- **Presenter:** ${s.presenter}\n`;
-        md += `- **What Was Presented & Said:** ${s.summary}\n\n`;
+        md += `- **What Was Presented & Said:** ${s.summary}\n`;
+        if (s.visualsAndMetrics) md += `- **Slide Visuals & Metrics Cited:** ${s.visualsAndMetrics}\n`;
+        if (s.takeaway) md += `- **Stated Key Takeaway:** ${s.takeaway}\n`;
+        md += `\n`;
       });
-      navigator.clipboard.writeText(md).then(() => {
-        alert("Chronological presentation summary copied to clipboard in Markdown format.");
-      });
-    }
-
-    function syncThemeButton(theme) {
-      const toggleBtn = document.getElementById('theme-toggle-btn');
-      if (toggleBtn) {
-        const nextLabel = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
-        toggleBtn.setAttribute('data-theme-state', theme);
-        toggleBtn.setAttribute('aria-label', nextLabel);
-        toggleBtn.setAttribute('title', nextLabel);
-      }
+      navigator.clipboard.writeText(md);
     }
 
     function toggleTheme() {
       const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', newTheme);
-      syncThemeButton(newTheme);
       try {
-        localStorage.setItem('meeting_dashboard_theme', newTheme);
+        localStorage.setItem('canvas_dashboard_theme', newTheme);
       } catch (e) {}
-      if (typeof renderKnowledgeGraph === 'function' && typeof PRESENTATION_DATA !== 'undefined' && PRESENTATION_DATA) {
-        renderKnowledgeGraph(PRESENTATION_DATA.segments || [], PRESENTATION_DATA.relationships || []);
-      }
+      renderRelationshipNodeMap(PRESENTATION_DATA.segments || [], PRESENTATION_DATA.relationships || []);
     }
 
     (function initTheme() {
       let savedTheme = 'dark';
       try {
-        savedTheme = localStorage.getItem('meeting_dashboard_theme') || 'dark';
+        savedTheme = localStorage.getItem('canvas_dashboard_theme') || 'dark';
       } catch (e) {}
       document.documentElement.setAttribute('data-theme', savedTheme);
-      syncThemeButton(savedTheme);
     })();
 
-    window.onload = () => initDashboard(PRESENTATION_DATA);
+    window.addEventListener('DOMContentLoaded', () => {
+      initDashboard(PRESENTATION_DATA);
+    });
   </script>
 </body>
 </html>

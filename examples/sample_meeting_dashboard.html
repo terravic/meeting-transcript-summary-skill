@@ -1,46 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meeting Intelligence Dashboard</title>
+  <meta name="description" content="Interactive Evaluation Dashboard for Core Event Streaming Migration Architecture Review">
+  <title>Core Event Streaming Migration — Evaluation Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root, [data-theme="dark"] {
-      --bg-primary: #0f172a;
-      --bg-secondary: #1e293b;
-      --bg-tertiary: #334155;
-      --bg-drawer: #0b1120;
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --accent-blue: #38bdf8;
-      --accent-blue-hover: #0284c7;
-      --accent-emerald: #34d399;
-      --accent-amber: #fbbf24;
-      --accent-rose: #f43f5e;
-      --border-color: #334155;
-      --border-subtle: #1e293b;
-      --radius-sm: 4px;
+      --bg-canvas: #0D0E11;
+      --bg-surface: #16171D;
+      --border-color: #292A30;
+      --text-primary: #ECE8E2;
+      --text-secondary: #9A9895;
+      --chart-grid: #292A30;
+      --surface-hover: rgba(236, 232, 226, 0.04);
+      --surface-subtle: rgba(236, 232, 226, 0.025);
+
+      /* Data Visualization Palette (DESIGN.md Section 5) */
+      --viz-teal: #0D9488;
+      --viz-amber: #D97706;
+      --viz-indigo: #4F46E5;
+      --viz-emerald: #059669;
+      --viz-rose: #E11D48;
+
+      --radius-sm: 6px;
       --radius-md: 8px;
-      --radius-lg: 12px;
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
     [data-theme="light"] {
-      --bg-primary: #f8fafc;
-      --bg-secondary: #ffffff;
-      --bg-tertiary: #f1f5f9;
-      --bg-drawer: #ffffff;
-      --text-primary: #0f172a;
-      --text-secondary: #475569;
-      --text-muted: #64748b;
-      --accent-blue: #0284c7;
-      --accent-blue-hover: #0369a1;
-      --accent-emerald: #059669;
-      --accent-amber: #d97706;
-      --accent-rose: #e11d48;
-      --border-color: #e2e8f0;
-      --border-subtle: #cbd5e1;
+      --bg-canvas: #FAFAF9;
+      --bg-surface: #FFFFFF;
+      --border-color: #E7E5E4;
+      --text-primary: #1C1917;
+      --text-secondary: #787774;
+      --chart-grid: #E7E5E4;
+      --surface-hover: rgba(28, 25, 23, 0.035);
+      --surface-subtle: rgba(28, 25, 23, 0.02);
     }
 
     * {
@@ -50,154 +50,146 @@
     }
 
     body {
-      background-color: var(--bg-primary);
+      background-color: var(--bg-canvas);
       color: var(--text-primary);
       font-family: var(--font-sans);
       line-height: 1.5;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      transition: background-color 0.2s ease, color 0.2s ease;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Top Navigation Header */
     header {
-      background-color: var(--bg-secondary);
+      background-color: var(--bg-surface);
       border-bottom: 1px solid var(--border-color);
-      padding: 1rem 1.5rem;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
+      padding: 1rem 1.5rem 0 1.5rem;
+    }
+
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
     }
 
     .header-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 0.75rem;
+      gap: 1rem;
+      padding-bottom: 0.875rem;
       flex-wrap: wrap;
-      gap: 0.5rem;
     }
 
-    .meeting-title {
+    .title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    h1.dashboard-title {
       font-size: 1.25rem;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text-primary);
       letter-spacing: -0.02em;
     }
 
-    .meeting-meta {
+    .participants-row {
       display: flex;
-      gap: 0.75rem;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
+      flex-wrap: wrap;
+      gap: 0.5rem;
       align-items: center;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
     }
 
-    /* Theme Toggle Button */
+    .participant-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .participant-item:not(:last-child)::after {
+      content: "·";
+      margin-left: 0.5rem;
+      color: var(--text-secondary);
+      opacity: 0.5;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+
+    .date-readout {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 0.25rem 0.625rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-canvas);
+    }
+
     .theme-toggle-btn {
-      background-color: var(--bg-tertiary);
+      background-color: var(--bg-canvas);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      height: 30px;
-      padding: 0 0.65rem;
+      width: 32px;
+      height: 32px;
       border-radius: var(--radius-sm);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.15s ease;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
+      transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
     }
 
     .theme-toggle-btn:hover {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
-      border-color: var(--accent-blue-hover);
+      border-color: var(--viz-teal);
+      color: var(--viz-teal);
     }
 
-    [data-theme="dark"] .theme-toggle-btn .theme-label-dark { display: none; }
-    [data-theme="dark"] .theme-toggle-btn .theme-label-light { display: inline; }
-    [data-theme="light"] .theme-toggle-btn .theme-label-light { display: none; }
-    [data-theme="light"] .theme-toggle-btn .theme-label-dark { display: inline; }
-    :root:not([data-theme]) .theme-toggle-btn .theme-label-dark { display: none; }
-    :root:not([data-theme]) .theme-toggle-btn .theme-label-light { display: inline; }
+    [data-theme="dark"] .theme-toggle-btn .icon-moon { display: none; }
+    [data-theme="dark"] .theme-toggle-btn .icon-sun { display: block; }
+    [data-theme="light"] .theme-toggle-btn .icon-sun { display: none; }
+    [data-theme="light"] .theme-toggle-btn .icon-moon { display: block; }
 
-    .badge {
-      display: inline-block;
-      padding: 0.2rem 0.5rem;
-      border-radius: var(--radius-sm);
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .badge-primary { background: #0369a1; color: #e0f2fe; }
-    .badge-emerald { background: #065f46; color: #d1fae5; }
-    .badge-amber { background: #78350f; color: #fef3c7; }
-    .badge-rose { background: #881337; color: #ffe4e6; }
-    .badge-slate { background: #334155; color: #e2e8f0; }
-
-    [data-theme="light"] .badge-primary { background: #e0f2fe; color: #0369a1; }
-    [data-theme="light"] .badge-emerald { background: #d1fae5; color: #065f46; }
-    [data-theme="light"] .badge-amber { background: #fef3c7; color: #92400e; }
-    [data-theme="light"] .badge-rose { background: #ffe4e6; color: #9f1239; }
-    [data-theme="light"] .badge-slate { background: #e2e8f0; color: #334155; }
-
-    .participants-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      margin-top: 0.25rem;
-    }
-
-    .participant-pill {
-      background-color: var(--bg-tertiary);
-      color: var(--text-secondary);
-      font-size: 0.75rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 9999px;
-    }
-
-    /* Tab Navigation */
     .nav-tabs {
       display: flex;
-      gap: 0.5rem;
-      border-top: 1px solid var(--border-color);
-      padding-top: 0.75rem;
+      gap: 1.5rem;
       overflow-x: auto;
     }
 
     .tab-btn {
       background: none;
-      border: 1px solid transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
       color: var(--text-secondary);
-      padding: 0.5rem 1rem;
+      padding: 0.625rem 0.125rem;
+      font-family: var(--font-sans);
       font-size: 0.875rem;
       font-weight: 500;
-      border-radius: var(--radius-md);
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: color 0.15s ease, border-color 0.15s ease;
       white-space: nowrap;
     }
 
     .tab-btn:hover {
-      background-color: var(--bg-tertiary);
       color: var(--text-primary);
     }
 
     .tab-btn.active {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
+      color: var(--text-primary);
+      border-bottom-color: var(--viz-teal);
       font-weight: 600;
     }
 
-    /* Main Container */
     main {
       flex: 1;
       padding: 1.5rem;
-      max-width: 1400px;
+      max-width: 1440px;
       width: 100%;
       margin: 0 auto;
     }
@@ -207,104 +199,177 @@
     }
 
     .tab-content.active {
-      display: block;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
     }
 
-    /* KPI Metrics Grid */
-    .kpi-grid {
+    .bento-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .kpi-card {
-      background-color: var(--bg-secondary);
+      background-color: var(--border-color);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 1rem;
+      gap: 1px;
+      overflow: hidden;
     }
 
-    .kpi-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
+    .bento-kpi {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .bento-2col {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bento-cell {
+      background-color: var(--bg-surface);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+
+    .bento-cell-full {
+      grid-column: 1 / -1;
+    }
+
+    .cell-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .cell-title {
+      font-size: 0.8125rem;
       font-weight: 600;
-      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+    }
+
+    .cell-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
     }
 
     .kpi-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-top: 0.25rem;
-    }
-
-    /* Executive Summary Cards */
-    .card {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .card-title {
-      font-size: 1rem;
+      font-family: var(--font-mono);
+      font-size: 1.75rem;
       font-weight: 600;
-      margin-bottom: 0.75rem;
       color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
     }
 
-    .content-list {
-      list-style-type: none;
+    .kpi-footnote {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .data-list {
+      list-style: none;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
     }
 
-    .content-list li {
+    .data-list li {
       position: relative;
-      padding-left: 1.25rem;
+      padding-left: 1rem;
       font-size: 0.875rem;
-      color: var(--text-secondary);
+      color: var(--text-primary);
       line-height: 1.5;
     }
 
-    .content-list li::before {
-      content: "-";
+    .data-list li::before {
+      content: "";
       position: absolute;
-      left: 0.25rem;
-      color: var(--accent-blue);
-      font-weight: bold;
+      left: 0;
+      top: 0.55rem;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background-color: var(--viz-teal);
     }
 
-    /* Generic Action Button */
-    .btn-action {
-      background-color: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 0.4rem 0.75rem;
-      font-size: 0.75rem;
-      font-weight: 500;
+    .data-list.list-emerald li::before { background-color: var(--viz-emerald); }
+    .data-list.list-rose li::before { background-color: var(--viz-rose); }
+
+    .status-critical {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.125rem 0.45rem;
       border-radius: var(--radius-sm);
+      color: var(--viz-rose);
+      border: 1px solid var(--viz-rose);
+      background-color: rgba(225, 29, 72, 0.08);
+    }
+
+    .status-warning {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.125rem 0.45rem;
+      border-radius: var(--radius-sm);
+      color: var(--viz-amber);
+      border: 1px solid var(--viz-amber);
+      background-color: rgba(217, 119, 6, 0.08);
+    }
+
+    .chart-stage {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .heatmap-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .heatmap-table th,
+    .heatmap-table td {
+      padding: 0.5rem 0.625rem;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+    }
+
+    .heatmap-table th {
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .heatmap-cell {
+      border-radius: var(--radius-sm);
+      padding: 0.35rem 0.5rem;
+      font-weight: 500;
+      text-align: center;
       cursor: pointer;
-      transition: background 0.15s ease;
-      white-space: nowrap;
+      transition: transform 0.1s ease, opacity 0.15s ease;
     }
 
-    .btn-action:hover {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
+    .heatmap-cell:hover {
+      opacity: 0.9;
     }
 
-    /* Knowledge Graph Layout */
-    .graph-container {
+    .graph-wrapper {
       position: relative;
-      background-color: var(--bg-secondary);
+      background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
       height: 620px;
@@ -312,7 +377,7 @@
       display: flex;
     }
 
-    .graph-stage-area {
+    .graph-canvas-area {
       flex: 1;
       height: 100%;
       position: relative;
@@ -320,77 +385,97 @@
       user-select: none;
     }
 
-    .graph-stage-area.grabbing {
+    .graph-canvas-area.grabbing {
       cursor: grabbing;
     }
 
-    .graph-search-bar {
+    .graph-toolbar-overlay {
       position: absolute;
       top: 1rem;
       left: 1rem;
       z-index: 10;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 0.5rem 0.75rem;
       display: flex;
       gap: 0.5rem;
-      width: 280px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
+      align-items: center;
+      flex-wrap: wrap;
     }
 
-    .graph-search-bar input {
-      background: none;
-      border: none;
+    .graph-search-input {
+      background-color: var(--bg-canvas);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.75rem;
       color: var(--text-primary);
-      font-size: 0.875rem;
-      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+      width: 250px;
       outline: none;
     }
 
-    /* Floating Graph Zoom Controls */
+    .graph-search-input:focus {
+      border-color: var(--viz-teal);
+    }
+
+    .graph-legend-bar {
+      display: flex;
+      gap: 0.75rem;
+      background-color: var(--bg-canvas);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      align-items: center;
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
     .graph-controls {
       position: absolute;
       bottom: 1rem;
       right: 1rem;
       z-index: 15;
       display: flex;
-      flex-direction: column;
       gap: 0.35rem;
-      background: var(--bg-secondary);
+      background-color: var(--bg-canvas);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 0.35rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 0.25rem;
     }
 
-    .graph-ctrl-btn {
-      background-color: var(--bg-tertiary);
+    .ctrl-btn {
+      background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      min-width: 44px;
-      height: 28px;
-      border-radius: var(--radius-sm);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      padding: 0 0.4rem;
+      font-family: var(--font-mono);
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 500;
+      height: 28px;
+      min-width: 32px;
+      padding: 0 0.5rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease;
     }
 
-    .graph-ctrl-btn:hover {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
-      border-color: var(--accent-blue-hover);
+    .ctrl-btn:hover {
+      border-color: var(--viz-teal);
+      color: var(--viz-teal);
     }
 
-    /* Node & Link visual states */
     .node-group {
       cursor: grab;
-      transition: opacity 0.2s ease, filter 0.2s ease;
+      transition: opacity 0.2s ease;
     }
 
     .node-group:active {
@@ -402,19 +487,8 @@
       pointer-events: none;
     }
 
-    .node-group circle {
-      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
-      transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
-    }
-
-    .node-group.active circle {
-      stroke: var(--accent-blue) !important;
-      stroke-width: 3.5px !important;
-      filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.8)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
-    }
-
     .node-group.dimmed {
-      opacity: 0.25;
+      opacity: 0.2;
     }
 
     .edge-group {
@@ -422,26 +496,20 @@
     }
 
     .edge-group.dimmed {
-      opacity: 0.15;
+      opacity: 0.12;
     }
 
-    .edge-group.highlighted line {
-      stroke: var(--accent-blue) !important;
-      stroke-width: 2.5px !important;
-    }
-
-    /* Detail Inspector Drawer */
     .inspector-drawer {
       width: 380px;
-      background-color: var(--bg-drawer);
+      background-color: var(--bg-surface);
       border-left: 1px solid var(--border-color);
-      padding: 1.5rem;
+      padding: 1.25rem;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 1rem;
       transform: translateX(100%);
-      transition: transform 0.25s ease-in-out;
+      transition: transform 0.2s ease-out;
       position: absolute;
       right: 0;
       top: 0;
@@ -457,403 +525,501 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      gap: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
     }
 
     .inspector-title {
-      font-size: 1.1rem;
-      font-weight: 700;
+      font-size: 1rem;
+      font-weight: 600;
       color: var(--text-primary);
     }
 
-    .inspector-close {
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 1.25rem;
-      cursor: pointer;
+    .inspector-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
     }
 
-    .inspector-section {
-      border-top: 1px solid var(--border-color);
-      padding-top: 0.75rem;
+    .inspector-block:last-child {
+      border-bottom: none;
     }
 
-    .inspector-section-label {
-      font-size: 0.75rem;
+    .inspector-label {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
       font-weight: 600;
-      color: var(--accent-blue);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-bottom: 0.35rem;
+      color: var(--viz-teal);
     }
 
-    .inspector-text {
-      font-size: 0.875rem;
+    .inspector-body {
+      font-size: 0.8125rem;
       color: var(--text-secondary);
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
-    /* Action Items Sub-Navigation & Toolbar */
-    .view-switch {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .sub-tab-btn {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      padding: 0.4rem 0.8rem;
-      font-size: 0.8rem;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    .sub-tab-btn.active {
-      background-color: var(--accent-blue-hover);
-      color: #ffffff;
-      border-color: var(--accent-blue-hover);
-    }
-
-    .action-toolbar {
+    .controls-bar {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.75rem;
+      gap: 0.625rem;
       align-items: center;
-      margin-bottom: 1rem;
-      background-color: var(--bg-secondary);
+      background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
       padding: 0.75rem 1rem;
     }
 
-    .action-toolbar input[type="text"] {
-      background-color: var(--bg-primary);
+    .input-field,
+    .select-field {
+      background-color: var(--bg-canvas);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      padding: 0.4rem 0.75rem;
-      font-size: 0.8rem;
+      padding: 0.4rem 0.65rem;
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
       border-radius: var(--radius-sm);
       outline: none;
+    }
+
+    .input-field {
       min-width: 220px;
     }
 
-    .action-toolbar input[type="text"]:focus {
-      border-color: var(--accent-blue);
+    .input-field:focus,
+    .select-field:focus {
+      border-color: var(--viz-teal);
     }
 
-    .action-toolbar select {
-      background-color: var(--bg-primary);
+    .view-switcher {
+      display: inline-flex;
       border: 1px solid var(--border-color);
-      color: var(--text-primary);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .view-btn {
+      background-color: var(--bg-canvas);
+      border: none;
+      color: var(--text-secondary);
       padding: 0.4rem 0.75rem;
-      font-size: 0.8rem;
-      border-radius: var(--radius-sm);
-      outline: none;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 500;
       cursor: pointer;
-      min-width: 150px;
     }
 
-    .action-toolbar select:focus {
-      border-color: var(--accent-blue);
+    .view-btn:not(:last-child) {
+      border-right: 1px solid var(--border-color);
     }
 
-    .action-count-text {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-left: auto;
-      font-weight: 500;
-    }
-
-    /* Kanban Board */
-    .kanban-board {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1rem;
-      align-items: flex-start;
-    }
-
-    .kanban-col {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1rem;
-    }
-
-    .kanban-col-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .kanban-col-title {
-      font-size: 0.875rem;
+    .view-btn.active {
+      background-color: var(--viz-teal);
+      color: #FFFFFF;
       font-weight: 600;
-      color: var(--text-primary);
     }
 
-    .kanban-card {
-      background-color: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .kanban-card-title {
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--text-primary);
-      margin-bottom: 0.35rem;
-      line-height: 1.4;
-    }
-
-    .kanban-card-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .count-readout {
+      font-family: var(--font-mono);
       font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 0.5rem;
+      color: var(--text-secondary);
+      margin-left: auto;
     }
 
-    /* Table View */
-    .data-table-container {
-      background-color: var(--bg-secondary);
+    .table-surface {
+      background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
       overflow-x: auto;
     }
 
-    table {
+    table.mono-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.875rem;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
       text-align: left;
     }
 
-    th {
-      background-color: var(--bg-tertiary);
+    table.mono-table th {
       padding: 0.75rem 1rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      border-bottom: 1px solid var(--border-color);
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-    }
-
-    td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid var(--border-color);
       color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border-color);
     }
 
-    tr:hover td {
-      background-color: var(--bg-tertiary);
+    table.mono-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+      vertical-align: top;
+      line-height: 1.45;
     }
 
-    /* Discussion Record Accordions */
-    .topic-accordion {
-      background-color: var(--bg-secondary);
+    table.mono-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.mono-table tbody tr:hover td {
+      background-color: var(--surface-hover);
+    }
+
+    .lanes-bento {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      background-color: var(--border-color);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      margin-bottom: 0.75rem;
+      gap: 1px;
       overflow: hidden;
     }
 
-    .topic-header {
+    .lane-column {
+      background-color: var(--bg-surface);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lane-header {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .lane-owner {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .lane-count {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .lane-task-row {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .lane-task-row:last-child {
+      border-bottom: none;
+    }
+
+    .lane-task-desc {
+      font-size: 0.8125rem;
+      color: var(--text-primary);
+      line-height: 1.45;
+    }
+
+    .lane-task-deliverable {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .lane-task-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--viz-teal);
+      margin-top: 0.15rem;
+    }
+
+    .record-surface {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .record-item {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .record-item:last-child {
+      border-bottom: none;
+    }
+
+    .record-header {
+      width: 100%;
+      background: none;
+      border: none;
       padding: 1rem 1.25rem;
+      text-align: left;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: var(--bg-secondary);
-      user-select: none;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      transition: background-color 0.15s ease;
     }
 
-    .topic-header:hover {
-      background-color: var(--bg-tertiary);
+    .record-header:hover {
+      background-color: var(--surface-hover);
     }
 
-    .topic-body {
-      padding: 1.25rem;
-      border-top: 1px solid var(--border-color);
-      background-color: var(--bg-drawer);
+    .record-toggle-indicator {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
       color: var(--text-secondary);
-      font-size: 0.875rem;
-      line-height: 1.6;
-      display: none;
     }
 
-    .topic-body.open {
-      display: block;
+    .record-body {
+      display: none;
+      padding: 0 1.25rem 1.25rem 1.25rem;
+      border-top: 1px solid var(--border-color);
+      background-color: var(--surface-subtle);
+    }
+
+    .record-body.open {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      padding-top: 1rem;
+    }
+
+    .record-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .record-field-label {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--viz-teal);
+    }
+
+    .record-field-text {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    @media (max-width: 960px) {
+      .bento-kpi { grid-template-columns: repeat(2, 1fr); }
+      .bento-2col { grid-template-columns: 1fr; }
+      .record-body.open { grid-template-columns: 1fr; }
+      .inspector-drawer { width: 100%; }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="header-top">
-      <div>
-        <h1 class="meeting-title" id="display-title">Meeting Title</h1>
-        <div class="participants-list" id="display-participants"></div>
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="title-group">
+          <h1 class="dashboard-title" id="display-title">Core Event Streaming Migration Architecture Review</h1>
+          <div class="participants-row" id="display-participants"></div>
+        </div>
+        <div class="header-controls">
+          <span class="date-readout" id="display-date">2026-08-14</span>
+          <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">
+            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+            </svg>
+            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
       </div>
-      <div class="meeting-meta">
-        <span class="badge badge-primary" id="display-date">Date</span>
-        <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle light and dark mode" title="Toggle theme">
-          <span class="theme-label-light">Light</span>
-          <span class="theme-label-dark">Dark</span>
-        </button>
-      </div>
-    </div>
-    <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchMainTab('overview', this)">Executive Brief</button>
-      <button class="tab-btn" onclick="switchMainTab('graph', this)">Knowledge Graph</button>
-      <button class="tab-btn" onclick="switchMainTab('actions', this)">Action Items</button>
-      <button class="tab-btn" onclick="switchMainTab('discussion', this)">Detailed Record</button>
+
+      <nav class="nav-tabs" aria-label="Dashboard sections">
+        <button type="button" class="tab-btn active" id="tab-btn-overview" onclick="switchMainTab('overview', this)">Executive Brief</button>
+        <button type="button" class="tab-btn" id="tab-btn-graph" onclick="switchMainTab('graph', this)">Interactive Relationship Node Map</button>
+        <button type="button" class="tab-btn" id="tab-btn-actions" onclick="switchMainTab('actions', this)">Action Items</button>
+        <button type="button" class="tab-btn" id="tab-btn-discussion" onclick="switchMainTab('discussion', this)">Discussion Record</button>
+      </nav>
     </div>
   </header>
 
   <main>
-    <!-- TAB 1: OVERVIEW -->
     <section id="tab-overview" class="tab-content active">
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">Key Decisions</div>
-          <div class="kpi-value" id="kpi-decisions">0</div>
+      <div class="bento-grid bento-kpi">
+        <div class="bento-cell">
+          <div class="cell-title">Approved Decisions</div>
+          <div class="kpi-value" id="kpi-decisions" style="color: var(--viz-teal);">0</div>
+          <div class="kpi-footnote">Unanimous architectural sign-off</div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Topics Explored</div>
-          <div class="kpi-value" id="kpi-topics">0</div>
+        <div class="bento-cell">
+          <div class="cell-title">Architecture Domains</div>
+          <div class="kpi-value" id="kpi-topics" style="color: var(--viz-indigo);">0</div>
+          <div class="kpi-footnote">Broker, Schema, CMEK, Phasing</div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Action Items</div>
-          <div class="kpi-value" id="kpi-actions">0</div>
+        <div class="bento-cell">
+          <div class="cell-title">Tracked Deliverables</div>
+          <div class="kpi-value" id="kpi-actions" style="color: var(--viz-emerald);">0</div>
+          <div class="kpi-footnote">1 unassigned memory benchmark</div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Target Cutover</div>
-          <div class="kpi-value" id="kpi-cutover" style="color:var(--accent-blue);">TBD</div>
+        <div class="bento-cell">
+          <div class="cell-title">Production Cutover</div>
+          <div class="kpi-value" id="kpi-cutover" style="color: var(--viz-amber);">2026-10-03</div>
+          <div class="kpi-footnote">Staging dual-publish: 2026-09-05</div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Meeting Objective</div>
-        <p id="display-objective" style="font-size: 0.95rem; color: var(--text-secondary);"></p>
+      <div class="bento-grid bento-2col">
+        <div class="bento-cell">
+          <div class="cell-header">
+            <span class="cell-title">Telemetry, Cost &amp; Payload Benchmarks</span>
+            <span class="cell-subtitle">65,000 QPS Peak Load</span>
+          </div>
+          <div class="chart-stage" id="benchmark-chart-container"></div>
+        </div>
+
+        <div class="bento-cell">
+          <div class="cell-header">
+            <span class="cell-title">Topic &amp; Owner Coverage Matrix</span>
+            <span class="cell-subtitle">Click cell to inspect</span>
+          </div>
+          <div class="chart-stage" id="coverage-heatmap-container"></div>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Key Decisions Made</div>
-        <ul class="content-list" id="display-decisions"></ul>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Strategic Outcomes & Impact</div>
-        <ul class="content-list" id="display-impacts"></ul>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Critical Risks & Blockers</div>
-        <ul class="content-list" id="display-risks"></ul>
+      <div class="bento-grid bento-2col">
+        <div class="bento-cell bento-cell-full">
+          <div class="cell-title">Objective</div>
+          <p id="display-objective" style="font-size: 0.9375rem; color: var(--text-primary);"></p>
+        </div>
+        <div class="bento-cell">
+          <div class="cell-title">Approved Decisions</div>
+          <ul class="data-list" id="display-decisions"></ul>
+        </div>
+        <div class="bento-cell">
+          <div class="cell-title">Strategic Outcomes &amp; Impact</div>
+          <ul class="data-list list-emerald" id="display-impacts"></ul>
+        </div>
+        <div class="bento-cell bento-cell-full">
+          <div class="cell-header">
+            <span class="cell-title">Critical Risks &amp; Blockers</span>
+            <span class="status-critical">2 Active Blockers</span>
+          </div>
+          <ul class="data-list list-rose" id="display-risks"></ul>
+        </div>
       </div>
     </section>
 
-    <!-- TAB 2: KNOWLEDGE GRAPH -->
     <section id="tab-graph" class="tab-content">
-      <div class="graph-container">
-        <div class="graph-search-bar">
-          <input type="text" id="graph-search-input" placeholder="Search topics & rationale..." oninput="filterGraphNodes(this.value)">
+      <div class="graph-wrapper">
+        <div class="graph-toolbar-overlay">
+          <input type="text" class="graph-search-input" id="graph-search-input" placeholder="Filter nodes by topic or rationale..." oninput="filterGraphNodes(this.value)">
+          <div class="graph-legend-bar">
+            <span class="legend-chip"><span class="legend-dot" style="background: var(--viz-teal);"></span> Core Goal</span>
+            <span class="legend-chip"><span class="legend-dot" style="background: var(--viz-indigo);"></span> Platform</span>
+            <span class="legend-chip"><span class="legend-dot" style="background: var(--viz-emerald);"></span> Schemas</span>
+            <span class="legend-chip"><span class="legend-dot" style="background: var(--viz-amber);"></span> Security Gate</span>
+            <span class="legend-chip"><span class="legend-dot" style="background: var(--viz-rose);"></span> Cutover</span>
+          </div>
         </div>
 
-        <!-- Floating Graph Zoom Controls -->
         <div class="graph-controls">
-          <button class="graph-ctrl-btn" onclick="graphZoomIn()" title="Zoom In" aria-label="Zoom In">+</button>
-          <button class="graph-ctrl-btn" onclick="graphZoomOut()" title="Zoom Out" aria-label="Zoom Out">-</button>
-          <button class="graph-ctrl-btn" onclick="graphResetZoom()" title="Reset View" aria-label="Reset View">Reset</button>
+          <button type="button" class="ctrl-btn" id="btn-zoom-in" onclick="graphZoomIn()" title="Zoom In" aria-label="Zoom In">+</button>
+          <button type="button" class="ctrl-btn" id="btn-zoom-out" onclick="graphZoomOut()" title="Zoom Out" aria-label="Zoom Out">&minus;</button>
+          <button type="button" class="ctrl-btn" id="btn-zoom-reset" onclick="graphResetZoom()" title="Reset View" aria-label="Reset View">Reset</button>
         </div>
 
-        <div class="graph-stage-area" id="graph-stage-container">
+        <div class="graph-canvas-area" id="graph-stage-container">
           <svg id="graph-svg" width="100%" height="100%">
             <defs id="graph-defs"></defs>
+            <g id="graph-grid-layer"></g>
             <g id="graph-viewport"></g>
           </svg>
         </div>
-        <div class="inspector-drawer" id="inspector-drawer">
+
+        <aside class="inspector-drawer" id="inspector-drawer" aria-label="Node detail inspector">
           <div class="inspector-header">
-            <h3 class="inspector-title" id="inspector-title">Topic Title</h3>
-            <button class="inspector-close" onclick="closeInspector()">Close</button>
+            <h2 class="inspector-title" id="inspector-title">Topic Detail</h2>
+            <button type="button" class="ctrl-btn" onclick="closeInspector()">Close</button>
           </div>
-          <div class="inspector-section">
-            <div class="inspector-section-label">Context & Background</div>
-            <p class="inspector-text" id="inspector-context"></p>
+          <div class="inspector-block">
+            <div class="inspector-label">Context &amp; Baseline</div>
+            <p class="inspector-body" id="inspector-context"></p>
           </div>
-          <div class="inspector-section">
-            <div class="inspector-section-label">Technical Mechanism</div>
-            <p class="inspector-text" id="inspector-mechanism"></p>
+          <div class="inspector-block">
+            <div class="inspector-label">Technical Mechanism</div>
+            <p class="inspector-body" id="inspector-mechanism"></p>
           </div>
-          <div class="inspector-section">
-            <div class="inspector-section-label">Rationale ("Why") & Debates</div>
-            <p class="inspector-text" id="inspector-rationale"></p>
+          <div class="inspector-block">
+            <div class="inspector-label">Spoken Rationale &amp; Trade-offs</div>
+            <p class="inspector-body" id="inspector-rationale"></p>
           </div>
-          <div class="inspector-section">
-            <div class="inspector-section-label">Key Conclusion</div>
-            <p class="inspector-text" id="inspector-conclusion"></p>
+          <div class="inspector-block">
+            <div class="inspector-label">Key Conclusion</div>
+            <p class="inspector-body" id="inspector-conclusion"></p>
           </div>
-        </div>
+        </aside>
       </div>
     </section>
 
-    <!-- TAB 3: ACTION ITEMS -->
     <section id="tab-actions" class="tab-content">
-      <div class="view-switch">
-        <button class="sub-tab-btn active" onclick="switchActionSubTab('kanban', this)">Kanban by Owner</button>
-        <button class="sub-tab-btn" onclick="switchActionSubTab('table', this)">Data Table</button>
-      </div>
+      <div class="controls-bar">
+        <div class="view-switcher" role="group" aria-label="Action item layout">
+          <button type="button" class="view-btn active" id="view-btn-table" onclick="switchActionSubTab('table', this)">Monospace Table</button>
+          <button type="button" class="view-btn" id="view-btn-kanban" onclick="switchActionSubTab('kanban', this)">Owner Lanes</button>
+        </div>
 
-      <!-- Action Items Filter & Action Toolbar -->
-      <div class="action-toolbar">
-        <input type="text" id="action-search-input" placeholder="Search action items..." oninput="applyActionFilters()">
-        <select id="action-owner-select" onchange="applyActionFilters()">
+        <input type="text" class="input-field" id="action-search-input" placeholder="Filter tasks, owners, deliverables..." oninput="applyActionFilters()">
+
+        <select class="select-field" id="action-owner-select" onchange="applyActionFilters()" aria-label="Filter by owner">
           <option value="all">All Owners</option>
         </select>
-        <button class="btn-action" onclick="exportActionItemsCSV()">Export CSV</button>
-        <button class="btn-action" onclick="exportActionItemsMarkdown()">Export Markdown</button>
-        <span id="action-count-text" class="action-count-text"></span>
+
+        <button type="button" class="ctrl-btn" id="btn-export-csv" onclick="exportActionItemsCSV()">Export CSV</button>
+        <button type="button" class="ctrl-btn" id="btn-export-md" onclick="exportActionItemsMarkdown()">Export Markdown</button>
+
+        <span id="action-count-text" class="count-readout"></span>
       </div>
 
-      <!-- Kanban Sub-view (Default) -->
-      <div id="subview-kanban" class="kanban-board"></div>
-
-      <!-- Table Sub-view -->
-      <div id="subview-table" class="data-table-container" style="display:none;">
-        <table>
+      <div id="subview-table" class="table-surface">
+        <table class="mono-table">
           <thead>
             <tr>
               <th>Action Item</th>
               <th>Assigned To</th>
               <th>Deadline</th>
-              <th>Acceptance Criteria</th>
+              <th>Acceptance Criteria / Target Deliverable</th>
             </tr>
           </thead>
           <tbody id="table-body-actions"></tbody>
         </table>
       </div>
+
+      <div id="subview-kanban" class="lanes-bento" style="display: none;"></div>
     </section>
 
-    <!-- TAB 4: DETAILED DISCUSSION -->
     <section id="tab-discussion" class="tab-content">
-      <div id="topics-accordion-list"></div>
+      <div class="record-surface" id="topics-accordion-list"></div>
     </section>
   </main>
 
   <script>
-    // Embedded Data Model Payload
     const MEETING_DATA = {
+      mode: "meeting",
       meetingTitle: "Core Event Streaming Migration Architecture Review",
       date: "2026-08-14",
       participants: [
@@ -872,16 +1038,16 @@
       executiveSummary: {
         objective: "Finalize the architectural, financial, security, and scheduling plans for migrating the core event streaming infrastructure from self-hosted message broker clusters on virtual compute instances to a managed cloud publish-subscribe platform.",
         decisions: [
-          "Approved full platform migration from the self-hosted broker to the managed cloud messaging platform.",
+          "Approved full platform migration from the 18-node self-hosted broker cluster to the managed cloud messaging platform.",
           "Standardized on Protocol Buffers version 3 (Protobuf) for message serialization and schema enforcement, deprecating unvalidated JSON payloads.",
           "Mandated schema registry enforcement at the topic boundary with strict backward compatibility rules.",
           "Enforced Customer-Managed Encryption Keys (CMEK), Virtual Private Cloud (VPC) service perimeters, and short-lived identity federation policies.",
-          "Approved target timeline: Dual-publishing in staging by September 5, 2026; InfoSec audit complete by September 12, 2026; production cutover scheduled for October 3, 2026."
+          "Approved target timeline: Dual-publishing in staging by September 5, 2026; InfoSec audit complete by September 12, 2026; production cutover on October 3, 2026."
         ],
         impacts: [
-          "Reduces net messaging infrastructure and operational costs by 28%, eliminating approximately 22 hours per month of manual broker maintenance and partition rebalancing.",
-          "Resolves consumer rebalance lag spikes (previously exceeding 4 minutes during peak traffic), achieving sub-26 millisecond p99 publish latency at 65,000 QPS.",
-          "Eliminates silent schema drift across polyglot microservices via centralized schema validation and automated CI tooling."
+          "Reduces net messaging infrastructure and operational costs by 28% ($22,700/mo to $11,800/mo), eliminating 22 hours per month of manual broker maintenance and partition rebalancing.",
+          "Resolves consumer rebalance lag spikes (previously exceeding 4 minutes during peak traffic), achieving 14ms average and 26ms p99 publish latency at 65,000 QPS.",
+          "Eliminates silent schema drift across polyglot microservices (Go, Java, TypeScript) via centralized schema validation and automated CI linting."
         ],
         risks: [
           "InfoSec compliance approval is a hard gate prior to staging sign-off, requiring complete VPC perimeter validation by September 12, 2026.",
@@ -893,7 +1059,8 @@
           id: "topic-1",
           title: "Messaging Platform Migration Evaluation",
           shortTitle: "Platform Migration",
-          context: "The organization operates an 18-node broker cluster across three AZs with a 5-node coordination quorum, consuming 22 hours per month in operational maintenance with consumer lag exceeding 4 minutes under load.",
+          color: "#4F46E5",
+          context: "The organization operates an 18-node broker cluster across three availability zones with a 5-node coordination quorum, consuming 22 hours per month in operational maintenance with consumer lag exceeding 4 minutes under load.",
           explanation: "Data engineering benchmarked self-hosted broker upgrade options against the managed cloud messaging service. Cloud messaging achieved 65,000 QPS with 14ms average and 26ms p99 latency across multi-region topics. Financial modeling showed cloud messaging costs $11,800/mo vs self-hosting's $22,700/mo total cost of ownership (28% net savings).",
           rationale: "Upgrading self-hosted software was dismissed because it did not eliminate manual partition scaling or broker rebalancing storms. The managed cloud messaging platform was selected for full autoscaling and zero broker maintenance.",
           conclusion: "Unanimously approved migration of all event streaming workloads to the managed cloud messaging platform."
@@ -902,6 +1069,7 @@
           id: "topic-2",
           title: "Schema Evolution and Serialization Standard",
           shortTitle: "Protobuf Schemas",
+          color: "#059669",
           context: "Downstream consumers currently parse unvalidated JSON blobs, causing production parser crashes due to undetected schema drift.",
           explanation: "Evaluated legacy binary schema formats vs Protobuf v3. Protobuf v3 payloads are 42% smaller than JSON and 15% smaller than legacy binary schemas. Direct integration with the central schema registry provides boundary-level payload rejection for non-compliant producers.",
           rationale: "Protobuf was selected for superior polyglot microservice performance (Go, Java, TypeScript), smaller wire size, and strongly typed stub generation.",
@@ -911,6 +1079,7 @@
           id: "topic-3",
           title: "Security, Governance, and Compliance Controls",
           shortTitle: "CMEK & Security",
+          color: "#D97706",
           context: "Organizational compliance mandates strict isolation, customer key ownership, and identity governance before routing production traffic.",
           explanation: "Mandated CMEK encryption using Key Management Service (KMS) key ring in us-central1, VPC service perimeters around messaging endpoints, and short-lived identity federation tokens with granular roles (roles/messaging.publisher, roles/messaging.subscriber).",
           rationale: "Infrastructure-as-code automation in Terraform ensures zero configuration drift and guarantees compliance prior to cutover.",
@@ -920,6 +1089,7 @@
           id: "topic-4",
           title: "Migration Timeline and Phasing",
           shortTitle: "Staging & Cutover",
+          color: "#E11D48",
           context: "Migration requires zero data loss and uninterrupted downstream service operations.",
           explanation: "Three phases: 1) Dual-publishing gateway adapter in staging by Sept 5 with 14-day shadow traffic; 2) InfoSec automated audit by Sept 12; 3) Production cutover on Oct 3.",
           rationale: "Shadow traffic allows verifying message delivery guarantees and consumer offset correctness under production load without customer impact.",
@@ -934,43 +1104,65 @@
       ],
       actionItems: [
         {
+          id: "act-1",
           description: "Develop reusable Terraform module for cloud messaging with CMEK and IAM hardening",
           assignee: "Tom Bradley",
           deadline: "2026-08-28",
-          deliverable: "Terraform module submitted and approved in repository"
+          deliverable: "Terraform module submitted and approved in repository",
+          criticalState: null
         },
         {
+          id: "act-2",
           description: "Implement dual-publishing adapter in core event gateway",
           assignee: "Marcus Vance",
           deadline: "2026-09-05",
-          deliverable: "Gateway publishing simultaneously to legacy broker and cloud platform in staging"
+          deliverable: "Gateway publishing simultaneously to legacy broker and cloud platform in staging",
+          criticalState: null
         },
         {
+          id: "act-3",
           description: "Conduct automated security validation scan on VPC perimeters",
           assignee: "David Chen",
           deadline: "2026-09-12",
-          deliverable: "InfoSec compliance report signed and published"
+          deliverable: "InfoSec compliance report signed and published",
+          criticalState: "HARD GATE"
         },
         {
+          id: "act-4",
           description: "Verify shadow traffic zero data loss benchmark",
           assignee: "Sarah Lin",
           deadline: "2026-09-19",
-          deliverable: "Sign-off report confirming SLA and zero loss over 14-day staging run"
+          deliverable: "Sign-off report confirming SLA and zero loss over 14-day staging run",
+          criticalState: null
         },
         {
+          id: "act-5",
           description: "Benchmark memory footprint on legacy Python consumer workers with streaming pull client",
           assignee: "Unassigned",
           deadline: "Not Specified",
-          deliverable: "Resource utilization report comparing legacy vs cloud messaging client overhead"
+          deliverable: "Resource utilization report comparing legacy vs cloud messaging client overhead",
+          criticalState: "UNASSIGNED BLOCKER"
         },
         {
+          id: "act-6",
           description: "Execute production cutover to cloud messaging platform",
           assignee: "Marcus Vance",
           deadline: "2026-10-03",
-          deliverable: "Production traffic routed to cloud platform; legacy broker decommission plan initiated"
+          deliverable: "Production traffic routed to cloud platform; legacy broker decommission plan initiated",
+          criticalState: null
         }
       ]
     };
+
+    const PALETTE = ['#0D9488', '#4F46E5', '#059669', '#D97706', '#E11D48'];
+
+    function hexToRgba(hex, alpha) {
+      const clean = (hex || '#0D9488').replace('#', '');
+      const r = parseInt(clean.substring(0, 2), 16) || 13;
+      const g = parseInt(clean.substring(2, 4), 16) || 148;
+      const b = parseInt(clean.substring(4, 6), 16) || 136;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
 
     function initDashboard(data) {
       document.getElementById('display-title').innerText = data.meetingTitle;
@@ -979,9 +1171,9 @@
         ? todayIso
         : data.date;
       document.getElementById('display-date').innerText = meetingDate;
-      
+
       const pContainer = document.getElementById('display-participants');
-      pContainer.innerHTML = data.participants.map(p => `<span class="participant-pill">${p}</span>`).join('');
+      pContainer.innerHTML = (data.participants || []).map(p => `<span class="participant-item">${p}</span>`).join('');
 
       document.getElementById('kpi-decisions').innerText = data.metrics.decisionsCount;
       document.getElementById('kpi-topics').innerText = data.metrics.topicsCount;
@@ -993,10 +1185,137 @@
       document.getElementById('display-impacts').innerHTML = data.executiveSummary.impacts.map(i => `<li>${i}</li>`).join('');
       document.getElementById('display-risks').innerHTML = data.executiveSummary.risks.map(r => `<li>${r}</li>`).join('');
 
-      renderKnowledgeGraph(data.topics, data.relationships);
+      renderBenchmarkChart(data);
+      renderCoverageHeatmap(data);
+      renderRelationshipNodeMap(data.topics, data.relationships);
       populateOwnerDropdown(data.actionItems);
       applyActionFilters();
       renderTopicAccordions(data.topics);
+    }
+
+    function renderBenchmarkChart() {
+      const container = document.getElementById('benchmark-chart-container');
+      if (!container) return;
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const gridColor = isLight ? '#E7E5E4' : '#292A30';
+      const textPrimary = isLight ? '#1C1917' : '#ECE8E2';
+      const textSecondary = isLight ? '#787774' : '#9A9895';
+
+      container.innerHTML = `
+        <svg viewBox="0 0 560 220" width="100%" height="220" role="img" aria-label="Monthly TCO, Wire Size, and Latency Benchmarks">
+          <line x1="140" y1="28" x2="530" y2="28" stroke="${gridColor}" stroke-width="1" />
+          <line x1="140" y1="68" x2="530" y2="68" stroke="${gridColor}" stroke-width="1" />
+          <line x1="140" y1="116" x2="530" y2="116" stroke="${gridColor}" stroke-width="1" />
+          <line x1="140" y1="156" x2="530" y2="156" stroke="${gridColor}" stroke-width="1" />
+          <line x1="140" y1="196" x2="530" y2="196" stroke="${gridColor}" stroke-width="1" />
+
+          <text x="8" y="33" fill="${textSecondary}" font-family="IBM Plex Mono, monospace" font-size="11">Self-Hosted TCO</text>
+          <rect x="140" y="18" width="340" height="18" rx="3" fill="#D97706" />
+          <text x="488" y="31" fill="${textPrimary}" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600">$22,700/mo</text>
+
+          <text x="8" y="65" fill="${textSecondary}" font-family="IBM Plex Mono, monospace" font-size="11">Cloud Managed TCO</text>
+          <rect x="140" y="50" width="177" height="18" rx="3" fill="#0D9488" />
+          <text x="325" y="63" fill="#0D9488" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600">$11,800/mo (-28%)</text>
+
+          <text x="8" y="113" fill="${textSecondary}" font-family="IBM Plex Mono, monospace" font-size="11">Unvalidated JSON</text>
+          <rect x="140" y="98" width="300" height="16" rx="3" fill="#4F46E5" fill-opacity="0.45" />
+          <text x="448" y="110" fill="${textSecondary}" font-family="IBM Plex Mono, monospace" font-size="11">100% Baseline</text>
+
+          <text x="8" y="143" fill="${textSecondary}" font-family="IBM Plex Mono, monospace" font-size="11">Protobuf v3 Wire</text>
+          <rect x="140" y="128" width="174" height="16" rx="3" fill="#059669" />
+          <text x="322" y="140" fill="#059669" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600">58% (-42% Size)</text>
+
+          <text x="8" y="191" fill="${textSecondary}" font-family="IBM Plex Mono, monospace" font-size="11">Latency (65k QPS)</text>
+          <rect x="140" y="176" width="140" height="16" rx="3" fill="#059669" />
+          <rect x="280" y="176" width="120" height="16" rx="3" fill="#0D9488" />
+          <line x1="440" y1="168" x2="440" y2="202" stroke="#E11D48" stroke-width="2" stroke-dasharray="3 2" />
+          <text x="448" y="189" fill="#E11D48" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="600">14ms Avg / 26ms p99 (SLA 30ms)</text>
+        </svg>
+      `;
+    }
+
+    function renderCoverageHeatmap() {
+      const container = document.getElementById('coverage-heatmap-container');
+      if (!container) return;
+
+      const matrixRows = [
+        { owner: "Sarah Lin", scores: [
+          { label: "Lead", level: 3, color: "#0D9488", topic: "topic-1" },
+          { label: "Lead", level: 3, color: "#059669", topic: "topic-2" },
+          { label: "Review", level: 1, color: "#4F46E5", topic: "topic-3" },
+          { label: "SLA Sign-off", level: 3, color: "#0D9488", topic: "topic-4" }
+        ]},
+        { owner: "Marcus Vance", scores: [
+          { label: "65k QPS Bench", level: 3, color: "#4F46E5", topic: "topic-1" },
+          { label: "Dual-Publish", level: 3, color: "#059669", topic: "topic-2" },
+          { label: "IAM Client", level: 1, color: "#4F46E5", topic: "topic-3" },
+          { label: "Oct 3 Cutover", level: 3, color: "#0D9488", topic: "topic-4" }
+        ]},
+        { owner: "David Chen", scores: [
+          { label: "VPC Scope", level: 2, color: "#D97706", topic: "topic-1" },
+          { label: "Boundary", level: 1, color: "#4F46E5", topic: "topic-2" },
+          { label: "CMEK & KMS", level: 3, color: "#D97706", topic: "topic-3" },
+          { label: "Sept 12 Gate", level: 3, color: "#D97706", topic: "topic-4" }
+        ]},
+        { owner: "Tom Bradley", scores: [
+          { label: "Decommission", level: 2, color: "#4F46E5", topic: "topic-1" },
+          { label: "CI Linting", level: 2, color: "#059669", topic: "topic-2" },
+          { label: "Terraform", level: 3, color: "#0D9488", topic: "topic-3" },
+          { label: "Staging", level: 2, color: "#4F46E5", topic: "topic-4" }
+        ]},
+        { owner: "Unassigned", scores: [
+          { label: "Python Memory", level: 3, color: "#E11D48", topic: "topic-1" },
+          { label: "—", level: 0, color: "#0D9488", topic: "topic-2" },
+          { label: "—", level: 0, color: "#0D9488", topic: "topic-3" },
+          { label: "Pre-Cutover", level: 2, color: "#E11D48", topic: "topic-4" }
+        ]}
+      ];
+
+      const alphaByLevel = { 0: 0.04, 1: 0.16, 2: 0.32, 3: 0.78 };
+
+      container.innerHTML = `
+        <table class="heatmap-table">
+          <thead>
+            <tr>
+              <th>Owner</th>
+              <th>Platform</th>
+              <th>Protobuf</th>
+              <th>CMEK / VPC</th>
+              <th>Cutover</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${matrixRows.map(row => `
+              <tr>
+                <td style="font-weight: 600; color: ${row.owner === 'Unassigned' ? 'var(--viz-rose)' : 'var(--text-primary)'};">
+                  ${row.owner}
+                </td>
+                ${row.scores.map(cell => {
+                  const bg = hexToRgba(cell.color, alphaByLevel[cell.level]);
+                  const textCol = cell.level === 3 ? '#FFFFFF' : 'var(--text-primary)';
+                  return `
+                    <td>
+                      <div class="heatmap-cell" style="background-color: ${bg}; color: ${textCol};" onclick="inspectFromMatrix('${row.owner}')">
+                        ${cell.label}
+                      </div>
+                    </td>
+                  `;
+                }).join('')}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function inspectFromMatrix(ownerName) {
+      const actionsBtn = document.getElementById('tab-btn-actions');
+      const select = document.getElementById('action-owner-select');
+      if (actionsBtn && select) {
+        switchMainTab('actions', actionsBtn);
+        select.value = ownerName;
+        applyActionFilters();
+      }
     }
 
     function switchMainTab(tabKey, btn) {
@@ -1005,15 +1324,15 @@
       btn.classList.add('active');
       document.getElementById('tab-' + tabKey).classList.add('active');
       if (tabKey === 'graph') {
-        renderKnowledgeGraph(MEETING_DATA.topics, MEETING_DATA.relationships);
+        renderRelationshipNodeMap(MEETING_DATA.topics, MEETING_DATA.relationships);
       }
     }
 
     function switchActionSubTab(subKey, btn) {
-      document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      document.getElementById('subview-kanban').style.display = subKey === 'kanban' ? 'grid' : 'none';
       document.getElementById('subview-table').style.display = subKey === 'table' ? 'block' : 'none';
+      document.getElementById('subview-kanban').style.display = subKey === 'kanban' ? 'grid' : 'none';
     }
 
     function populateOwnerDropdown(actions) {
@@ -1037,7 +1356,7 @@
 
       const filtered = (MEETING_DATA.actionItems || []).filter(item => {
         const matchesOwner = selectedOwner === 'all' || item.assignee === selectedOwner;
-        const matchesQuery = !query || 
+        const matchesQuery = !query ||
           item.description.toLowerCase().includes(query) ||
           item.assignee.toLowerCase().includes(query) ||
           item.deadline.toLowerCase().includes(query) ||
@@ -1045,16 +1364,15 @@
         return matchesOwner && matchesQuery;
       });
 
-      renderKanbanBoard(filtered, selectedOwner);
       renderActionTable(filtered);
+      renderOwnerLanes(filtered, selectedOwner);
 
       const countBadge = document.getElementById('action-count-text');
       if (countBadge) {
-        countBadge.innerText = `${filtered.length} of ${MEETING_DATA.actionItems.length} items shown`;
+        countBadge.innerText = `${filtered.length} / ${MEETING_DATA.actionItems.length} rows`;
       }
     }
 
-    // Physics Simulation & Knowledge Graph Engine
     let graphState = {
       nodes: [],
       links: [],
@@ -1068,10 +1386,11 @@
       draggedNode: null,
       hasDraggedMoved: false,
       animId: null,
-      cx: 400,
-      cy: 290,
-      width: 800,
-      height: 580,
+      ticksRemaining: 0,
+      cx: 420,
+      cy: 300,
+      width: 840,
+      height: 600,
       isInitialized: false
     };
 
@@ -1084,9 +1403,9 @@
 
     function graphZoomIn() {
       const svg = document.getElementById('graph-svg');
-      const cx = (svg ? svg.clientWidth : 800) / 2;
-      const cy = (svg ? svg.clientHeight : 580) / 2;
-      const newZoom = Math.min(3.0, graphState.zoom * 1.25);
+      const cx = (svg ? svg.clientWidth : 840) / 2;
+      const cy = (svg ? svg.clientHeight : 600) / 2;
+      const newZoom = Math.min(2.75, graphState.zoom * 1.2);
       graphState.panX = cx - (cx - graphState.panX) * (newZoom / graphState.zoom);
       graphState.panY = cy - (cy - graphState.panY) * (newZoom / graphState.zoom);
       graphState.zoom = newZoom;
@@ -1095,9 +1414,9 @@
 
     function graphZoomOut() {
       const svg = document.getElementById('graph-svg');
-      const cx = (svg ? svg.clientWidth : 800) / 2;
-      const cy = (svg ? svg.clientHeight : 580) / 2;
-      const newZoom = Math.max(0.35, graphState.zoom * 0.8);
+      const cx = (svg ? svg.clientWidth : 840) / 2;
+      const cy = (svg ? svg.clientHeight : 600) / 2;
+      const newZoom = Math.max(0.4, graphState.zoom * 0.82);
       graphState.panX = cx - (cx - graphState.panX) * (newZoom / graphState.zoom);
       graphState.panY = cy - (cy - graphState.panY) * (newZoom / graphState.zoom);
       graphState.zoom = newZoom;
@@ -1111,69 +1430,82 @@
       updateGraphViewportTransform();
     }
 
-    function renderKnowledgeGraph(topics, relationships) {
+    function renderRelationshipNodeMap(topics, relationships) {
       const svg = document.getElementById('graph-svg');
       const defs = document.getElementById('graph-defs');
+      const gridLayer = document.getElementById('graph-grid-layer');
       const viewport = document.getElementById('graph-viewport');
       if (!svg || !viewport) return;
 
-      const w = svg.clientWidth || 800;
-      const h = svg.clientHeight || 580;
+      const w = svg.clientWidth || 880;
+      const h = svg.clientHeight || 600;
       graphState.width = w;
       graphState.height = h;
       graphState.cx = w / 2;
       graphState.cy = h / 2;
 
-      // Initialize defs markers
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const gridStroke = isLight ? '#E7E5E4' : '#292A30';
+      const surfaceFill = isLight ? '#FFFFFF' : '#16171D';
+      const textPrimary = isLight ? '#1C1917' : '#ECE8E2';
+      const textSecondary = isLight ? '#787774' : '#9A9895';
+
       if (defs) {
-        defs.innerHTML = `
-          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+        defs.innerHTML = PALETTE.map((col, idx) => `
+          <marker id="arrow-${idx}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="${col}" fill-opacity="0.85"/>
           </marker>
-          <marker id="arrow-subtle" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-            <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
-          </marker>
+        `).join('') + `
+          <pattern id="chart-grid-pattern" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="${gridStroke}" stroke-width="0.75" stroke-opacity="0.65"/>
+          </pattern>
         `;
       }
 
-      // 1. Build Nodes Array
+      if (gridLayer) {
+        gridLayer.innerHTML = `<rect width="100%" height="100%" fill="url(#chart-grid-pattern)" />`;
+      }
+
       const nodes = [];
       const nodeMap = {};
 
-      // Central Goal Root Node
       const rootNode = {
         id: 'root',
-        title: 'Meeting Core Objective',
+        title: 'Migration Core Objective',
         shortTitle: 'CORE GOAL',
+        color: '#0D9488',
+        paletteIdx: 0,
         x: graphState.cx,
         y: graphState.cy,
         vx: 0,
         vy: 0,
-        r: 52,
+        r: 50,
         isRoot: true,
         topicData: {
-          title: (typeof MEETING_DATA !== 'undefined' && MEETING_DATA.meetingTitle) ? MEETING_DATA.meetingTitle : 'Meeting Core Objective',
-          context: (typeof MEETING_DATA !== 'undefined' && MEETING_DATA.executiveSummary) ? MEETING_DATA.executiveSummary.objective : 'Overall purpose and strategic mission of the meeting.',
-          explanation: (typeof MEETING_DATA !== 'undefined' && MEETING_DATA.executiveSummary && MEETING_DATA.executiveSummary.decisions) ? MEETING_DATA.executiveSummary.decisions.join('; ') : 'Strategic alignment across participants.',
-          rationale: (typeof MEETING_DATA !== 'undefined' && MEETING_DATA.executiveSummary && MEETING_DATA.executiveSummary.impacts) ? MEETING_DATA.executiveSummary.impacts.join('; ') : 'Execution according to architecture and operational milestones.',
-          conclusion: (typeof MEETING_DATA !== 'undefined' && MEETING_DATA.executiveSummary && MEETING_DATA.executiveSummary.risks) ? 'Risks addressed: ' + MEETING_DATA.executiveSummary.risks.join('; ') : 'All participants aligned on target deliverables.'
+          title: MEETING_DATA.meetingTitle,
+          context: MEETING_DATA.executiveSummary.objective,
+          explanation: MEETING_DATA.executiveSummary.decisions.join(' '),
+          rationale: MEETING_DATA.executiveSummary.impacts.join(' '),
+          conclusion: 'Target cutover: ' + MEETING_DATA.metrics.targetCutover
         }
       };
       nodes.push(rootNode);
       nodeMap['root'] = rootNode;
 
-      // Topic Nodes placed around initial perimeter with ample spacing
-      const radius = Math.max(Math.min(w, h) * 0.40, 240);
+      const radius = Math.max(Math.min(w, h) * 0.36, 210);
       const angleStep = (2 * Math.PI) / (topics.length || 1);
 
       topics.forEach((t, idx) => {
         const id = t.id || `topic-${idx + 1}`;
         const angle = idx * angleStep - Math.PI / 4;
-        const shortTitle = t.shortTitle || t.title.split(' ').slice(0, 2).join(' ');
+        const pIdx = (idx + 1) % PALETTE.length;
+        const nodeColor = t.color || PALETTE[pIdx];
         const node = {
           id: id,
           title: t.title,
-          shortTitle: shortTitle,
+          shortTitle: t.shortTitle || t.title.split(' ').slice(0, 2).join(' '),
+          color: nodeColor,
+          paletteIdx: PALETTE.indexOf(nodeColor) !== -1 ? PALETTE.indexOf(nodeColor) : pIdx,
           x: graphState.cx + radius * Math.cos(angle),
           y: graphState.cy + radius * Math.sin(angle),
           vx: 0,
@@ -1186,9 +1518,7 @@
         nodeMap[id] = node;
       });
 
-      // 2. Build Links Array
       const links = [];
-      // Radial links from Root to each Topic
       topics.forEach((t, idx) => {
         const id = t.id || `topic-${idx + 1}`;
         const targetNode = nodeMap[id];
@@ -1198,76 +1528,60 @@
             from: rootNode,
             to: targetNode,
             isRadial: true,
-            targetDist: 240,
-            strength: 0.025
+            color: targetNode.color,
+            targetDist: 215,
+            strength: 0.03
           });
         }
       });
 
-      // Relationship links between topics
-      if (relationships && relationships.length > 0) {
-        relationships.forEach((rel, rIdx) => {
-          const fromNode = nodeMap[rel.from];
-          const toNode = nodeMap[rel.to];
-          if (fromNode && toNode) {
-            links.push({
-              id: `link-rel-${rIdx}`,
-              from: fromNode,
-              to: toNode,
-              label: rel.label,
-              isRadial: false,
-              targetDist: 220,
-              strength: 0.020
-            });
-          }
-        });
-      }
+      (relationships || []).forEach((rel, rIdx) => {
+        const fromNode = nodeMap[rel.from];
+        const toNode = nodeMap[rel.to];
+        if (fromNode && toNode) {
+          links.push({
+            id: `link-rel-${rIdx}`,
+            from: fromNode,
+            to: toNode,
+            label: rel.label,
+            isRadial: false,
+            color: fromNode.color,
+            paletteIdx: fromNode.paletteIdx,
+            targetDist: 205,
+            strength: 0.022
+          });
+        }
+      });
 
       graphState.nodes = nodes;
       graphState.links = links;
 
-      // 3. Render SVG DOM Structure
       viewport.innerHTML = `
-        <g class="links-layer" id="graph-links-layer"></g>
-        <g class="edges-layer" id="graph-edges-layer"></g>
-        <g class="nodes-layer" id="graph-nodes-layer"></g>
+        <g id="graph-links-layer"></g>
+        <g id="graph-edges-layer"></g>
+        <g id="graph-nodes-layer"></g>
       `;
 
       const linksLayer = document.getElementById('graph-links-layer');
       const edgesLayer = document.getElementById('graph-edges-layer');
       const nodesLayer = document.getElementById('graph-nodes-layer');
 
-      const isLight = (document.documentElement.getAttribute('data-theme') === 'light');
-      const edgeStroke = isLight ? '#cbd5e1' : '#334155';
-      const labelBg = isLight ? '#ffffff' : '#0b1120';
-      const labelBorder = isLight ? '#e2e8f0' : '#334155';
-      const labelText = isLight ? '#0284c7' : '#38bdf8';
-      const nodeFill = isLight ? '#ffffff' : '#1e293b';
-      const nodeBorder = isLight ? '#0284c7' : '#38bdf8';
-      const nodeText1 = isLight ? '#0f172a' : '#f8fafc';
-      const nodeText2 = isLight ? '#475569' : '#94a3b8';
-      const rootFill = isLight ? '#0284c7' : '#0369a1';
-      const rootStroke = '#38bdf8';
-
-      // Create DOM elements for links
       links.forEach(link => {
         if (link.isRadial) {
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('id', link.id);
-          line.setAttribute('stroke', edgeStroke);
+          line.setAttribute('stroke', hexToRgba(link.color, 0.35));
           line.setAttribute('stroke-width', '1.5');
-          line.setAttribute('stroke-dasharray', '4 3');
+          line.setAttribute('stroke-dasharray', '4 4');
           linksLayer.appendChild(line);
           link.domLine = line;
         } else {
           const edgeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-          edgeG.setAttribute('id', link.id);
           edgeG.setAttribute('class', 'edge-group');
 
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('stroke', '#0284c7');
+          line.setAttribute('stroke', hexToRgba(link.color, 0.55));
           line.setAttribute('stroke-width', '2');
-          line.setAttribute('marker-end', 'url(#arrow)');
+          line.setAttribute('marker-end', `url(#arrow-${link.paletteIdx})`);
           edgeG.appendChild(line);
 
           let labelBgRect = null;
@@ -1275,18 +1589,19 @@
 
           if (link.label) {
             labelBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            labelBgRect.setAttribute('width', 74);
+            labelBgRect.setAttribute('width', 72);
             labelBgRect.setAttribute('height', 18);
             labelBgRect.setAttribute('rx', 4);
-            labelBgRect.setAttribute('fill', labelBg);
-            labelBgRect.setAttribute('stroke', labelBorder);
+            labelBgRect.setAttribute('fill', surfaceFill);
+            labelBgRect.setAttribute('stroke', hexToRgba(link.color, 0.6));
             labelBgRect.setAttribute('stroke-width', '1');
             edgeG.appendChild(labelBgRect);
 
             labelTextEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             labelTextEl.setAttribute('text-anchor', 'middle');
-            labelTextEl.setAttribute('fill', labelText);
-            labelTextEl.setAttribute('font-size', '9');
+            labelTextEl.setAttribute('fill', link.color);
+            labelTextEl.setAttribute('font-family', 'IBM Plex Mono, monospace');
+            labelTextEl.setAttribute('font-size', '9.5');
             labelTextEl.setAttribute('font-weight', '600');
             labelTextEl.textContent = link.label;
             edgeG.appendChild(labelTextEl);
@@ -1300,36 +1615,35 @@
         }
       });
 
-      // Create DOM elements for nodes
       nodes.forEach(node => {
         const nodeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        nodeG.setAttribute('id', `node-g-${node.id}`);
         nodeG.setAttribute('class', 'node-group');
 
         if (node.isRoot) {
           nodeG.innerHTML = `
-            <circle cx="0" cy="0" r="${node.r}" fill="${rootFill}" stroke="${rootStroke}" stroke-width="2.5"/>
-            <text x="0" y="-5" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">CORE GOAL</text>
-            <text x="0" y="9" text-anchor="middle" fill="#e0f2fe" font-size="8.5" font-weight="500">ALIGNMENT</text>
+            <circle cx="0" cy="0" r="${node.r}" fill="${node.color}" stroke="${textPrimary}" stroke-width="2"/>
+            <text x="0" y="-4" text-anchor="middle" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="600">CORE GOAL</text>
+            <text x="0" y="10" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="DM Sans, sans-serif" font-size="9" font-weight="500">MIGRATION</text>
           `;
         } else {
           const words = node.shortTitle.split(' ');
           const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
           const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
           nodeG.innerHTML = `
-            <circle cx="0" cy="0" r="${node.r}" fill="${nodeFill}" stroke="${nodeBorder}" stroke-width="2"/>
-            <text x="0" y="${line2 ? -4 : 0}" text-anchor="middle" fill="${nodeText1}" font-size="10" font-weight="700">${line1}</text>
-            ${line2 ? `<text x="0" y="11" text-anchor="middle" fill="${nodeText2}" font-size="9" font-weight="500">${line2}</text>` : ''}
+            <circle cx="0" cy="0" r="${node.r}" fill="${surfaceFill}" stroke="${node.color}" stroke-width="2.5"/>
+            <circle cx="0" cy="0" r="${node.r - 5}" fill="${hexToRgba(node.color, 0.1)}" stroke="none"/>
+            <text x="0" y="${line2 ? -3 : 3}" text-anchor="middle" fill="${textPrimary}" font-family="DM Sans, sans-serif" font-size="10.5" font-weight="600">${line1}</text>
+            ${line2 ? `<text x="0" y="11" text-anchor="middle" fill="${textSecondary}" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="500">${line2}</text>` : ''}
           `;
         }
 
-        // Mouse & Drag events for node
         nodeG.addEventListener('mousedown', (e) => {
           e.stopPropagation();
           graphState.draggedNode = node;
           graphState.dragStartX = e.clientX;
           graphState.dragStartY = e.clientY;
           graphState.hasDraggedMoved = false;
+          wakeLayoutCalculation(90);
         });
 
         nodeG.addEventListener('click', (e) => {
@@ -1343,43 +1657,40 @@
         node.domG = nodeG;
       });
 
-      // 4. Setup Pan / Zoom & Graph Viewport Events (Once)
       if (!graphState.isInitialized) {
         setupGraphInteractionEvents(svg);
         graphState.isInitialized = true;
       }
 
       updateGraphViewportTransform();
+      wakeLayoutCalculation(120);
+    }
 
-      // 5. Start Physics Animation Loop
-      if (graphState.animId) {
-        cancelAnimationFrame(graphState.animId);
+    function wakeLayoutCalculation(ticks) {
+      graphState.ticksRemaining = Math.max(graphState.ticksRemaining, ticks || 80);
+      if (!graphState.animId) {
+        graphState.animId = requestAnimationFrame(stepNodeLayout);
       }
-      runPhysicsSimulation();
     }
 
     function setupGraphInteractionEvents(svg) {
       const container = document.getElementById('graph-stage-container');
 
-      // Mouse wheel zoom
       svg.addEventListener('wheel', (e) => {
         e.preventDefault();
         const rect = svg.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
-        
-        const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
-        const newZoom = Math.min(3.0, Math.max(0.35, graphState.zoom * zoomFactor));
-        
+        const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
+        const newZoom = Math.min(2.75, Math.max(0.4, graphState.zoom * zoomFactor));
         graphState.panX = mouseX - (mouseX - graphState.panX) * (newZoom / graphState.zoom);
         graphState.panY = mouseY - (mouseY - graphState.panY) * (newZoom / graphState.zoom);
         graphState.zoom = newZoom;
         updateGraphViewportTransform();
       }, { passive: false });
 
-      // Graph background mousedown -> pan
       svg.addEventListener('mousedown', (e) => {
-        if (e.target === svg || e.target.id === 'graph-viewport' || e.target.tagName === 'line' || e.target.classList.contains('links-layer')) {
+        if (e.target === svg || e.target.tagName === 'rect' || e.target.id === 'graph-viewport') {
           graphState.isPanning = true;
           graphState.panStartX = e.clientX - graphState.panX;
           graphState.panStartY = e.clientY - graphState.panY;
@@ -1399,12 +1710,11 @@
             graphState.hasDraggedMoved = true;
           }
           const rect = svg.getBoundingClientRect();
-          const mouseX = (e.clientX - rect.left - graphState.panX) / graphState.zoom;
-          const mouseY = (e.clientY - rect.top - graphState.panY) / graphState.zoom;
-          graphState.draggedNode.x = mouseX;
-          graphState.draggedNode.y = mouseY;
+          graphState.draggedNode.x = (e.clientX - rect.left - graphState.panX) / graphState.zoom;
+          graphState.draggedNode.y = (e.clientY - rect.top - graphState.panY) / graphState.zoom;
           graphState.draggedNode.vx = 0;
           graphState.draggedNode.vy = 0;
+          wakeLayoutCalculation(40);
         }
       });
 
@@ -1419,17 +1729,20 @@
       });
     }
 
-    function runPhysicsSimulation() {
+    function stepNodeLayout() {
       const nodes = graphState.nodes;
       const links = graphState.links;
       const cx = graphState.cx;
       const cy = graphState.cy;
 
-      if (!nodes || nodes.length === 0) return;
+      if (!nodes || nodes.length === 0 || (graphState.ticksRemaining <= 0 && !graphState.draggedNode)) {
+        graphState.animId = null;
+        return;
+      }
 
-      // 1. Hard Collision Resolution & Non-Overlap Constraint
-      // Strictly prevents nodes from ever overlapping or covering each other
-      const padding = 30; // Buffer distance between circle borders
+      graphState.ticksRemaining--;
+
+      const padding = 28;
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const n1 = nodes[i];
@@ -1443,8 +1756,6 @@
             const overlap = minDist - dist;
             const nx = dx / dist;
             const ny = dy / dist;
-
-            // Direct geometric displacement push-apart
             if (n1 === graphState.draggedNode) {
               n2.x += nx * overlap;
               n2.y += ny * overlap;
@@ -1457,29 +1768,12 @@
               n2.x += nx * (overlap * 0.5);
               n2.y += ny * (overlap * 0.5);
             }
-
-            // Impulse velocity to bounce away from collision
-            const impulse = overlap * 0.2;
-            n1.vx -= nx * impulse;
-            n1.vy -= ny * impulse;
-            n2.vx += nx * impulse;
-            n2.vy += ny * impulse;
           }
-        }
-      }
 
-      // 2. Electrostatic Repulsion between all node pairs
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const n1 = nodes[i];
-          const n2 = nodes[j];
-          const dx = n2.x - n1.x;
-          const dy = n2.y - n1.y;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
-          if (dist < 700) {
-            const force = -22000 / (dist * dist + 1600);
-            const fx = (dx / dist) * force;
-            const fy = (dy / dist) * force;
+          if (dist < 620) {
+            const repulse = -18000 / (dist * dist + 1400);
+            const fx = (dx / dist) * repulse;
+            const fy = (dy / dist) * repulse;
             n1.vx += fx;
             n1.vy += fy;
             n2.vx -= fx;
@@ -1488,14 +1782,12 @@
         }
       }
 
-      // 3. Link spring attraction
       for (let i = 0; i < links.length; i++) {
         const l = links[i];
         const dx = l.to.x - l.from.x;
         const dy = l.to.y - l.from.y;
         const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
-        const displacement = dist - l.targetDist;
-        const force = displacement * l.strength;
+        const force = (dist - l.targetDist) * l.strength;
         const fx = (dx / dist) * force;
         const fy = (dy / dist) * force;
         l.from.vx += fx;
@@ -1504,27 +1796,19 @@
         l.to.vy -= fy;
       }
 
-      // 4. Centering force & integration
       for (let i = 0; i < nodes.length; i++) {
         const n = nodes[i];
-        const dx = cx - n.x;
-        const dy = cy - n.y;
-        const gravity = n.isRoot ? 0.06 : 0.004;
-        n.vx += dx * gravity;
-        n.vy += dy * gravity;
-
-        // Friction damping
-        n.vx *= 0.82;
-        n.vy *= 0.82;
-
+        const pull = n.isRoot ? 0.08 : 0.005;
+        n.vx += (cx - n.x) * pull;
+        n.vy += (cy - n.y) * pull;
+        n.vx *= 0.8;
+        n.vy *= 0.8;
         if (n !== graphState.draggedNode) {
           n.x += n.vx;
           n.y += n.vy;
         }
       }
 
-      // 5. Update SVG elements positions
-      // Radial links
       for (let i = 0; i < links.length; i++) {
         const l = links[i];
         if (l.isRadial && l.domLine) {
@@ -1552,16 +1836,15 @@
             if (l.domRect && l.domText) {
               const midX = (startX + endX) / 2;
               const midY = (startY + endY) / 2;
-              l.domRect.setAttribute('x', midX - 37);
+              l.domRect.setAttribute('x', midX - 36);
               l.domRect.setAttribute('y', midY - 9);
               l.domText.setAttribute('x', midX);
-              l.domText.setAttribute('y', midY + 4);
+              l.domText.setAttribute('y', midY + 3.5);
             }
           }
         }
       }
 
-      // Node groups
       for (let i = 0; i < nodes.length; i++) {
         const n = nodes[i];
         if (n.domG) {
@@ -1569,14 +1852,13 @@
         }
       }
 
-      graphState.animId = requestAnimationFrame(runPhysicsSimulation);
+      graphState.animId = requestAnimationFrame(stepNodeLayout);
     }
 
     function selectGraphNode(node) {
       graphState.activeTopicId = node.id;
       openInspector(node.topicData);
 
-      // Highlight active node & connected edges, dim others
       const connectedNodeIds = new Set([node.id]);
       graphState.links.forEach(l => {
         if (l.from.id === node.id) connectedNodeIds.add(l.to.id);
@@ -1585,13 +1867,9 @@
 
       graphState.nodes.forEach(n => {
         if (n.domG) {
-          if (n.id === node.id) {
-            n.domG.classList.add('active');
+          if (connectedNodeIds.has(n.id)) {
             n.domG.classList.remove('dimmed');
-          } else if (connectedNodeIds.has(n.id)) {
-            n.domG.classList.remove('active', 'dimmed');
           } else {
-            n.domG.classList.remove('active');
             n.domG.classList.add('dimmed');
           }
         }
@@ -1600,47 +1878,13 @@
       graphState.links.forEach(l => {
         if (l.domG) {
           if (l.from.id === node.id || l.to.id === node.id) {
-            l.domG.classList.add('highlighted');
             l.domG.classList.remove('dimmed');
           } else {
-            l.domG.classList.remove('highlighted');
             l.domG.classList.add('dimmed');
           }
         }
       });
     }
-
-    function syncThemeButton(theme) {
-      const toggleBtn = document.getElementById('theme-toggle-btn');
-      if (toggleBtn) {
-        const nextLabel = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
-        toggleBtn.setAttribute('data-theme-state', theme);
-        toggleBtn.setAttribute('aria-label', nextLabel);
-        toggleBtn.setAttribute('title', nextLabel);
-      }
-    }
-
-    function toggleTheme() {
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      syncThemeButton(newTheme);
-      try {
-        localStorage.setItem('meeting_dashboard_theme', newTheme);
-      } catch (e) {}
-      if (typeof renderKnowledgeGraph === 'function' && typeof MEETING_DATA !== 'undefined' && MEETING_DATA) {
-        renderKnowledgeGraph(MEETING_DATA.topics || [], MEETING_DATA.relationships || []);
-      }
-    }
-
-    (function initTheme() {
-      let savedTheme = 'dark';
-      try {
-        savedTheme = localStorage.getItem('meeting_dashboard_theme') || 'dark';
-      } catch (e) {}
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      syncThemeButton(savedTheme);
-    })();
 
     function openInspector(topic) {
       if (!topic) return;
@@ -1655,18 +1899,8 @@
     function closeInspector() {
       document.getElementById('inspector-drawer').classList.remove('open');
       graphState.activeTopicId = null;
-
-      // Reset node and edge visual opacities
-      graphState.nodes.forEach(n => {
-        if (n.domG) {
-          n.domG.classList.remove('active', 'dimmed');
-        }
-      });
-      graphState.links.forEach(l => {
-        if (l.domG) {
-          l.domG.classList.remove('highlighted', 'dimmed');
-        }
-      });
+      graphState.nodes.forEach(n => n.domG && n.domG.classList.remove('dimmed'));
+      graphState.links.forEach(l => l.domG && l.domG.classList.remove('dimmed'));
     }
 
     function filterGraphNodes(query) {
@@ -1678,8 +1912,8 @@
       let firstMatch = null;
       graphState.nodes.forEach(n => {
         const matches = !n.isRoot && (
-          n.title.toLowerCase().includes(q) || 
-          n.shortTitle.toLowerCase().includes(q) || 
+          n.title.toLowerCase().includes(q) ||
+          n.shortTitle.toLowerCase().includes(q) ||
           (n.topicData.context && n.topicData.context.toLowerCase().includes(q)) ||
           (n.topicData.rationale && n.topicData.rationale.toLowerCase().includes(q))
         );
@@ -1697,56 +1931,70 @@
       }
     }
 
-    function renderKanbanBoard(actions, selectedOwner) {
+    function renderActionTable(actions) {
+      const tbody = document.getElementById('table-body-actions');
+      if (!tbody) return;
+      if (actions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-secondary); padding:1.5rem;">No matching action items.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = actions.map(act => {
+        const isUnassigned = act.assignee === 'Unassigned' || act.criticalState === 'UNASSIGNED BLOCKER';
+        const isGate = act.criticalState === 'HARD GATE';
+        const ownerMarkup = isUnassigned
+          ? `<span class="status-critical">UNASSIGNED BLOCKER</span>`
+          : `<span>${act.assignee}</span>`;
+        const deadlineMarkup = isGate
+          ? `<span style="color: var(--viz-amber); font-weight: 600;">${act.deadline}</span> <span class="status-warning">HARD GATE</span>`
+          : `<span style="color: ${isUnassigned ? 'var(--viz-rose)' : 'var(--viz-teal)'}; font-weight: 500;">${act.deadline}</span>`;
+
+        return `
+          <tr>
+            <td>${act.description}</td>
+            <td>${ownerMarkup}</td>
+            <td>${deadlineMarkup}</td>
+            <td style="color: var(--text-secondary);">${act.deliverable || ''}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderOwnerLanes(actions, selectedOwner) {
       const container = document.getElementById('subview-kanban');
       if (!container) return;
 
-      const assignees = selectedOwner && selectedOwner !== 'all' 
-        ? [selectedOwner] 
+      const assignees = selectedOwner && selectedOwner !== 'all'
+        ? [selectedOwner]
         : [...new Set(actions.map(a => a.assignee))];
 
       if (assignees.length === 0) {
-        container.innerHTML = '<div style="color:var(--text-muted); padding:1rem; font-size:0.875rem;">No action items matching the current filter.</div>';
+        container.innerHTML = '<div class="bento-cell" style="color:var(--text-secondary);">No action items matching filter.</div>';
         return;
       }
 
       container.innerHTML = assignees.map(owner => {
         const tasks = actions.filter(a => a.assignee === owner);
+        const isUnassigned = owner === 'Unassigned';
         return `
-          <div class="kanban-col">
-            <div class="kanban-col-header">
-              <span class="kanban-col-title">${owner}</span>
-              <span class="badge badge-slate">${tasks.length}</span>
+          <div class="lane-column">
+            <div class="lane-header">
+              <span class="lane-owner" style="color: ${isUnassigned ? 'var(--viz-rose)' : 'var(--text-primary)'};">${owner}</span>
+              <span class="lane-count">${tasks.length}</span>
             </div>
             ${tasks.map(t => `
-              <div class="kanban-card">
-                <div class="kanban-card-title">${t.description}</div>
-                <div class="kanban-card-meta">
-                  <span style="color:var(--accent-blue); font-weight:600;">${t.deadline}</span>
-                  <span class="badge ${t.deliverable ? 'badge-emerald' : 'badge-slate'}">${t.deliverable ? 'Assigned' : 'Pending'}</span>
+              <div class="lane-task-row">
+                <div class="lane-task-desc">${t.description}</div>
+                <div class="lane-task-deliverable">${t.deliverable || ''}</div>
+                <div class="lane-task-meta">
+                  <span style="color: ${isUnassigned ? 'var(--viz-rose)' : 'var(--viz-teal)'};">${t.deadline}</span>
+                  ${t.criticalState === 'UNASSIGNED BLOCKER' ? '<span class="status-critical">UNASSIGNED</span>' : ''}
+                  ${t.criticalState === 'HARD GATE' ? '<span class="status-warning">HARD GATE</span>' : ''}
                 </div>
               </div>
             `).join('')}
           </div>
         `;
       }).join('');
-    }
-
-    function renderActionTable(actions) {
-      const tbody = document.getElementById('table-body-actions');
-      if (!tbody) return;
-      if (actions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:1.5rem;">No action items match the current filter.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = actions.map(act => `
-        <tr>
-          <td style="font-weight:500; color:var(--text-primary);">${act.description}</td>
-          <td><span class="badge badge-slate">${act.assignee}</span></td>
-          <td style="font-weight:600; color:var(--accent-blue);">${act.deadline}</td>
-          <td>${act.deliverable || ''}</td>
-        </tr>
-      `).join('');
     }
 
     function exportActionItemsCSV() {
@@ -1759,10 +2007,7 @@
         `"${(a.deliverable || '').replace(/"/g, '""')}"`
       ]);
       const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-      
-      navigator.clipboard.writeText(csvContent).then(() => {
-        alert("Action items copied to clipboard in CSV format.");
-      });
+      navigator.clipboard.writeText(csvContent);
     }
 
     function exportActionItemsMarkdown() {
@@ -1772,25 +2017,31 @@
       actions.forEach(a => {
         md += `| ${a.description} | ${a.assignee} | ${a.deadline} | ${a.deliverable || ''} |\n`;
       });
-      navigator.clipboard.writeText(md).then(() => {
-        alert("Action items table copied to clipboard in Markdown format.");
-      });
+      navigator.clipboard.writeText(md);
     }
 
     function renderTopicAccordions(topics) {
       const container = document.getElementById('topics-accordion-list');
       if (!container) return;
       container.innerHTML = topics.map((t, idx) => `
-        <div class="topic-accordion">
-          <div class="topic-header" onclick="toggleAccordion(${idx})">
-            <span style="font-weight:600; color:var(--text-primary);">${idx + 1}. ${t.title}</span>
-            <span style="color:var(--text-muted); font-size:0.8rem;">[Expand / Collapse]</span>
-          </div>
-          <div class="topic-body" id="topic-body-${idx}">
-            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Context & Background:</strong> ${t.context}</p>
-            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Technical Mechanism:</strong> ${t.explanation}</p>
-            <p style="margin-bottom:0.75rem;"><strong style="color:var(--accent-blue);">Rationale ("Why"):</strong> ${t.rationale}</p>
-            <p><strong style="color:var(--accent-blue);">Key Conclusion:</strong> ${t.conclusion}</p>
+        <div class="record-item">
+          <button type="button" class="record-header" onclick="toggleAccordion(${idx})">
+            <span><span style="font-family: var(--font-mono); color: ${t.color || 'var(--viz-teal)'}; margin-right: 0.5rem;">0${idx + 1}</span>${t.title}</span>
+            <span class="record-toggle-indicator" id="record-ind-${idx}">OPEN</span>
+          </button>
+          <div class="record-body ${idx === 0 ? 'open' : ''}" id="topic-body-${idx}">
+            <div class="record-field">
+              <span class="record-field-label">Discussion Details (What Was Said)</span>
+              <p class="record-field-text">${t.context} ${t.explanation}</p>
+            </div>
+            <div class="record-field">
+              <span class="record-field-label">Points Raised &amp; Rationale</span>
+              <p class="record-field-text">${t.rationale}</p>
+            </div>
+            <div class="record-field" style="grid-column: 1 / -1;">
+              <span class="record-field-label" style="color: var(--viz-emerald);">Key Conclusion</span>
+              <p class="record-field-text" style="color: var(--text-primary); font-weight: 500;">${t.conclusion}</p>
+            </div>
           </div>
         </div>
       `).join('');
@@ -1798,29 +2049,35 @@
 
     function toggleAccordion(idx) {
       const el = document.getElementById('topic-body-' + idx);
-      el.classList.toggle('open');
+      const ind = document.getElementById('record-ind-' + idx);
+      if (el) {
+        const isOpen = el.classList.toggle('open');
+        if (ind) ind.innerText = isOpen ? 'CLOSE' : 'OPEN';
+      }
     }
 
-    window.onload = () => {
-      const params = new URLSearchParams(window.location.search);
-      const tab = params.get('tab');
-      if (tab) {
-        const noTrans = document.createElement('style');
-        noTrans.textContent = '*, *::before, *::after { transition: none !important; }';
-        document.head.appendChild(noTrans);
-      }
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      try {
+        localStorage.setItem('canvas_dashboard_theme', newTheme);
+      } catch (e) {}
+      renderBenchmarkChart(MEETING_DATA);
+      renderRelationshipNodeMap(MEETING_DATA.topics || [], MEETING_DATA.relationships || []);
+    }
+
+    (function initTheme() {
+      let savedTheme = 'dark';
+      try {
+        savedTheme = localStorage.getItem('canvas_dashboard_theme') || 'dark';
+      } catch (e) {}
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+
+    window.addEventListener('DOMContentLoaded', () => {
       initDashboard(MEETING_DATA);
-      const btns = document.querySelectorAll('.nav-tabs .tab-btn');
-      if (tab === 'graph' && btns[1]) {
-        switchMainTab('graph', btns[1]);
-        graphState.panX = -160;
-        updateGraphViewportTransform();
-        const firstTopic = graphState.nodes.find(n => !n.isRoot);
-        if (firstTopic) selectGraphNode(firstTopic);
-      } else if (tab === 'actions' && btns[2]) {
-        switchMainTab('actions', btns[2]);
-      }
-    };
+    });
   </script>
 </body>
 </html>
