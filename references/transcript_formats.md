@@ -101,16 +101,15 @@ This reference document outlines the common meeting transcript formats processed
 
 ### Missing Speaker Labels
 When the transcript contains no speaker names (e.g., automated raw transcription without diarization):
-- Identify context shifts and dialogue exchanges.
-- Attribute statements to `[Speaker A]`, `[Speaker B]`, or `[Participant]` consistently throughout the summary.
-- Focus the narrative on the arguments, facts, and consensus rather than personal attribution.
+- Focus strictly on facts, technical details, trade-offs, decisions, and action items rather than personal attribution.
+- Only use `[Speaker A]` / `[Speaker B]` placeholders if needed to separate distinct presenters in Presentation Mode or assign an unnamed owner (`Unassigned` is preferred in Action Items).
 
 ### Overlapping or Fragmented Speech
 Spoken dialogue often contains false starts, mid-sentence corrections, and interruptions:
-- Synthesize the final intended statement rather than recording conversational hesitation.
+- Synthesize the final intended point concisely rather than recording conversational hesitation.
 - Discard verbal fillers ("um", "uh", "you know", "like") and audio connectivity checks ("can you hear me?").
 
 ### Conflicting Statements or Pivot Decisions
 When a team considers Option A initially, debates it, and later reverses to Option B:
-- Explicitly chronicle this progression in Section 2 (Detailed Discussion Record).
-- Document why Option A was initially considered, what risks or counter-arguments were raised, and why Option B was chosen as the final decision.
+- Record the outcome concisely under `Trade-offs & Rationale` and `Decision / Status` in Section 2 (Detailed Discussion Record).
+- Capture why Option A was dismissed and why Option B was chosen in tight, fact-first bullets without "he said / she said" play-by-play narration.

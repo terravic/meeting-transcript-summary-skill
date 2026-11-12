@@ -2,13 +2,13 @@
 
 ## 1. Overview and Objective
 
-The `meeting-transcript-summary` skill is a standardized instruction and template package that transforms raw meeting or presentation transcripts into structured, grounded documentation and mode-specific interactive HTML dashboards.
+The `meeting-transcript-summary` skill is a standardized instruction and template package that transforms raw meeting or presentation transcripts into concise, scannable, high-signal documentation and mode-specific interactive HTML dashboards.
 
 Collaborative meetings and single-speaker presentations have distinct structural requirements:
 - **Interactive Meetings** involve multi-participant debates, trade-offs, decisions, and task assignments that require logical topic synthesis and action item tracking.
-- **Presentations** involve one or more presenters speaking sequentially (typically walking through slides or live demonstrations) without participant debate or task assignment, requiring a chronological record of what was presented and said.
+- **Presentations** involve one or more presenters speaking sequentially (typically walking through slides or live demonstrations) without participant debate or task assignment, requiring a chronological, bullet-first record of what was presented.
 
-This project provides a single unified skill supporting both **Meeting Mode** and **Presentation Mode**. It is designed for immediate, single-turn execution when a transcript is pasted: it defaults to **Meeting Mode** (`"meeting"`), **No Dashboard** (`"no dashboard"`), and **No Target User Name** (`"none"`), switching to Presentation Mode, building the interactive UI dashboard, or adding user-specific action items only when explicitly requested in the prompt.
+This project provides a single unified skill supporting both **Meeting Mode** and **Presentation Mode**. It is designed for immediate, single-turn execution when a transcript is pasted: it defaults to **Meeting Mode** (`"meeting"`), **No Dashboard** (`"no dashboard"`), and **No Target User Name** (`"none"`), switching to Presentation Mode, building the interactive UI dashboard, or adding user-specific action items only when explicitly requested in the prompt. Strict anti-bloat guardrails ensure generated summaries stay strictly shorter than the source transcript without losing concrete facts, metrics, decisions, or action items.
 
 ---
 
@@ -19,19 +19,19 @@ This project provides a single unified skill supporting both **Meeting Mode** an
 - **Target Input:** Transcripts from collaborative meetings with back-and-forth participant discussions.
 - **Markdown Deliverable (Three-Part Core Structure + Optional Fourth Section):**
   1. **Document Header:** Meeting Title, Date (`YYYY-MM-DD`, defaulting to the current execution date if unstated in the transcript), and Participants list.
-  2. **Section 1 - Executive Summary:** Meeting Objective, Key Decisions Made, Strategic Outcomes and Impact, and Critical Risks and Blockers.
-  3. **Section 2 - Detailed Discussion Record and Action Items:** Narrative record grouped by logical topic (capturing Discussion Details of what was said, Points Raised and Rationale, and Key Conclusions), followed by a four-column Action Items table (`Action Item`, `Assigned To`, `Deadline`, `Acceptance Criteria / Target Deliverable`).
-  4. **Section 3 - Five-Sentence Summary:** A single paragraph containing strictly five grammatically complete sentences summarizing the meeting purpose, core challenge, primary decision, secondary outcome, and immediate next milestone.
-  5. **Section 4 - Action Items for [User Name] (Optional - Default: `none`; Included Only When User Name Is Specified):** A brief paragraph appended after Section 3 combining the specific action items assigned to a given user with a concise description of what needs to be done, relevant discussion context, deliverables, and stated deadlines. If the user does not specify a user name when invoking the skill, Section 4 is omitted.
+  2. **Section 1 - Executive Summary:** Scannable overview (`~70–130 words`) with a 1-sentence Meeting Objective (`≤ 25 words`) and concise 1-line bullets (`≤ 18 words/bullet`) for Key Decisions Made, Strategic Outcomes and Impact, and Critical Risks and Blockers.
+  3. **Section 2 - Detailed Discussion Record and Action Items:** Bullet-first record grouped by logical topic (`Key Points`, conditional `Trade-offs & Rationale` only when alternatives were weighed, and a 1-line `Decision / Status`) with zero "he said / she said" attribution, followed by a concise 4-column Action Items table (`Action Item`, `Assigned To`, `Deadline`, `Acceptance Criteria / Target Deliverable`; `≤ 15 words/cell`).
+  4. **Section 3 - Five-Sentence Summary:** A single paragraph containing strictly five crisp, grammatically complete sentences (`≤ 18–20 words/sentence`, `~65–95 words` total) summarizing meeting purpose, core challenge, primary decision, secondary outcome/requirement, and immediate next milestone.
+  5. **Section 4 - Action Items for [User Name] (Optional - Default: `none`; Included Only When User Name Is Specified):** A tight brief paragraph (`≤ 75 words`, 1–3 sentences) appended after Section 3 combining the specific action items assigned to a given user with required deliverables and stated deadlines. If no user name is specified when invoking the skill, Section 4 is omitted.
 - **Interactive Web Dashboard (`templates/meeting_dashboard_template.html` - Default: `no dashboard`; Built Only When Explicitly Requested):**
-  - Four-tab interface: `Executive Brief` (default active tab with summary metrics and cards), `Knowledge Graph` (SVG topic node-link topology and slide-out inspector), `Action Items` (Kanban by Owner board and filterable data table with CSV/Markdown export), and `Detailed Record` (collapsible topic accordions).
+  - Four-tab interface: `Executive Brief` (default active tab with summary metrics and cards), `Knowledge Graph` (SVG topic node-link topology and slide-out inspector), `Action Items` (Kanban by Owner board and filterable data table with CSV/Markdown export), and `Detailed Record` (collapsible topic accordions), populated with concise, zero-attribution copy.
 
 ### 2.2 Mode 2: Presentation Mode (`presentation mode` - Explicit Override Only)
 - **Activation:** Activated **only** when the user explicitly sets the mode to presentation in the prompt (e.g., `"presentation mode"`, `"mode: presentation"`, `"in presentation mode"`).
 - **Target Input:** Transcripts from presentations, keynotes, lectures, briefings, or demonstrations where presenters speak sequentially without back-and-forth meeting debate.
 - **Markdown Deliverable (Chronological Structure Only):**
   1. **Document Header:** Presentation Title (`# Presentation Summary: [Title]`), Date (`YYYY-MM-DD`, defaulting to the current execution date if unstated), and `Presenter(s)`.
-  2. **Chronological Presentation Summary:** Sequential, numbered segments (`### 1. [Segment Title]`, `### 2. [Segment Title]`, ...) following the exact start-to-finish chronological progression of the talk track, slides, and demonstrations. Records the presenter name and a detailed description and summarization of what was said, including spoken references to slide visuals, charts, architectures, and metrics.
+  2. **Chronological Presentation Summary:** Sequential, numbered segments (`### 1. [Segment Title]`, `### 2. [Segment Title]`, ...) following the exact start-to-finish chronological progression of the talk track, slides, and demonstrations. Uses 3–5 crisp, fact-dense bullets per segment (`≤ 22 words/bullet`) with inline slide/visual citations and zero `"presenter explained/noted"` narration; includes `- **Presenter:**` per segment only when multiple presenters alternate.
   3. **Omitted Sections:** Explicitly omits the Executive Summary, Action Items table, Five-Sentence Summary, and User-Specific Action Items section.
 - **Interactive Web Dashboard (`templates/presentation_dashboard_template.html` - Default: `no dashboard`; Built Only When Explicitly Requested):**
   - Two-tab interface tailored for presentations:
@@ -58,7 +58,10 @@ This project provides a single unified skill supporting both **Meeting Mode** an
   - Unstated action item owners in Meeting Mode are recorded as `Unassigned`.
   - Unstated action item deadlines in Meeting Mode are recorded as `Not Specified`.
 
-### 3.3 Factual Grounding and Content Constraints
+### 3.3 Factual Grounding, Conciseness, and Content Constraints
+- **Anti-Bloat Compression Guardrails:** Generated summaries must always be strictly shorter than the cleaned source transcript (targeting **40%–65%** with `< 80%` Meeting / `≤ 60%` Presentation ceiling for `< 1,500`-word dense transcripts, **25%–50%** for `1,500–3,000` words, and **10%–25%** / generally **≤ 1,200–1,500 words** for long sessions) while retaining 100% of concrete facts, metrics, technical specs, decisions, and action items.
+- **Fact-First Synthesis (Zero "He Said / She Said"):** Synthesize directly by topic, fact, and outcome using tight scannable bullets—never narrate speaker turns (`"X said"`, `"Y noted"`, `"he explained"`). Restrict names strictly to header lists, Action Items `Assigned To` / Section 4, multi-presenter transitions, or material sign-off gates/unresolved disagreements.
+- **Zero Cross-Section Duplication:** State each technical spec and metric once without repeating details across Executive Summary, Section 2 sub-bullets, and Action Items deliverable cells.
 - **Zero Hallucination:** Every fact, metric, name, decision, slide reference, and takeaway must originate directly from the source transcript.
 - **No External Explanations:** The output must only report what speakers articulated during the session. It must never inject external definitions, tutorials, or background commentary on concepts or tools mentioned.
 - **Zero Preamble or Postamble:** Output starts immediately with the Markdown header and ends immediately after the final section.
@@ -113,7 +116,8 @@ meeting-transcript-summary-skill/
 
 All outputs generated by the skill are verified against [references/quality_checklist.md](references/quality_checklist.md):
 1. **Default Parameter Resolution and Explicit Overrides (Single-Turn Execution):** When invoked with a transcript, the agent executes immediately in a single turn without prompting for parameters-defaulting to `Meeting Mode` (`"meeting"`), `No Dashboard` (`"no dashboard"`), and `User Name = none`, and switching to `Presentation Mode`, building `dashboard.html`, or adding Section 4 only when explicitly requested in the prompt.
-2. **Meeting Mode Structural Accuracy:** Contains the Header, Section 1 (Executive Summary), Section 2 (Logical Topic Record + 4-Column Action Items Table), Section 3 (strictly 5 sentences), and-if and only if a user name was specified in the prompt-Section 4 (`Action Items for [User Name]`, formatted as a brief paragraph combining the user's assigned action items with a description of what needs to be done).
-3. **Presentation Mode Structural Accuracy:** Contains only the Presentation Header and numbered `Chronological Presentation Summary` segments (`1..N`), with zero Executive Summary, Action Items table, 5-Sentence Summary, or User-Specific Action Items section.
-4. **Dashboard Mode Alignment:** Meeting Mode dashboards use `templates/meeting_dashboard_template.html`; Presentation Mode dashboards use `templates/presentation_dashboard_template.html` and open directly to the `Presentation Knowledge Graph` tab.
-5. **Strict Grounding:** Zero fabricated metrics, unmentioned concepts, or external explanations.
+2. **Anti-Bloat Compression & Zero Attribution Narration:** Total summary prose word count is strictly shorter than the cleaned source transcript (**40%–65%** target and `< 80%` Meeting / `≤ 60%` Presentation ceiling for `< 1,500`-word dense transcripts; **25%–50%** for `1,500–3,000` words; **10%–25%** / generally `≤ 1,200–1,500` words for `> 3,000` words) with zero "he said / she said" narration and zero cross-section duplication.
+3. **Meeting Mode Structural Accuracy:** Contains the Header, Section 1 (scannable Executive Summary `~70–130 words`), Section 2 (bullet-first Logical Topic Record + tight 4-Column Action Items Table), Section 3 (strictly 5 crisp sentences), and-if and only if a user name was specified in the prompt-Section 4 (`Action Items for [User Name]`, formatted as a tight brief paragraph `≤ 75 words`).
+4. **Presentation Mode Structural Accuracy:** Contains only the Presentation Header and numbered `Chronological Presentation Summary` segments (`1..N`) formatted as direct, fact-dense bullets (omitting per-segment `Presenter:` tags for single-presenter talks), with zero Executive Summary, Action Items table, 5-Sentence Summary, or User-Specific Action Items section.
+5. **Dashboard Mode Alignment:** Meeting Mode dashboards use `templates/meeting_dashboard_template.html`; Presentation Mode dashboards use `templates/presentation_dashboard_template.html` and open directly to the `Presentation Knowledge Graph` tab, using concise, zero-attribution copy.
+6. **Strict Grounding:** Zero fabricated metrics, unmentioned concepts, or external explanations, while preserving 100% of substantive facts, numbers, and decisions.

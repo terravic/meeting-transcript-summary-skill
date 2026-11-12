@@ -602,8 +602,8 @@
           shortTitle: "Memory Wall",
           color: "#E11D48",
           presenter: "Dr. Aris Thorne",
-          summary: "Introduced HyperIndex v4 and walked through Slide 1 detailing how the production search cluster grew over 18 months from 120 million embeddings to 1.4 billion 1536-dimensional floating-point vectors. Storing uncompressed FP32 HNSW graphs in DRAM consumed 11.2 TB across 180 high-memory nodes, while garbage collection pauses and cross-node scatter-gather fan-out at 18,000 QPS pushed p99 query latency to 142 ms.",
-          visualsAndMetrics: "Slide 1 left chart: 1.4B 1536D vectors, 11.2 TB DRAM across 180 nodes, 18,000 QPS peak load, 142 ms p99 latency vs. 30 ms SLA target.",
+          summary: "HyperIndex v4 scales billion-vector similarity search while halving memory. Over 18 months, the cluster grew from 120M embeddings to 1.4B 1536D FP32 vectors, consuming 11.2 TB DRAM across 180 nodes. At 18,000 QPS, GC pauses and cross-node scatter-gather drove p99 latency to 142 ms vs. 30 ms SLA.",
+          visualsAndMetrics: "Slide 1 left chart: 1.4B 1536D vectors, 11.2 TB DRAM across 180 nodes, 18,000 QPS peak, 142 ms p99 vs. 30 ms SLA.",
           takeaway: "Uncompressed in-memory FP32 HNSW graphs hit a cost and latency wall at billion-vector scale."
         },
         {
@@ -613,9 +613,9 @@
           shortTitle: "Hybrid Storage",
           color: "#4F46E5",
           presenter: "Dr. Aris Thorne",
-          summary: "Presented Slide 2's two-tier hybrid storage engine. Tier 1 (CPU L3 cache and DRAM) compresses 1536D vectors via asymmetric binary quantization with corrective scalar residuals, shrinking memory usage by 64% to 4.0 TB across 64 nodes. Tier 2 stores full-precision FP16 vectors on local NVMe SSDs in 16 KB aligned blocks. Queries traverse the compressed Tier 1 graph to find the top 250 candidate IDs and issue a single batched io_uring NVMe read to rescore those 250 candidates.",
-          visualsAndMetrics: "Slide 2 bottom architecture diagram: 64% memory reduction (11.2 TB to 4.0 TB), node count reduced from 180 to 64, 16 KB aligned NVMe blocks, top-250 candidate batched rescoring.",
-          takeaway: "Combining quantized DRAM traversal with batched NVMe full-precision rescoring cuts memory by 64% without sacrificing accuracy."
+          summary: "Tier 1 (CPU L3/DRAM) compresses 1536D vectors via asymmetric binary quantization with corrective scalar residuals, cutting memory 64% to 4.0 TB across 64 nodes. Tier 2 stores FP16 vectors on local NVMe SSDs in 16 KB aligned blocks. Queries select top 250 Tier 1 candidates and issue one batched io_uring NVMe read for full-precision rescoring.",
+          visualsAndMetrics: "Slide 2 bottom diagram: 64% memory cut (11.2 TB to 4.0 TB), 180 to 64 nodes, 16 KB aligned NVMe blocks, top-250 batched rescoring.",
+          takeaway: "Quantized DRAM traversal with batched NVMe full-precision rescoring cuts memory 64% without losing accuracy."
         },
         {
           id: "seg-3",
@@ -624,9 +624,9 @@
           shortTitle: "Kernel Bypass",
           color: "#0D9488",
           presenter: "Dr. Aris Thorne",
-          summary: "Explained on Slide 3 that profiling the NVMe rescoring step showed Linux page cache copies consumed 38% of CPU cycles. The engine bypasses the kernel page cache using direct asynchronous io_uring submission queues paired with pre-pinned hugepage ring buffers, feeding a custom AVX-512 SIMD inner-product kernel that computes exact cosine distances.",
-          visualsAndMetrics: "Slide 3 pipeline diagram: 38% CPU previously spent in page cache copies; AVX-512 SIMD inner-product kernel achieves 1.8 billion vector comparisons per second per core.",
-          takeaway: "Zero-copy io_uring into hugepage ring buffers paired with AVX-512 SIMD eliminates kernel copy overhead during NVMe rescoring."
+          summary: "NVMe rescoring profiling showed Linux page cache copies consumed 38% of CPU cycles. Direct async io_uring submission queues and pre-pinned hugepage ring buffers bypass the page cache, feeding a custom AVX-512 SIMD inner-product kernel for exact cosine distance scoring.",
+          visualsAndMetrics: "Slide 3 pipeline diagram: 38% CPU page-cache overhead eliminated; AVX-512 SIMD kernel reaches 1.8B vector comparisons/sec/core.",
+          takeaway: "Zero-copy io_uring into hugepage ring buffers with AVX-512 SIMD eliminates kernel copy overhead."
         },
         {
           id: "seg-4",
@@ -635,9 +635,9 @@
           shortTitle: "Predicate Pushdown",
           color: "#D97706",
           presenter: "Dr. Aris Thorne",
-          summary: "Demonstrated on Slide 4 how post-filtering fails when metadata filters (such as tenant ID or date range) match only 1% of documents. HyperIndex v4 uses an adaptive bitmap pushdown engine that checks filter cardinality via Roaring Bitmaps before traversal: above 15% selectivity it evaluates the bitmap inline during HNSW hops, and below 2% selectivity it switches to a bitmap-driven brute-force scan over quantized vectors.",
-          visualsAndMetrics: "Slide 4 adaptive query planner diagram: Roaring Bitmaps cardinality check with >15% inline HNSW hop evaluation and <2% quantized scan threshold, delivering 100% filter completeness.",
-          takeaway: "Cardinality-aware Roaring Bitmap pushdown guarantees 100% filter completeness and prevents empty post-filtered results."
+          summary: "Post-filtering fails when metadata filters (e.g., 1% match on tenant ID or date range) return nearly empty top-K results. An adaptive query planner evaluates filter cardinality via Roaring Bitmaps before traversal: >15% selectivity evaluates inline during HNSW hops; <2% selectivity switches to a bitmap-driven brute-force scan over quantized vectors.",
+          visualsAndMetrics: "Slide 4 diagram: Roaring Bitmaps cardinality check with >15% inline HNSW hop evaluation and <2% quantized scan threshold, ensuring 100% completeness.",
+          takeaway: "Cardinality-aware Roaring Bitmap pushdown guarantees 100% filter completeness with zero recall degradation."
         },
         {
           id: "seg-5",
@@ -646,9 +646,9 @@
           shortTitle: "Live Benchmarks",
           color: "#059669",
           presenter: "Dr. Aris Thorne",
-          summary: "Displayed the live telemetry monitoring dashboard on Slide 5 from the us-east canary cluster running 1.4 billion vectors at 20,000 concurrent QPS. Reported 98.4% Recall@10, 4.8 ms median p50 latency, 16.2 ms p99 latency (an 88% reduction vs. v3), and $1.14 million annual infrastructure savings from dropping from 180 nodes to 64 nodes.",
-          visualsAndMetrics: "Slide 5 live telemetry monitoring dashboard (us-east canary, 1.4B vectors, 20k QPS): 98.4% Recall@10, 4.8 ms p50, 16.2 ms p99 (-88% vs v3), $1.14M/year cost savings.",
-          takeaway: "Production canary telemetry confirms 16.2 ms p99 latency, 98.4% Recall@10, and $1.14M annual compute/memory savings."
+          summary: "Live us-east canary telemetry on 1.4B vectors at 20,000 concurrent QPS measured 98.4% Recall@10, 4.8 ms p50 latency, 16.2 ms p99 latency (-88% vs. legacy v3), and $1.14M/year compute and memory savings from shrinking 180 nodes to 64.",
+          visualsAndMetrics: "Slide 5 live telemetry (us-east canary, 1.4B vectors, 20k QPS): 98.4% Recall@10, 4.8 ms p50, 16.2 ms p99 (-88% vs. v3), $1.14M/yr saved.",
+          takeaway: "Production canary confirms 16.2 ms p99 latency, 98.4% Recall@10, and $1.14M/year infrastructure savings."
         }
       ],
       relationships: [

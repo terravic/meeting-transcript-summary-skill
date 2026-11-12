@@ -18,6 +18,7 @@ Agent harnesses render dynamic user interfaces by executing self-contained HTML5
   - **No Purple/Lavender Gradients:** Uses flat solid surfaces and `1px solid` hairline borders (`6px` to `8px` radius).
   - **No Card-in-Card Nesting:** Uses flat bento-style grids separated by `1px solid` hairline dividers.
   - **Critical-Only Status Indicators:** Only displays status badges when an item is in an error, warning, or critical blocker state (e.g., `UNASSIGNED BLOCKER` in `#E11D48` or `HARD GATE` in `#D97706`).
+- **Concise, Fact-First Data Copy:** All string fields populated into `MEETING_DATA` and `PRESENTATION_DATA` (`objective`, `decisions`, `impacts`, `risks`, `context`, `explanation`, `rationale`, `conclusion`, `summary`, `visualsAndMetrics`, `takeaway`) must use the same crisp, telegraphic, zero-"he said / she said" style required for Markdown output—never verbose prose or speaker-turn narration.
 
 ---
 

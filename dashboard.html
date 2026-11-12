@@ -1055,7 +1055,7 @@
         "Tom Bradley (DevOps Engineer)"
       ],
       metrics: {
-        decisionsCount: 5,
+        decisionsCount: 4,
         topicsCount: 4,
         actionsCount: 6,
         targetCutover: "2026-10-03"
@@ -1071,22 +1071,21 @@
         payloadProtobufPct: 58
       },
       executiveSummary: {
-        objective: "Finalize the architectural, financial, security, and scheduling plans for migrating the core event streaming infrastructure from self-hosted message broker clusters on virtual compute instances to a managed cloud publish-subscribe platform.",
+        objective: "Finalize architecture, budget, security gates, and timeline to migrate from self-hosted message brokers to managed cloud pub/sub.",
         decisions: [
-          "Approved full platform migration from the 18-node self-hosted broker cluster to the managed cloud messaging platform.",
-          "Standardized on Protocol Buffers version 3 (Protobuf) for message serialization and schema enforcement, deprecating unvalidated JSON payloads.",
-          "Mandated schema registry enforcement at the topic boundary with strict backward compatibility rules.",
-          "Enforced Customer-Managed Encryption Keys (CMEK), Virtual Private Cloud (VPC) service perimeters, and short-lived identity federation policies.",
-          "Approved target timeline: Dual-publishing in staging by September 5, 2026; InfoSec audit complete by September 12, 2026; production cutover on October 3, 2026."
+          "Migrate the entire event streaming tier from the 18-node self-hosted cluster to managed cloud pub/sub.",
+          "Standardize on Protobuf v3 with topic-level schema registry validation and backward compatibility.",
+          "Mandate CMEK, VPC service perimeters, and short-lived workload identity federation via Terraform.",
+          "Approve schedule: staging dual-publish (Sept 5), InfoSec audit (Sept 12), production cutover (Oct 3, 2026)."
         ],
         impacts: [
-          "Reduces net messaging infrastructure and operational costs by 28% ($22,700/mo to $11,800/mo), eliminating 22 hours per month of manual broker maintenance and partition rebalancing.",
-          "Resolves consumer rebalance lag spikes (previously exceeding 4 minutes during peak traffic), achieving 14ms average and 26ms p99 publish latency at 65,000 QPS.",
-          "Eliminates silent schema drift across polyglot microservices (Go, Java, TypeScript) via centralized schema validation and automated CI linting."
+          "Cuts net messaging costs 28% ($22,700/mo to $11,800/mo) and eliminates 22 hrs/mo of manual maintenance.",
+          "Eliminates >4-minute consumer rebalance lag; achieves 14ms avg / 26ms p99 publish latency at 65,000 QPS.",
+          "Eliminates silent schema drift across Go, Java, and TypeScript services and cuts payload size 42% vs. JSON."
         ],
         risks: [
-          "InfoSec compliance approval is a hard gate prior to staging sign-off, requiring complete VPC perimeter validation by September 12, 2026.",
-          "Memory footprint impact on legacy Python consumer workers using streaming pull clients remains unbenchmarked and unassigned."
+          "InfoSec VPC perimeter audit (Sept 12) is a hard gate prior to staging sign-off.",
+          "Memory footprint of legacy Python consumers on cloud streaming pull clients is unbenchmarked and unassigned."
         ]
       },
       topics: [
@@ -1095,40 +1094,40 @@
           title: "Messaging Platform Migration Evaluation",
           shortTitle: "Platform Migration",
           color: "#4F46E5",
-          context: "The organization operates an 18-node broker cluster across three availability zones with a 5-node coordination quorum, consuming 22 hours per month in operational maintenance with consumer lag exceeding 4 minutes under load.",
-          explanation: "Data engineering benchmarked self-hosted broker upgrade options against the managed cloud messaging service. Cloud messaging achieved 65,000 QPS with 14ms average and 26ms p99 latency across multi-region topics. Financial modeling showed cloud messaging costs $11,800/mo vs self-hosting's $22,700/mo total cost of ownership (28% net savings).",
-          rationale: "Upgrading self-hosted software was dismissed because it did not eliminate manual partition scaling or broker rebalancing storms. The managed cloud messaging platform was selected for full autoscaling and zero broker maintenance.",
-          conclusion: "Unanimously approved migration of all event streaming workloads to the managed cloud messaging platform."
+          context: "Current 18-node cluster across 3 AZs (5-node quorum) consumes ~22 hrs/mo in maintenance and hits >4-min rebalance lag vs. 30s inventory SLA.",
+          explanation: "Managed cloud pub/sub pilot sustained 65,000 events/sec at 14ms avg / 26ms p99 latency. Monthly cost drops from $22,700 ($14,200 infra + $8,500 ops) to ~$11,800 for 4.2B 2 KB messages (28% net savings).",
+          rationale: "Upgrading self-hosted software removes quorum nodes but retains manual partition scaling, hot broker rebalancing, and cross-AZ egress fees; managed pub/sub eliminates ops overhead within SLA and budget.",
+          conclusion: "Approved full migration of the messaging tier to managed cloud pub/sub."
         },
         {
           id: "topic-2",
           title: "Schema Evolution and Serialization Standard",
           shortTitle: "Protobuf Schemas",
           color: "#059669",
-          context: "Downstream consumers currently parse unvalidated JSON blobs, causing production parser crashes due to undetected schema drift.",
-          explanation: "Evaluated legacy binary schema formats vs Protobuf v3. Protobuf v3 payloads are 42% smaller than JSON and 15% smaller than legacy binary schemas. Direct integration with the central schema registry provides boundary-level payload rejection for non-compliant producers.",
-          rationale: "Protobuf was selected for superior polyglot microservice performance (Go, Java, TypeScript), smaller wire size, and strongly typed stub generation.",
-          conclusion: "Adopt Protobuf v3 with schema registry enforcement and centralized schema repository with CI linting."
+          context: "Downstream consumers parse unstructured JSON, causing silent schema drift and production parser failures.",
+          explanation: "Protobuf v3 payloads are 42% smaller than JSON and 15% smaller than legacy binary schemas. Central schema registry validates backward compatibility at the topic boundary to reject poison pills.",
+          rationale: "Chosen over legacy binary format for faster Go/Java/TypeScript codegen, strongly typed stubs, and smaller wire size.",
+          conclusion: "Adopt Protobuf v3 with boundary validation and a central Git .proto repo with automated CI linting."
         },
         {
           id: "topic-3",
           title: "Security, Governance, and Compliance Controls",
           shortTitle: "CMEK & Security",
           color: "#D97706",
-          context: "Organizational compliance mandates strict isolation, customer key ownership, and identity governance before routing production traffic.",
-          explanation: "Mandated CMEK encryption using Key Management Service (KMS) key ring in us-central1, VPC service perimeters around messaging endpoints, and short-lived identity federation tokens with granular roles (roles/messaging.publisher, roles/messaging.subscriber).",
-          rationale: "Infrastructure-as-code automation in Terraform ensures zero configuration drift and guarantees compliance prior to cutover.",
-          conclusion: "Implement all security perimeters and IAM bindings in reusable Terraform modules."
+          context: "Production traffic requires mandatory InfoSec encryption, network isolation, and identity governance gates.",
+          explanation: "Mandates CMEK via KMS (us-central1 key ring) on prod topics, VPC service perimeters against exfiltration, and resource-scoped IAM (roles/messaging.publisher, roles/messaging.subscriber) with short-lived workload identity federation; static JSON keys prohibited.",
+          rationale: "Reusable Terraform modules enforce uniform security baselines upstream and prevent configuration drift.",
+          conclusion: "Automate CMEK, VPC perimeters, and IAM hardening via reusable Terraform modules."
         },
         {
           id: "topic-4",
           title: "Migration Timeline and Phasing",
           shortTitle: "Staging & Cutover",
           color: "#E11D48",
-          context: "Migration requires zero data loss and uninterrupted downstream service operations.",
-          explanation: "Three phases: 1) Dual-publishing gateway adapter in staging by Sept 5 with 14-day shadow traffic; 2) InfoSec automated audit by Sept 12; 3) Production cutover on Oct 3.",
-          rationale: "Shadow traffic allows verifying message delivery guarantees and consumer offset correctness under production load without customer impact.",
-          conclusion: "Approved October 3, 2026 production cutover target date."
+          context: "Cutover requires zero data loss, uninterrupted downstream operations, and unresolved legacy Python consumer memory benchmarking.",
+          explanation: "Sept 5: staging dual-publishing adapter + 14-day shadow traffic; Sept 12: automated InfoSec VPC scan; Sept 19: zero-loss gate; Oct 3: production cutover. Python consumer memory benchmark deferred to Monday sprint planning.",
+          rationale: "14-day shadow traffic verifies delivery guarantees and consumer offsets under live load without production risk.",
+          conclusion: "Approved October 3, 2026 cutover contingent on zero-loss staging validation and InfoSec sign-off."
         }
       ],
       relationships: [
@@ -1140,55 +1139,55 @@
       actionItems: [
         {
           id: "act-1",
-          description: "Develop reusable Terraform module for cloud messaging with CMEK and IAM hardening",
+          description: "Build reusable Terraform module with CMEK, VPC perimeters, and IAM hardening",
           assignee: "Tom Bradley",
           deadline: "2026-08-28",
-          deliverable: "Terraform module submitted and approved in repository",
+          deliverable: "Approved module merged in Terraform repository",
           topicId: "topic-3",
           criticalState: null
         },
         {
           id: "act-2",
-          description: "Implement dual-publishing adapter in core event gateway",
+          description: "Implement staging dual-publishing adapter in core event gateway",
           assignee: "Marcus Vance",
           deadline: "2026-09-05",
-          deliverable: "Gateway publishing simultaneously to legacy broker and cloud platform in staging",
+          deliverable: "Simultaneous publishing to legacy broker and cloud platform in staging",
           topicId: "topic-1",
           criticalState: null
         },
         {
           id: "act-3",
-          description: "Conduct automated security validation scan on VPC perimeters",
+          description: "Run automated InfoSec validation scan on VPC security configuration",
           assignee: "David Chen",
           deadline: "2026-09-12",
-          deliverable: "InfoSec compliance report signed and published",
+          deliverable: "Signed InfoSec compliance report",
           topicId: "topic-3",
           criticalState: "HARD GATE"
         },
         {
           id: "act-4",
-          description: "Verify shadow traffic zero data loss benchmark",
+          description: "Verify 14-day shadow traffic zero data loss benchmark",
           assignee: "Sarah Lin",
           deadline: "2026-09-19",
-          deliverable: "Sign-off report confirming SLA and zero loss over 14-day staging run",
+          deliverable: "Sign-off report confirming SLA and zero loss",
           topicId: "topic-2",
           criticalState: null
         },
         {
           id: "act-5",
-          description: "Benchmark memory footprint on legacy Python consumer workers with streaming pull client",
+          description: "Benchmark legacy Python consumer memory with cloud streaming pull client",
           assignee: "Unassigned",
           deadline: "Not Specified",
-          deliverable: "Resource utilization report comparing legacy vs cloud messaging client overhead",
+          deliverable: "Resource utilization comparison report (legacy vs. cloud client)",
           topicId: "topic-1",
           criticalState: "UNASSIGNED BLOCKER"
         },
         {
           id: "act-6",
-          description: "Execute production cutover to cloud messaging platform",
+          description: "Execute production traffic cutover to cloud messaging platform",
           assignee: "Marcus Vance",
           deadline: "2026-10-03",
-          deliverable: "Production traffic routed to cloud platform; legacy broker decommission plan initiated",
+          deliverable: "Production cutover complete; legacy broker decommission plan started",
           topicId: "topic-4",
           criticalState: null
         }
