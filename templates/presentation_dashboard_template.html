@@ -5,12 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Interactive Relationship Node Map and Chronological Presentation Dashboard">
   <title>Presentation Evaluation Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root, [data-theme="dark"] {
-      --bg-canvas: #0D0E11;
+      --bg-base: #0D0E11;
       --bg-surface: #16171D;
       --border-color: #292A30;
       --text-primary: #ECE8E2;
@@ -19,7 +16,7 @@
       --surface-hover: rgba(236, 232, 226, 0.04);
       --surface-subtle: rgba(236, 232, 226, 0.025);
 
-      /* Data Visualization Palette (DESIGN.md Section 5) */
+      /* Data Visualization Palette */
       --viz-teal: #0D9488;
       --viz-amber: #D97706;
       --viz-indigo: #4F46E5;
@@ -28,12 +25,12 @@
 
       --radius-sm: 6px;
       --radius-md: 8px;
-      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-sans: system-ui, sans-serif;
+      --font-mono: ui-monospace, monospace;
     }
 
     [data-theme="light"] {
-      --bg-canvas: #FAFAF9;
+      --bg-base: #FAFAF9;
       --bg-surface: #FFFFFF;
       --border-color: #E7E5E4;
       --text-primary: #1C1917;
@@ -50,7 +47,7 @@
     }
 
     body {
-      background-color: var(--bg-canvas);
+      background-color: var(--bg-base);
       color: var(--text-primary);
       font-family: var(--font-sans);
       line-height: 1.5;
@@ -116,33 +113,37 @@
       padding: 0.25rem 0.625rem;
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
-      background-color: var(--bg-canvas);
+      background-color: var(--bg-base);
     }
 
-    /* Single, Minimalist, Textless Icon Theme Switcher */
+    /* Theme Switcher */
     .theme-toggle-btn {
-      background-color: var(--bg-canvas);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius-sm);
+      width: auto;
+      height: 30px;
+      padding: 0 10px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      background-color: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
       cursor: pointer;
-      transition: border-color 0.15s ease, color 0.15s ease;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
     }
 
     .theme-toggle-btn:hover {
-      border-color: var(--viz-teal);
-      color: var(--viz-teal);
+      background-color: var(--surface-hover);
+      border-color: var(--text-secondary);
     }
 
-    [data-theme="dark"] .theme-toggle-btn .icon-moon { display: none; }
-    [data-theme="dark"] .theme-toggle-btn .icon-sun { display: block; }
-    [data-theme="light"] .theme-toggle-btn .icon-sun { display: none; }
-    [data-theme="light"] .theme-toggle-btn .icon-moon { display: block; }
+    [data-theme="dark"] .theme-toggle-btn .label-dark { display: none; }
+    [data-theme="dark"] .theme-toggle-btn .label-light { display: inline; }
+    [data-theme="light"] .theme-toggle-btn .label-light { display: none; }
+    [data-theme="light"] .theme-toggle-btn .label-dark { display: inline; }
 
     .nav-tabs {
       display: flex;
@@ -228,7 +229,7 @@
       display: flex;
     }
 
-    .graph-canvas-area {
+    .graph-stage-area {
       flex: 1;
       height: 100%;
       position: relative;
@@ -236,7 +237,7 @@
       user-select: none;
     }
 
-    .graph-canvas-area.grabbing {
+    .graph-stage-area.grabbing {
       cursor: grabbing;
     }
 
@@ -252,7 +253,7 @@
     }
 
     .graph-search-input {
-      background-color: var(--bg-canvas);
+      background-color: var(--bg-base);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       padding: 0.45rem 0.75rem;
@@ -274,7 +275,7 @@
       z-index: 15;
       display: flex;
       gap: 0.35rem;
-      background-color: var(--bg-canvas);
+      background-color: var(--bg-base);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       padding: 0.25rem;
@@ -495,13 +496,8 @@
           <span class="mono-chip" id="badge-segments">0 Segments</span>
           <span class="mono-chip" id="display-date">Date</span>
           <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">
-            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="4"></circle>
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
-            </svg>
-            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
+            <span class="label-light">Light</span>
+            <span class="label-dark">Dark</span>
           </button>
         </div>
       </div>
@@ -529,11 +525,11 @@
 
         <div class="graph-controls">
           <button type="button" class="ctrl-btn" onclick="graphZoomIn()" title="Zoom In" aria-label="Zoom In">+</button>
-          <button type="button" class="ctrl-btn" onclick="graphZoomOut()" title="Zoom Out" aria-label="Zoom Out">&minus;</button>
+          <button type="button" class="ctrl-btn" onclick="graphZoomOut()" title="Zoom Out" aria-label="Zoom Out">-</button>
           <button type="button" class="ctrl-btn" onclick="graphResetZoom()" title="Reset View" aria-label="Reset View">Reset</button>
         </div>
 
-        <div class="graph-canvas-area" id="graph-stage-container">
+        <div class="graph-stage-area" id="graph-stage-container">
           <svg id="graph-svg" width="100%" height="100%">
             <defs id="graph-defs"></defs>
             <g id="graph-grid-layer"></g>
@@ -609,7 +605,7 @@
       document.getElementById('display-date').innerText = presDate;
 
       const presenters = data.presenters || [];
-      document.getElementById('display-presenters').innerHTML = presenters.map(p => `<span>${p}</span>`).join(' · ');
+      document.getElementById('display-presenters').innerHTML = presenters.map(p => `<span>${p}</span>`).join(' | ');
 
       const segments = data.segments || [];
       document.getElementById('badge-segments').innerText = `${segments.length} Segments`;
@@ -860,7 +856,7 @@
             labelTextEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             labelTextEl.setAttribute('text-anchor', 'middle');
             labelTextEl.setAttribute('fill', link.color);
-            labelTextEl.setAttribute('font-family', 'IBM Plex Mono, monospace');
+            labelTextEl.setAttribute('font-family', 'ui-monospace, monospace');
             labelTextEl.setAttribute('font-size', '9');
             labelTextEl.setAttribute('font-weight', '600');
             labelTextEl.textContent = link.label;
@@ -882,7 +878,7 @@
         if (node.isRoot) {
           nodeG.innerHTML = `
             <circle cx="0" cy="0" r="${node.r}" fill="${node.color}" stroke="${textPrimary}" stroke-width="2"/>
-            <text x="0" y="3" text-anchor="middle" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="600">CORE THEME</text>
+            <text x="0" y="3" text-anchor="middle" fill="#FFFFFF" font-family="ui-monospace, monospace" font-size="10" font-weight="600">CORE THEME</text>
           `;
         } else {
           const words = node.shortTitle.split(' ');
@@ -891,7 +887,7 @@
           nodeG.innerHTML = `
             <circle cx="0" cy="0" r="${node.r}" fill="${surfaceFill}" stroke="${node.color}" stroke-width="2.5"/>
             <circle cx="0" cy="0" r="${node.r - 5}" fill="${hexToRgba(node.color, 0.1)}" stroke="none"/>
-            <text x="0" y="-14" text-anchor="middle" fill="${node.color}" font-family="IBM Plex Mono, monospace" font-size="9.5" font-weight="600">#${node.order}</text>
+            <text x="0" y="-14" text-anchor="middle" fill="${node.color}" font-family="ui-monospace, monospace" font-size="9.5" font-weight="600">#${node.order}</text>
             <text x="0" y="${line2 ? 0 : 4}" text-anchor="middle" fill="${textPrimary}" font-family="DM Sans, sans-serif" font-size="10" font-weight="600">${line1}</text>
             ${line2 ? `<text x="0" y="13" text-anchor="middle" fill="${textSecondary}" font-family="DM Sans, sans-serif" font-size="9" font-weight="500">${line2}</text>` : ''}
           `;
@@ -1148,7 +1144,7 @@
 
     function openInspector(seg) {
       if (!seg) return;
-      document.getElementById('inspector-title').innerText = seg.order ? `#${seg.order} · ${seg.title}` : seg.title;
+      document.getElementById('inspector-title').innerText = seg.order ? `#${seg.order} - ${seg.title}` : seg.title;
       document.getElementById('inspector-presenter').innerText = seg.presenter || '';
       document.getElementById('inspector-summary').innerText = seg.summary || '';
       document.getElementById('inspector-visuals').innerText = seg.visualsAndMetrics || '';
@@ -1258,7 +1254,7 @@
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', newTheme);
       try {
-        localStorage.setItem('canvas_dashboard_theme', newTheme);
+        localStorage.setItem('dashboard_theme', newTheme);
       } catch (e) {}
       renderRelationshipNodeMap(PRESENTATION_DATA.segments || [], PRESENTATION_DATA.relationships || []);
     }
@@ -1266,7 +1262,7 @@
     (function initTheme() {
       let savedTheme = 'dark';
       try {
-        savedTheme = localStorage.getItem('canvas_dashboard_theme') || 'dark';
+        savedTheme = localStorage.getItem('dashboard_theme') || 'dark';
       } catch (e) {}
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();

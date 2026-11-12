@@ -1,95 +1,90 @@
-# DESIGN.md - Dashboard Anti-Slop Directive
-# Target: All Coding Agents | Project: Canvas Dashboards
+# Dashboard Design Specification
 
-This document contains strict visual, structural, and platform-specific constraints for generating and refactoring HTML-based Canvas dashboards. Every UI change, dashboard creation, or refactoring task must adhere to these rules. Do not default to generic, cluttered LLM templates.
-
----
-
-## 1. Zero AI Slop Ban List (The "Never-Do" Rules)
-You must proactively prune and ban these common LLM design hallucinations:
-
-| Banned Element | Why It is Banned | Approved Alternative |
-|---|---|---|
-| **Inter / Roboto Fonts** | Overused, makes dashboards look like generic templates. | Use characterful pairing (e.g., Geist Sans, DM Sans, or system-serif for headers). |
-| **Purple/Lavender Gradients** | The visual signature of low-effort AI UI. | Use flat, solid backgrounds. Use opacity or 1px borders for depth. |
-| **Card-in-Card Nesting** | Creates visual clutter, excessive padding, and wasted space. | Use flat bento-style grids with thin borderless dividers. |
-| **Useless Status Labels** | "Ready" or "Active" badges on every single element. | Only display status indicators when an item is in an error or critical state. |
-| **Decorative Gridlines** | Background wire-frame grids that serve no functional purpose. | Keep gridlines strictly for actual charting/graphing areas. |
-| **Decorative Icons** | Placing a generic icon next to every single metric card header. | Use plain text hierarchy. Icons must only represent actionable buttons. |
+This specification defines visual, structural, and technical constraints for generating and updating self-contained HTML dashboards in this repository. All dashboard templates and generated dashboard files must follow these standards.
 
 ---
 
-## 2. Canvas Environment & Technical Constraints
-All dashboards must be built to run natively within the platform's Canvas environment.
+## 1. Layout and Structural Constraints
 
-* **Native Sandbox Execution:** The Canvas platform renders UI inside a sandboxed iframe. All dashboards must be self-contained, using native HTML5, modern CSS, and vanilla JavaScript (or via reliable, CDN-delivered ES modules).
-* **Interactive Iteration:** UI elements must support dynamic rendering and iterative state updates. State should be managed seamlessly inside the client-side JS context.
-* **Testability (dashboard.html):** For local verification and immediate platform rendering, you must emit the standalone HTML file as a user-facing artifact named `dashboard.html`. When doing so, use write_to_file with:
-  `ArtifactMetadata: { UserFacing: true, Summary: "Interactive Evaluation Dashboard", RequestFeedback: false }`
-  This ensures the file immediately opens and renders directly in the agent harness preview pane.
-* **Production Data Only:** Never hardcode dummy or mock "lorem ipsum" data in the production rendering phase. The dashboard must process and render the actual, real-world data provided by the user session. Synthetic data is permitted only in the generated local test file.
+| Element Category | Prohibited Pattern | Required Standard |
+| :--- | :--- | :--- |
+| **Typography** | External third-party font stylesheets or inconsistent display fonts | Use `system-ui, sans-serif` for interface text and headers, paired with `ui-monospace, monospace` for tabular data, dates, and numeric readouts. |
+| **Backgrounds** | Multi-stop decorative gradients or purple/lavender color washes | Use flat solid surfaces with `1px solid` hairline borders (`6px` to `8px` border-radius) for visual separation. |
+| **Container Nesting** | Card-in-card nesting that adds excessive padding and clutter | Use flat bento-style grids separated by thin borderless or `1px solid` dividers. |
+| **Status Badges** | Routine "Ready" or "Active" labels on every item | Display status indicators strictly for errors, warnings, blockers, or critical gates. |
+| **Gridlines** | Background wireframe grids behind cards or page layouts | Restrict faint gridlines exclusively to chart and graph plot areas. |
+| **Header Hierarchy** | Decorative graphics next to metric headings | Use direct plain-text hierarchy and monospaced labels. |
+
+---
+
+## 2. Sandbox Environment and Technical Constraints
+
+Dashboards must execute reliably inside sandboxed browser iframes and standalone local browser tabs.
+
+- **Self-Contained Execution:** Each dashboard must be a single standalone HTML5 document using standard CSS and vanilla JavaScript with zero external network dependencies.
+- **Interactive Client State:** Tabs, filters, search, sorting, node inspection drawers, and theme switching must operate smoothly in client-side JavaScript without page reloads.
+- **Output File Standard (`dashboard.html`):** When dashboard output is requested, generate a standalone HTML document written to `dashboard.html`.
+- **Grounded Data Only:** Populate dashboards exclusively with facts, metrics, topics, and tasks extracted from the user's transcript. Placeholder or synthetic sample data is permitted only inside repository template and example files.
 
 ---
 
 ## 3. Light and Dark Theme Specifications
-The dashboard must natively support both a clean light mode and a high-contrast, modern dark mode.
 
-* **Toggle Element:** The theme switcher must be a single, textless, minimalist button containing only an icon (e.g., a simple sun icon for light mode, moon icon for dark mode).
-* **Color Schemes:**
-  * **Light Mode:** 
-    * Background: #FAFAF9 (Warm off-white)
-    * Cards & Surfaces: #FFFFFF
-    * Borders: #E7E5E4 (1px solid, 6px to 8px border-radius)
-    * Text Primary: #1C1917
-    * Text Secondary: #787774
-  * **Dark Mode:**
-    * Background: #0D0E11 (Deep charcoal, no pure pitch-black)
-    * Cards & Surfaces: #16171D
-    * Borders: #292A30 (1px solid, 6px to 8px border-radius)
-    * Text Primary: #ECE8E2
-    * Text Secondary: #9A9895
+Every dashboard must support both light and dark color schemes with a persistent preference key (`dashboard_theme`) stored in `localStorage`.
 
----
-
-## 4. Modern Dashboard Layout & Element Rules
-All dashboards must balance high information density with modern, ultra-clean design patterns. Use simple, direct, and to-the-point titles for all UI components.
-
-* **Text Displays:** Keep explanatory headers short and to the point. No conversational AI text blocks in the UI. Let the data speak for itself.
-* **Tables:** Tabular data must use monospaced fonts (e.g., Geist Mono or IBM Plex Mono) for clean, aligned reading. Use thin horizontal dividers instead of hard vertical borders.
-* **3D Visualization Constraints:**
-  * Only implement interactive 3D elements if they directly benefit the understanding of the underlying data.
-  * Do not use the word "Physics" anywhere in the visible UI text or component titles. Use clean titles like "Interactive Relationship Node Map" or "Structural Data Diagram."
-  * Keep any node/edge calculations clean and fast to prevent iframe performance lag.
+- **Theme Switcher:** Provide a single plain-text toggle button (`#theme-toggle-btn`) in the header controls that displays `Light` while dark mode is active and `Dark` while light mode is active.
+- **Color Tokens:**
+  - **Light Mode (`[data-theme="light"]`):**
+    - Base Background (`--bg-base`): `#FAFAF9`
+    - Cards and Surfaces (`--bg-surface`): `#FFFFFF`
+    - Borders and Chart Gridlines (`--border-color`, `--chart-grid`): `#E7E5E4` (`1px solid`, `6px` to `8px` border-radius)
+    - Text Primary (`--text-primary`): `#1C1917`
+    - Text Secondary (`--text-secondary`): `#787774`
+  - **Dark Mode (`:root, [data-theme="dark"]`):**
+    - Base Background (`--bg-base`): `#0D0E11`
+    - Cards and Surfaces (`--bg-surface`): `#16171D`
+    - Borders and Chart Gridlines (`--border-color`, `--chart-grid`): `#292A30` (`1px solid`, `6px` to `8px` border-radius)
+    - Text Primary (`--text-primary`): `#ECE8E2`
+    - Text Secondary (`--text-secondary`): `#9A9895`
 
 ---
 
-## 5. Dynamic Data Visualization & Color Palette
-While the dashboard container elements (cards, headers, background) must remain highly structured and minimalist, the data visualizations (charts, graphs, matrices, 3D molecular/network graphs) must be lively, vibrant, and highly legible. Do not render charts in grayscale. 
+## 4. Dashboard Layout and Component Rules
 
-Use the following semantic and functional color palettes for data representation to make visualizations pop against light or dark backgrounds:
+Dashboards must balance high information density with direct, scannable component structure.
 
-### Data Visualization Color Palette
+- **Text Displays:** Keep labels, headers, and summary entries concise and factual. Avoid conversational commentary in UI containers.
+- **Tables:** Format tabular columns using `ui-monospace, monospace` with thin horizontal dividers (`1px solid`) and zero vertical borders.
+- **Relationship Graphs:**
+  - Use direct component titles such as "Interactive Relationship Node Map" or "Structural Data Diagram". Avoid physics-related terminology in visible UI labels.
+  - Keep layout calculations deterministic and lightweight to avoid iframe rendering lag.
+
+---
+
+## 5. Data Visualization Color Palette
+
+Container surfaces remain neutral and minimalist, while data visualizations (bar charts, coverage heatmaps, and relationship node maps) use high-contrast semantic colors legible against both light and dark surfaces. Avoid monochrome grayscale charts.
 
 | Color Role | Hex Code | Visual Application |
-|---|---|---|
-| **Vibrant Teal** | #0D9488 | Primary data series, healthy nodes, structural bonds, baseline metrics. |
-| **Energetic Amber** | #D97706 | Secondary data series, warnings, dynamic connections, medium intensity. |
-| **Vivid Indigo** | #4F46E5 | Comparison series, distinct molecular groups, specialized network nodes. |
-| **Functional Emerald** | #059669 | Success metrics, active/positive data, stable system states. |
-| **Deep Rose** | #E11D48 | Negative trends, high-priority anomalies, critical cluster highlights. |
+| :--- | :--- | :--- |
+| **Teal** | `#0D9488` | Primary data series, core central nodes, structural links, baseline metrics |
+| **Amber** | `#D97706` | Secondary data series, warning gates, dynamic relationships, medium intensity |
+| **Indigo** | `#4F46E5` | Comparison series, domain clusters, secondary network nodes |
+| **Emerald** | `#059669` | Verified outcomes, positive benchmark shifts, completed states |
+| **Rose** | `#E11D48` | Critical risks, negative trends, unassigned blockers, high-priority anomalies |
 
 ### Visualization Guidelines
-* **Matrices and Heatmaps:** Use a high-contrast gradient scale (e.g., from a soft, desaturated background color transitioning into a deep, saturated **Vivid Indigo** or **Vibrant Teal**) to make structural density and concentrations instantly visible.
-* **Network & Molecule Graphs:** Nodes should use distinct colors from the palette above to represent different categories or states. Connection lines (edges) should be semi-transparent versions of the node colors to draw clean paths without turning into a solid mass of lines.
-* **Sparsity & Contrast:** Keep chart background canvas transparent so they inherit the light or dark surface colors dynamically. Gridlines inside the charts should be faint (e.g., `#E7E5E4` in light mode, `#292A30` in dark mode) to ensure the colorful data elements remain the absolute focal point.
+- **Matrices and Heatmaps:** Map density using clear contrast steps from desaturated surface tones up to saturated Indigo (`#4F46E5`) or Teal (`#0D9488`), reserving Rose (`#E11D48`) for critical unassigned gaps.
+- **Node Maps:** Assign distinct palette colors per topic or segment category, using semi-transparent versions of the source node color for directed edges.
+- **Plot Surface Contrast:** Keep plot backgrounds transparent so they inherit `--bg-surface` or `--bg-base`, with faint chart gridlines (`#E7E5E4` light, `#292A30` dark).
 
 ---
 
 ## 6. Verification Checklist
-Before completing a task, verify the generated dashboard against this checklist:
-1. Does the dashboard output dynamically to a standalone `dashboard.html` artifact with correct metadata?
-2. Is the theme toggle a single, minimalist, textless icon button?
-3. Have all redundant ornamental UI elements, decorative gridlines, and purple-lavender gradients been stripped?
-4. Are the data visualizations (charts, graphs, matrices, 3D elements) colorful, lively, and highly readable, avoiding flat grayscales?
-5. Is the dashboard displaying the actual, processed user data rather than static fallback placeholders?
 
+Before finalizing a generated dashboard, verify all criteria:
+1. Standalone `dashboard.html` runs cleanly without external stylesheets or scripts.
+2. Theme switcher toggles cleanly between light and dark token sets via plain-text `Light` / `Dark` control.
+3. No multi-stop gradients, nested cards, routine non-critical badges, or decorative wireframe grids appear.
+4. Charts, heatmaps, and node maps use the semantic 5-color palette with legible contrast in both themes.
+5. All rendered strings match actual processed transcript data without ungrounded placeholders.

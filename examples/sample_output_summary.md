@@ -31,7 +31,7 @@
   - 18-node cluster (3 AZs, 5-node quorum) takes 22 hrs/mo for rebalancing, disk saturation, and patching.
   - Peak traffic drives >4-minute rebalance lag, breaching the 30-second downstream inventory SLA.
   - Cloud pub/sub pilot hit 65,000 events/sec at 14ms avg / 26ms p99 multi-region latency.
-  - Monthly cost: $22,700 self-hosted ($14,200 infra + $8,500 ops) vs. $11,800 managed (4.2B msgs, 2 KB avg, tiered logging)—28% net savings.
+  - Monthly cost: $22,700 self-hosted ($14,200 infra + $8,500 ops) vs. $11,800 managed (4.2B msgs, 2 KB avg, tiered logging) -- 28% net savings.
 - **Trade-offs & Rationale:** Self-hosted upgrade drops quorum nodes but retains manual partition scaling, hot broker rebalancing, and cross-AZ egress; managed removes ops within SLA/budget.
 - **Decision / Status:** Approved migration to managed cloud pub/sub.
 
