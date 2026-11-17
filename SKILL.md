@@ -3,27 +3,29 @@ name: meeting-transcript-summary
 description: >-
   Analyzes raw meeting or presentation transcripts from video conferencing exports,
   WebVTT, SRT, or plain text in two modes: (1) Meeting Mode (default) - produces a
-  concise, structured three-tier deliverable (Executive Summary, bullet-first Detailed
-  Discussion Record with Action Items table, and crisp 5-Sentence Summary), an optional
-  fourth section (Action Items for [User Name] brief paragraph) when a target user name
-  is specified, plus an optional meeting dashboard; (2) Presentation Mode - produces
-  strictly a concise chronological bullet summary of what was presented (no Executive
-  Summary, Action Items, or 5-Sentence Summary) plus an optional Knowledge Graph-focused
-  presentation dashboard. Executes immediately when a transcript is pasted using
-  defaults: mode defaults to "meeting" (switches to "presentation" only when explicitly
-  set in the prompt), dashboard defaults to "no dashboard" (builds dashboard.html only
-  when explicitly requested with phrases like "yes dashboard" or "build dashboard"),
-  and user defaults to none. Enforces strict factual grounding, fact-first synthesis
-  without "he said / she said" narration, and hard anti-bloat length guardrails.
+  concise two-section core deliverable (Executive Summary and bullet-first Detailed
+  Discussion Record with Action Items table), plus optional add-ons created only when
+  explicitly requested: a 5-short-sentence summary (Five-Sentence Summary), a
+  user-specific action plan (Action Items for [User Name] brief paragraph), and an
+  interactive meeting dashboard; (2) Presentation Mode - produces strictly a concise
+  chronological bullet summary of what was presented (no Executive Summary, Action
+  Items, or 5-Sentence Summary) plus an optional Knowledge Graph-focused presentation
+  dashboard. Executes immediately when a transcript is pasted using defaults: mode
+  defaults to "meeting" (switches to "presentation" only when explicitly set),
+  dashboard defaults to "no dashboard" (builds dashboard.html only when requested),
+  5-sentence summary defaults to "no" (omitted unless requested), and user action plan
+  defaults to "none" (omitted unless a user is specified). Enforces strict factual
+  grounding, fact-first synthesis without "he said / she said" narration, and hard
+  anti-bloat length guardrails so output is never longer than the source transcript.
 ---
 
 # Meeting and Presentation Transcript Summary Skill
 
 ## Purpose
 
-This skill transforms raw transcripts from interactive meetings or speaker presentations into concise, scannable, structured documentation. It supports two distinct processing modes tailored to the nature of the transcript, defaulting to **Meeting Mode** with **No Dashboard** and **No Target User Name** so you can simply invoke the skill and paste a transcript to execute immediately:
+This skill transforms raw transcripts from interactive meetings or speaker presentations into concise, scannable, structured documentation. It supports two distinct processing modes tailored to the nature of the transcript, defaulting to **Meeting Mode** with **No Dashboard**, **No 5-Sentence Summary**, and **No User Action Plan** so you can simply invoke the skill and paste a transcript to execute immediately:
 
-1. **Meeting Mode (`meeting mode` - Default):** For interactive meetings with back-and-forth dialogue among participants. Synthesizes discussions into three crisp core sections (Executive Summary, bullet-first Detailed Discussion Record with an Action Items table, and a concise 5-Sentence Summary), an optional fourth section (**Action Items for [User Name]** - a tight brief paragraph combining the action items and deliverables for a specific user when a user name is provided), and an optional 4-tab Meeting Dashboard (built only when explicitly requested).
+1. **Meeting Mode (`meeting mode` - Default):** For interactive meetings with back-and-forth dialogue among participants. Synthesizes discussions into **two crisp core sections by default** (`1. Executive Summary` and bullet-first `2. Detailed Discussion Record and Action Items` with a 4-column Action Items table). Three optional outputs are omitted by default and generated **only** when the user explicitly asks: an optional **5-Short-Sentence Summary** (`Five-Sentence Summary`), an optional **User Action Plan** (`Action Items for [User Name]` brief paragraph), and an optional 4-tab **Meeting Dashboard** (`dashboard.html`).
 2. **Presentation Mode (`presentation mode` - Explicit Override Only):** For presentations, keynotes, lectures, webinars, or demonstrations where one or more presenters speak (often alongside slides) without back-and-forth meeting debate. Activated **only** when the mode is explicitly set to presentation in the prompt. Produces **only** a sequential, chronological, bullet-first summary of what was presented from beginning to end (omitting the Executive Summary, Action Items table, 5-Sentence Summary, and User-Specific Action Items section) and an optional Presentation Knowledge Graph Dashboard (built only when explicitly requested).
 
 Both modes capture every concrete detail, fact, technical spec, argument, metric, and decision spoken in the transcript -- compressed into direct, to-the-point bullets without fluff, play-by-play speaker narration, external explanations, hallucinations, or ungrounded assumptions.
@@ -33,18 +35,19 @@ Both modes capture every concrete detail, fact, technical spec, argument, metric
 ## Operating Principles
 
 - **High-Density Conciseness & Anti-Bloat Guardrails (Never Longer Than Source):**
-  - The generated Markdown summary MUST ALWAYS be strictly shorter than the cleaned source transcript (never generate a "book" or expand conversational transcript text into longer prose).
-  - **Compression Targets (Measured in Prose Words vs. Cleaned Transcript):**
-    - *Short / Dense Transcripts (`< 1,500` cleaned words):* Target **40%-65%** (strict ceiling **< 80%** for multi-tier Meeting Mode; **<= 60%** for Presentation Mode).
-    - *Medium Transcripts (`1,500-3,000` cleaned words):* Target **25%-50%**.
-    - *Long Transcripts (`> 3,000` cleaned words, e.g., 30-60+ minute sessions):* Target **10%-25%**, generally capped at **<= 1,200 words** total (up to **~1,500 words** only for unusually dense multi-topic sessions).
+  - The generated Markdown summary (measured in **total words**, including headings and table cells, not just prose words) MUST ALWAYS be strictly shorter than the cleaned source transcript (never generate a "book" or expand conversational transcript text into longer prose).
+  - **Compression Targets (Measured in Total Output Words vs. Cleaned Transcript):**
+    - *Brief / Ultra-Short Transcripts (`< 400` cleaned words):* Target **40%-60%** (strict ceiling **<= 65%**). Scale `Executive Summary` down proportionally (`<= 35-60 words`, 1-2 tight bullets per applicable category, omitting empty bullet groups) and consolidate `Section 2` into a single compact topic block (`1-3` bullets) when single-topic so short standups or check-ins never exceed input length.
+    - *Short / Dense Transcripts (`400-1,500` cleaned words):* Target **35%-55%** (strict ceiling **<= 65%** for default 2-section Meeting Mode; **< 75%** when optional 5-Sentence Summary and/or User Action Plan are requested; **<= 60%** for Presentation Mode).
+    - *Medium Transcripts (`1,500-3,000` cleaned words):* Target **25%-45%** (strict ceiling **<= 50%**).
+    - *Long Transcripts (`> 3,000` cleaned words, e.g., 30-60+ minute sessions):* Target **10%-25%**, generally capped at **<= 1,100 words** total (up to **~1,400 words** only for unusually dense multi-topic sessions or when optional sections are requested).
   - **Concise != Vague:** Aggressively cut filler, narrative padding, and repetition -- NEVER drop concrete numbers, technical specifications, constraints, slide visuals, trade-offs, decisions, or action items.
 - **Fact-First Synthesis (Zero "He Said / She Said" Narration):**
   - Synthesize directly by **topic, fact, technical specification, decision, and action** using crisp, scannable bullet points rather than essay prose paragraphs.
   - **NEVER narrate speaker turns or conversational play-by-play.** Ban phrasing such as *"David said..."*, *"David established..."*, *"Sarah noted that..."*, *"Marcus replied..."*, *"Elena asked..."*, *"Dr. Thorne explained..."*, *"Moving to Slide 2, he walked through..."*, *"The team discussed..."*, and *"It was mentioned that..."*.
   - **Restrict personal names strictly to:**
     1. Document header metadata (`Participants` or `Presenter(s)`).
-    2. Task ownership in the `Action Items` table (`Assigned To`) and optional Section 4 (`Action Items for [User Name]`).
+    2. Task ownership in the `Action Items` table (`Assigned To`) and optional `Action Items for [User Name]` section.
     3. Multi-presenter handoffs in Presentation Mode (omit per-segment `Presenter:` lines for single-presenter talks since the presenter is already listed in the header).
     4. Explicit formal sign-off gates or genuine unresolved disagreements where knowing who holds a position is materially necessary.
   - **Strip throat-clearing filler:** Remove phrases like *"To provide context,"*, *"From a security standpoint,"*, *"In order to ensure..."*, *"This lack of X causes..."*, and *"It is worth noting that..."*. Lead bullets directly with strong nouns, metrics, and active verbs.
@@ -55,11 +58,12 @@ Both modes capture every concrete detail, fact, technical spec, argument, metric
   - Keep **Action Items** table cells verb-first and concise without duplicating the `Action Item` text inside the `Acceptance Criteria / Target Deliverable` column.
 - **Pure Factual Grounding (Zero Hallucination, Zero Making Things Up):** Strictly include only the details, facts, numbers, arguments, and statements directly and explicitly spoken in the transcript. Never make up information, invent names, fabricate numbers, or hallucinate events or slide contents not mentioned in the transcript.
 - **Strictly Record What Was Said (No External Explanations):** Focus exclusively on reporting the specific details articulated during the meeting or presentation. Do NOT provide external explanations, definitions, tutorials, or general background explanations about the topics discussed.
-- **Default-Driven Single-Turn Execution (Never Pause to Ask for Mode, Dashboard, or User Name):** When the user invokes the skill and provides a transcript, execute immediately in a single turn by applying the following defaults unless explicitly overridden in the prompt:
+- **Default-Driven Single-Turn Execution (Never Pause to Ask for Mode, Dashboard, 5-Sentence Summary, or User Name):** When the user invokes the skill and provides a transcript, execute immediately in a single turn by applying the following four defaults unless explicitly overridden in the prompt:
   1. **Processing Mode (Default: `"meeting"`):** Default to **Meeting Mode** (`"meeting"`). Only switch the mode to **Presentation Mode** (`"presentation"`) when the user explicitly sets the mode to presentation in the prompt (e.g., `"presentation mode"`, `"mode: presentation"`, `"in presentation mode"`).
   2. **UI Dashboard Creation (Default: `"no dashboard"`):** Default to **No Dashboard** (generate the Markdown summary only; do not build `dashboard.html`). Only build and emit the interactive UI dashboard (`dashboard.html`) when the user explicitly adds a dashboard request to the prompt (e.g., `"yes dashboard"`, `"build dashboard"`, `"create dashboard"`, `"with dashboard"`).
-  3. **Target User Name (Default: `"none"` - Meeting Mode Only):** Default to **None** (omit Section 4 and generate the standard 3-section Meeting Mode output). Only generate the fourth section (`## 4. Action Items for [User Name]`) in Meeting Mode when a participant/user name is explicitly specified in the prompt (e.g., `"for Marcus Vance"`, `"for Marcus"`, `"for user Sarah Lin"`, `"user: Sarah Lin"`).
-  **Do NOT pause or prompt the user** to clarify the mode, dashboard preference, or user name when a transcript is provided-resolve any omitted parameters using their defaults and execute immediately.
+  3. **Five-Sentence Summary (Default: `"no"` - Meeting Mode Only):** Default to **No / Omitted** (do not generate a 5-sentence summary). Only generate the `Five-Sentence Summary` section (strictly 5 short sentences) in Meeting Mode when the user explicitly asks for it in the prompt (e.g., `"with 5 short sentence summary"`, `"include 5-sentence summary"`, `"5 sentence summary"`, `"five-sentence summary"`, `"add 5 short sentences"`).
+  4. **Target User Action Plan (Default: `"none"` - Meeting Mode Only):** Default to **None / Omitted** (do not generate user-specific action items). Only generate `Action Items for [User Name]` in Meeting Mode when a participant/user name is explicitly specified in the prompt (e.g., `"for Marcus Vance"`, `"action plan for Marcus"`, `"action items for Sarah Lin"`, `"user: Sarah Lin"`).
+  **Do NOT pause or prompt the user** to clarify the mode, dashboard preference, 5-sentence summary preference, or user name when a transcript is provided -- resolve any omitted parameters using their defaults and execute immediately.
 - **Direct Factual Prose:** Deliver direct, telegraphic, unambiguous synthesis. Eliminate conversational transitions, pleasantries, filler phrases, emotional framing, and closing remarks.
 - **Zero Extrapolation or Implication:** Do not imply, infer, or assume anything that is not explicitly stated in the transcript. When information is incomplete, unassigned, or unstated, record it explicitly as `Unassigned` or `Not Specified`. **Exception - Date Fallback:** If no date is explicitly stated in the transcript, assume today's date (the current date when the skill runs to process the input transcript text) formatted as `YYYY-MM-DD`.
 - **Standard Markdown Formatting:** Structure the deliverable using standard Markdown headings, crisp bulleted lists, and aligned tables.
@@ -72,11 +76,12 @@ Both modes capture every concrete detail, fact, technical spec, argument, metric
 
 ### Mode 1: Meeting Mode (`meeting` - Default)
 Used by default whenever the user does not explicitly specify `"presentation mode"` in the prompt. Designed for collaborative or decision-making meeting transcripts with back-and-forth dialogue among participants.
-- **Output Deliverable:** Concise, structured three-part response by default (or four-part response when a target user name is explicitly specified in the prompt):
-  1. **Section 1: Executive Summary** (`~70-130 words` total, scannable in <30 seconds: 1-sentence Objective, plus concise 1-line bullets for Key Decisions Made, Strategic Outcomes & Impact, and Critical Risks & Blockers)
+- **Default Output Deliverable (Two Core Sections Only):**
+  1. **Section 1: Executive Summary** (`<= 120 words` ceiling; `~60-110 words` on standard meetings, scaling down to `<= 35-60 words` on `< 400`-word transcripts; scannable in <30 seconds: 1-sentence Objective, plus concise 1-line bullets for Key Decisions Made, Strategic Outcomes & Impact, and Critical Risks & Blockers)
   2. **Section 2: Detailed Discussion Record and Action Items** (Bullet-first topic sections with exact facts/specs, conditional Trade-offs & Rationale, and 1-line Decision/Status -- followed by the 4-column Action Items table)
-  3. **Section 3: Five-Sentence Summary** (Single paragraph of strictly 5 crisp, complete sentences, `<= 18-20 words/sentence`)
-  4. **Section 4: Action Items for [User Name] (Optional - Default: `none`; Included Only When User Name Is Explicitly Specified)** (A single tight brief paragraph `<= 75 words` after the 5-Sentence Summary combining the action items assigned to the specified user with required deliverables and deadlines. Omitted by default when no user name is provided.)
+- **Optional Add-On Sections (Omitted by Default; Included ONLY When User Explicitly Asks):**
+  - **Five-Sentence Summary (Optional - Default: `no`):** Single paragraph of strictly 5 short, crisp, complete sentences (`<= 18 words/sentence`, `<= 85 words` total). Included as `## 3. Five-Sentence Summary` **only** when the user explicitly requests a 5-sentence summary in the prompt.
+  - **Action Items for [User Name] (Optional - Default: `none`):** Single tight brief paragraph (`<= 75 words`) combining the action items assigned to the specified user with required deliverables and deadlines. Included **only** when a user name is explicitly provided in the prompt (numbered `## 3. Action Items for [User Name]` if Five-Sentence Summary is omitted, or `## 4. Action Items for [User Name]` if both optional sections are requested).
 - **Interactive Dashboard (Default: `no dashboard`; Built Only When Explicitly Requested):** Skipped by default. When explicitly requested in the prompt (e.g., `"yes dashboard"`, `"build dashboard"`, `"create dashboard"`, `"with dashboard"`), uses [templates/meeting_dashboard_template.html](templates/meeting_dashboard_template.html), featuring four tabs: `Executive Brief`, `Knowledge Graph`, `Action Items` (Kanban and Data Table), and `Detailed Record`.
 
 ### Mode 2: Presentation Mode (`presentation` - Explicit Override Only)
@@ -89,22 +94,25 @@ Activated **only** when the user explicitly sets the mode to presentation in the
 
 ### How Parameter Defaults and Explicit Overrides Work (Single-Turn Flow)
 
-Whenever a transcript is provided, resolve the three execution parameters directly from the user's prompt and execute immediately without asking follow-up questions:
+Whenever a transcript is provided, resolve the four execution parameters directly from the user's prompt and execute immediately without asking follow-up questions:
 
 | Parameter | Default (When Not Mentioned in Prompt) | How to Override in Prompt | Resulting Behavior |
 | :--- | :--- | :--- | :--- |
-| **Mode** | **`meeting`** (`Meeting Mode`) | Explicitly specify `"presentation mode"`, `"mode: presentation"`, or `"in presentation mode"` | Runs **Meeting Mode** by default; switches to **Presentation Mode** only when explicitly set in the prompt. |
+| **Mode** | **`meeting`** (`Meeting Mode`) | Explicitly specify `"presentation mode"`, `"mode: presentation"`, or `"in presentation mode"` | Runs **Meeting Mode** (2 core sections) by default; switches to **Presentation Mode** only when explicitly set in the prompt. |
 | **Dashboard** | **`no dashboard`** (Markdown summary only) | Explicitly add `"yes dashboard"`, `"build dashboard"`, `"create dashboard"`, or `"with dashboard"` | Outputs only the Markdown summary by default; builds and emits `dashboard.html` only when explicitly requested. |
-| **User Name** | **`none`** (Omit Section 4) | Explicitly specify a participant name in Meeting Mode (e.g., `"for user Marcus Vance"`, `"for Marcus"`, `"user: Sarah Lin"`) | Generates Sections 1-3 by default; appends `## 4. Action Items for [User Name]` in Meeting Mode only when a user name is provided. |
+| **5-Sentence Summary** | **`no`** (Omitted) | Explicitly request in Meeting Mode (e.g., `"with 5 short sentence summary"`, `"include 5-sentence summary"`, `"add 5 sentence summary"`) | Omitted by default; appends `## 3. Five-Sentence Summary` (5 short sentences) in Meeting Mode only when requested. |
+| **User Action Plan** | **`none`** (Omitted) | Explicitly specify a participant name in Meeting Mode (e.g., `"for Marcus Vance"`, `"action plan for Marcus"`, `"user: Sarah Lin"`) | Omitted by default; appends `Action Items for [User Name]` (`## 3.` if alone, or `## 4.` after 5-Sentence Summary) only when a user name is provided. |
 
 1. **Pasting Transcript Only (Zero Flags Specified):**
-   - If the user simply invokes the skill and pastes (or attaches) the transcript without specifying any flags, immediately execute **Meeting Mode** (`mode = meeting`), generate the 3-section Markdown summary (`user = none`), and do **not** generate `dashboard.html` (`dashboard = no dashboard`).
-2. **Explicit Mode Override (`presentation mode`):**
+   - If the user simply invokes the skill and pastes (or attaches) the transcript without specifying any flags, immediately execute **Meeting Mode** (`mode = meeting`), generate **only the 2 core sections** (`1. Executive Summary` and `2. Detailed Discussion Record and Action Items`), omit both `Five-Sentence Summary` and `Action Items for [User Name]`, and do **not** generate `dashboard.html`.
+2. **Explicit 5-Sentence Summary Override (`with 5 short sentence summary` in Meeting Mode):**
+   - If the prompt asks for a 5-sentence summary (e.g., `"include 5 short sentence summary"`, `"with 5-sentence summary"`), generate Sections 1, 2, and `## 3. Five-Sentence Summary`.
+3. **Explicit User Action Plan Override (`for [User Name]` in Meeting Mode):**
+   - If the prompt specifies a target user name without asking for a 5-sentence summary, generate Sections 1, 2, and `## 3. Action Items for [User Name]`. If the prompt asks for **both** a 5-sentence summary and a target user name, generate Sections 1, 2, `## 3. Five-Sentence Summary`, and `## 4. Action Items for [User Name]`.
+4. **Explicit Mode Override (`presentation mode`):**
    - If the prompt explicitly requests Presentation Mode (e.g., `"presentation mode"`), execute **Presentation Mode** and output only the chronological presentation summary (plus the Presentation Knowledge Graph `dashboard.html` if and only if dashboard creation is also explicitly requested in the prompt).
-3. **Explicit Dashboard Override (`yes dashboard` / `build dashboard`):**
+5. **Explicit Dashboard Override (`yes dashboard` / `build dashboard`):**
    - If the prompt explicitly requests a dashboard (e.g., `"yes dashboard"`, `"build dashboard"`, `"create dashboard"`, `"with dashboard"`), generate the Markdown summary for the active mode **and** write `dashboard.html` upon completion.
-4. **Explicit User Name Override (`for [User Name]` in Meeting Mode):**
-   - If the prompt specifies a target user name in Meeting Mode (e.g., `"for Marcus Vance"`), generate Sections 1, 2, 3, and `## 4. Action Items for [User Name]`.
 
 ---
 
@@ -121,33 +129,37 @@ Follow these steps sequentially:
    |-- Resolve UI Dashboard Creation (Default = "no dashboard"):
    |   |-- Default to "No Dashboard" (Markdown summary only)
    |   `-- Set UI Dashboard = "Yes" ONLY if explicitly requested in the prompt (e.g., "yes dashboard", "build dashboard", "create dashboard", "with dashboard")
-   |-- Resolve Target User Name (Default = "none", Meeting Mode only):
-   |   |-- Default to "none" (omit Section 4)
-   |   `-- Enable Section 4 ONLY if a target user name is explicitly specified in the prompt (e.g., "for user Marcus Vance", "for Marcus")
+   |-- Resolve Five-Sentence Summary (Default = "no", Meeting Mode only):
+   |   |-- Default to "no" (omit Five-Sentence Summary)
+   |   `-- Enable Five-Sentence Summary ONLY if explicitly requested in the prompt (e.g., "with 5 short sentence summary", "include 5-sentence summary", "5 sentence summary")
+   |-- Resolve Target User Action Plan (Default = "none", Meeting Mode only):
+   |   |-- Default to "none" (omit Action Items for [User Name])
+   |   `-- Enable Action Items for [User Name] ONLY if a target user name is explicitly specified in the prompt (e.g., "for Marcus Vance", "action plan for Marcus")
    |-- Parse speaker tags, timestamps, slide transitions, and diarization markers
    |-- Extract the date from the transcript, or default to today's date (the date the skill runs) in YYYY-MM-DD format if no date is given
    |-- Filter out small talk, greetings, audio/screen-share checks, and off-topic logistics
-   `-- Estimate cleaned transcript word count to enforce the anti-bloat compression ceiling (< 80% Meeting / <= 60% Presentation for < 1,500-word transcripts; 25%-50% for 1,500-3,000 words; 10%-25% / <= 1,200-1,500 words for > 3,000 words)
+   `-- Estimate cleaned transcript word count to enforce strict total-word anti-bloat ceilings (<= 65% with proportional scaling for < 400 words; <= 65% default / < 75% with optional sections / <= 60% Presentation for 400-1,500 words; 25%-45% / <= 50% for 1,500-3,000 words; 10%-25% / <= 1,100-1,400 words for > 3,000 words)
 
 2A. Meeting Mode Workflow (Default, or when "Meeting Mode" is specified)
-   |-- Step 1 - Section 1 Synthesis: Concise Executive Summary (~70-130 words)
+   |-- Step 1 - Section 1 Synthesis: Concise Executive Summary (<= 120 words ceiling; <= 35-60 words if transcript < 400 words)
    |   |-- State primary meeting objective in 1 crisp sentence (<= 25 words)
    |   |-- List top decisions and core outcomes as tight 1-line bullets (<= 18 words each)
    |   `-- List critical risks/blockers concisely without duplicating Section 2 technical details
    |-- Step 2 - Section 2 Synthesis: Bullet-First Detailed Discussion Record and Action Items
-   |   |-- Group by logical topic discussed in the meeting
+   |   |-- Group by logical topic discussed in the meeting (consolidate into 1 topic block on brief single-topic < 400-word transcripts)
    |   |-- Extract exact technical facts, specs, metrics, and constraints as direct Key Points bullets (no "he said / she said")
    |   |-- Include Trade-offs & Rationale ONLY when options/alternatives were weighed; close with a 1-line Decision / Status
    |   |-- Strictly avoid external explanations, tutorials, or unmentioned concept definitions
    |   `-- Compile the 4-column Action Items table using tight verb-first phrasing (<= 15 words/cell)
-   |-- Step 3 - Section 3 Synthesis: Concise Five-Sentence Summary (~65-95 words)
-   |   |-- Draft strictly five crisp, grammatically complete sentences (<= 18-20 words each)
-   |   `-- Verify sentence count equals exactly five before finalizing
-   |-- Step 4 - Section 4 Synthesis: Action Items for [User Name] (Conditional - Default: none; ONLY when a User Name is explicitly specified)
+   |-- Step 3 - Optional Five-Sentence Summary Synthesis (Conditional - Default: no; ONLY when explicitly requested)
+   |   |-- Draft strictly five short, crisp, grammatically complete sentences (<= 18 words each, <= 85 words total)
+   |   `-- Emit as "## 3. Five-Sentence Summary" and verify sentence count equals exactly five before finalizing (omit completely if not requested)
+   |-- Step 4 - Optional Action Items for [User Name] Synthesis (Conditional - Default: none; ONLY when a User Name is explicitly specified)
    |   |-- Match the specified user name (full or partial/first name) to the corresponding participant in the transcript
    |   |-- Identify all action items and responsibilities assigned to that user in the transcript
    |   |-- Draft a single tight brief paragraph (<= 75 words) combining tasks, deliverables/acceptance criteria, and deadlines
-   |   `-- If zero action items were assigned to the user, state so explicitly in one factual sentence (omit Section 4 if no user name was specified)
+   |   |-- Number sequentially as "## 3. Action Items for [User Name]" (if Five-Sentence Summary was omitted) or "## 4. Action Items for [User Name]" (if Five-Sentence Summary was included)
+   |   `-- If zero action items were assigned to the user, state so explicitly in one factual sentence (omit completely if no user name was specified)
    `-- Step 5 - Meeting Dashboard Generation (Conditional - Default: no dashboard; ONLY when explicitly requested via "yes dashboard" / "build dashboard")
        |-- Populate concise, fact-first meeting data into templates/meeting_dashboard_template.html
        `-- Write standalone HTML output to dashboard.html
@@ -172,7 +184,9 @@ Follow these steps sequentially:
 
 Format the generated document using standard Markdown according to the selected mode below.
 
-### Mode 1: Meeting Mode Output Structure
+### Mode 1: Meeting Mode Output Structure (Default: Sections 1 and 2 Only)
+
+By default, output **only** the document header, `## 1. Executive Summary`, and `## 2. Detailed Discussion Record and Action Items`. Do **NOT** output `Five-Sentence Summary` or `Action Items for [User Name]` unless the user explicitly asks for them in the prompt.
 
 ```markdown
 # Meeting Summary: [Insert Meeting Topic / Project Name]
@@ -184,10 +198,10 @@ Format the generated document using standard Markdown according to the selected 
 
 ## 1. Executive Summary
 
-Provide a crisp, scannable overview (`~70-130 words` total, readable in <30 seconds) grounded strictly in the transcript -- no deep technical repetition from Section 2:
+Provide a crisp, scannable overview (`<= 120 words` ceiling; `~60-110 words` on standard meetings, scaling down to `<= 35-60 words` on `< 400`-word transcripts; readable in <30 seconds) grounded strictly in the transcript -- no deep technical repetition from Section 2:
 - **Meeting Objective:** [1 direct sentence (<= 25 words) stating the primary goal.]
 - **Key Decisions Made:**
-  - [Max 3-5 concise 1-line bullets (<= 18 words each) stating approved choices and paths forward.]
+  - [Max 3-5 concise 1-line bullets (<= 18 words each; 1-2 bullets on brief transcripts) stating approved choices and paths forward.]
 - **Strategic Outcomes & Impact:**
   - [Max 2-4 concise 1-line bullets (<= 18 words each) citing explicit metrics, savings, or operational impacts.]
 - **Critical Risks & Blockers:**
@@ -202,12 +216,12 @@ Create a dense, bullet-first record organized by logical topic. Preserve every c
 ### Topic 1: [Descriptive Topic Title]
 
 - **Key Points:**
-  - [2-5 crisp, fact-first bullets (<= 22 words each) capturing specific facts, numbers, configurations, constraints, or options -- no speaker-turn narration.]
+  - [2-5 crisp, fact-first bullets (<= 22 words each; 1-3 bullets on brief < 400-word transcripts) capturing specific facts, numbers, configurations, constraints, or options -- no speaker-turn narration.]
 - **Trade-offs & Rationale:** *(Include ONLY when alternatives were actually weighed or debated; omit on straightforward topics)* [1-3 concise bullets or 1 tight line explaining why the selected approach beat dismissed options.]
 - **Decision / Status:** [1 crisp line (<= 18 words) stating the final agreement, decision, or open status.]
 
 ### Topic 2: [Descriptive Topic Title]
-[Repeat this concise bullet-first structure for each substantial topic discussed.]
+[Repeat this concise bullet-first structure for each substantial topic discussed; consolidate into a single topic on brief single-subject meetings.]
 
 ### Action Items
 
@@ -225,33 +239,41 @@ Conclude Section 2 with a Markdown table containing all concrete deliverables, t
 4. Keep personal names out of `Key Points` and `Trade-offs & Rationale` unless documenting a material formal sign-off gate or an unresolved disagreement where stance ownership matters.
 5. Ensure Markdown table syntax is valid and cleanly aligned.
 
+#### Conditional Optional Section: Five-Sentence Summary (Include ONLY When User Explicitly Asks):
+
+If and only if the user explicitly asks for a 5-sentence / 5-short-sentence summary in the prompt (e.g., `"with 5 short sentence summary"`, `"include 5-sentence summary"`, `"add 5 sentence summary"`), append `## 3. Five-Sentence Summary` immediately after Section 2. If the user does not ask for it, **do not output this section**.
+
 ```markdown
 ---
 
 ## 3. Five-Sentence Summary
 
-A single paragraph containing strictly five crisp, complete sentences (`<= 18-20 words/sentence`, `~65-95 words` total; no run-on compound sentences):
+A single paragraph containing strictly five short, crisp, complete sentences (`<= 18 words/sentence`, `<= 85 words` total; no run-on compound sentences):
 
 [Sentence 1: Primary purpose and scope.] [Sentence 2: Core technical or operational problem addressed.] [Sentence 3: Primary architectural or strategic decision.] [Sentence 4: Key security/secondary requirement or quantified impact.] [Sentence 5: Immediate milestone and target timeline.]
 ```
 
-#### Conditional Section 4 (Include ONLY When a User Name Is Specified):
+#### Conditional Optional Section: Action Items for [User Name] (Include ONLY When a User Name Is Specified):
 
-If and only if the user specifies a target user name when invoking the skill (e.g., `"for Marcus Vance"`, `"user: Sarah Lin"`), append `## 4. Action Items for [User Name]` immediately after Section 3. If no user name is specified, **do not output Section 4**.
+If and only if the user specifies a target user name when invoking the skill (e.g., `"for Marcus Vance"`, `"action plan for Marcus"`, `"user: Sarah Lin"`), append `Action Items for [User Name]` at the end of the summary. Use sequential heading numbering:
+- Use `## 3. Action Items for [User Name]` when the optional Five-Sentence Summary is **omitted** (default).
+- Use `## 4. Action Items for [User Name]` when **both** the Five-Sentence Summary (`## 3.`) and User Action Plan are requested.
+If no user name is specified, **do not output this section**.
 
 ```markdown
 ---
 
-## 4. Action Items for [User Name]
+## [3 or 4]. Action Items for [User Name]
 
 [Single tight brief paragraph (<= 75 words, 1-3 crisp sentences) stating the specific tasks assigned to the user, target deliverables/acceptance criteria, and deadlines -- without re-summarizing meeting history.]
 ```
 
-#### Section 4 Formatting and Grounding Rules:
-1. **Optional & Conditional:** Only generate `## 4. Action Items for [User Name]` when a user name is explicitly provided in the user's request. Never prompt the user to provide a user name if omitted.
-2. **Tight Paragraph Format:** Write a cohesive, brief prose paragraph (`<= 75 words`, not a bulleted list or table) combining the user's assigned action items, concrete deliverables, and stated deadlines.
-3. **Participant Name Resolution:** If a partial or first name is given (e.g., `"Marcus"`), resolve it to the full participant name from the transcript (e.g., `"Marcus Vance"`) if unambiguous.
-4. **Zero-Task Fallback:** If a user name is specified in the request, still generate Section 4, but if that user has zero assigned action items in the transcript, state explicitly in a single factual sentence that no action items were assigned to `[User Name]` during the meeting. Never invent tasks.
+#### Optional Sections Formatting and Grounding Rules:
+1. **Strictly Opt-In:** Never generate `Five-Sentence Summary` or `Action Items for [User Name]` unless explicitly requested in the user's prompt. Never prompt the user to ask if they want either section.
+2. **Short Five-Sentence Rule:** When `Five-Sentence Summary` is requested, write strictly 5 complete short sentences (`<= 18 words/sentence`, `<= 85 words` total) in one paragraph.
+3. **Tight User Action Plan Paragraph:** When `Action Items for [User Name]` is requested, write a cohesive, brief prose paragraph (`<= 75 words`, not a bulleted list or table) combining the user's assigned action items, concrete deliverables, and stated deadlines.
+4. **Participant Name Resolution:** If a partial or first name is given (e.g., `"Marcus"`), resolve it to the full participant name from the transcript (e.g., `"Marcus Vance"`) if unambiguous.
+5. **Zero-Task Fallback:** If a user name is specified in the request, still generate `Action Items for [User Name]`, but if that user has zero assigned action items in the transcript, state explicitly in a single factual sentence that no action items were assigned to `[User Name]` during the meeting. Never invent tasks.
 
 ---
 
@@ -308,18 +330,19 @@ Within either processing mode (`Meeting Mode` or `Presentation Mode`), the skill
 
 Before outputting the response, verify compliance against these standards:
 
-1. **Default Parameter Resolution and Explicit Override Check (Single-Turn Execution):** Confirm that the agent executes immediately in a single turn when a transcript is provided without pausing to ask for mode, dashboard preference, or user name:
+1. **Default Parameter Resolution and Explicit Override Check (Single-Turn Execution):** Confirm that the agent executes immediately in a single turn when a transcript is provided without pausing to ask for mode, dashboard preference, 5-sentence summary preference, or user name:
    - **Mode:** Defaults to `"meeting"` (`Meeting Mode`) and switches to `"presentation"` (`Presentation Mode`) **only** when explicitly set in the prompt.
    - **Dashboard:** Defaults to `"no dashboard"` (Markdown summary only) and builds `dashboard.html` **only** when explicitly requested in the prompt (e.g., `"yes dashboard"`, `"build dashboard"`, `"create dashboard"`, `"with dashboard"`).
-   - **User Name:** Defaults to `"none"` (omitting Section 4) and generates `## 4. Action Items for [User Name]` in Meeting Mode **only** when a target user name is explicitly provided in the prompt.
+   - **Five-Sentence Summary:** Defaults to `"no"` (omitted) and generates `## 3. Five-Sentence Summary` in Meeting Mode **only** when explicitly requested in the prompt.
+   - **User Action Plan:** Defaults to `"none"` (omitted) and generates `Action Items for [User Name]` in Meeting Mode **only** when a target user name is explicitly provided in the prompt (`## 3.` if 5-Sentence Summary is omitted; `## 4.` if both are requested).
 2. **Anti-Bloat Compression & Section Budget Check:**
-   - Confirm total output prose word count is **strictly shorter** than the cleaned source transcript (target **40%-65%** with hard ceiling **< 80%** Meeting / **<= 60%** Presentation for `< 1,500`-word dense transcripts; **25%-50%** for `1,500-3,000` words; **10%-25%** and generally **<= 1,200-1,500 words** for `> 3,000`-word sessions).
-   - Confirm Executive Summary fits `~70-130 words`, Section 2 uses concise scannable bullets (not prose walls) with zero cross-section duplication, Section 3 has strictly 5 tight sentences (`<= 18-20 words/sentence`), and optional Section 4 is `<= 75 words`.
+   - Confirm **total output word count** (including headings and table cells) is **strictly shorter** than the cleaned source transcript: `<= 65%` with proportional scaling for `< 400`-word brief transcripts; target **35%-55%** with hard ceiling **`<= 65%`** default (`< 75%` with optional sections; **`<= 60%`** Presentation) for `400-1,500` words; **25%-45%** (`<= 50%`) for `1,500-3,000` words; **10%-25%** and generally **`<= 1,100-1,400 words`** for `> 3,000`-word sessions.
+   - Confirm Executive Summary stays `<= 120 words` (`<= 35-60 words` on `< 400`-word transcripts), Section 2 uses concise scannable bullets (not prose walls) with zero cross-section duplication, optional `Five-Sentence Summary` (when requested) has strictly 5 short sentences (`<= 18 words/sentence`, `<= 85 words` total), and optional `Action Items for [User Name]` (when requested) is `<= 75 words`.
 3. **Zero "He Said / She Said" Attribution & Fluff Check:**
    - Verify zero speaker-turn narration (`"X said"`, `"Y noted"`, `"he explained"`, `"she walked through"`, `"The team discussed"`) appears in discussion or presentation bullets.
-   - Confirm personal names appear only in header metadata, Action Items `Assigned To` / Section 4, multi-presenter transitions, or material sign-off gates/unresolved disagreements.
+   - Confirm personal names appear only in header metadata, Action Items `Assigned To` / optional `Action Items for [User Name]`, multi-presenter transitions, or material sign-off gates/unresolved disagreements.
 4. **Mode-Specific Structural Compliance:**
-   - **If Meeting Mode:** Confirm all 3 core sections are present (`1. Executive Summary`, `2. Detailed Discussion Record and Action Items` with the 4-column table, and `3. Five-Sentence Summary` containing strictly 5 complete sentences), topics use the concise bullet-first structure (`Key Points`, conditional `Trade-offs & Rationale`, 1-line `Decision / Status`), and `4. Action Items for [User Name]` is included after Section 3 as a tight brief paragraph (`<= 75 words`) **if and only if** a user name was specified in the request.
+   - **If Meeting Mode:** Confirm **only** the 2 core sections (`1. Executive Summary` and `2. Detailed Discussion Record and Action Items` with the 4-column table) are emitted by default; confirm topics use the concise bullet-first structure (`Key Points`, conditional `Trade-offs & Rationale`, 1-line `Decision / Status`); and confirm `Five-Sentence Summary` and `Action Items for [User Name]` are omitted unless explicitly requested in the prompt (numbered sequentially as `## 3.` or `## 3.` + `## 4.` when included).
    - **If Presentation Mode:** Confirm the output contains **only** the Presentation Summary header and the `Chronological Presentation Summary` formatted as concise chronological bullets (`1..N`) with single-presenter per-segment tags omitted, and confirm **zero** Executive Summary, Action Items table, Five-Sentence Summary, or User-Specific Action Items sections are included.
 5. **Complete Detail Retention (Concise != Vague):** Verify that despite aggressive fluff removal, every concrete fact, metric, technical specification, constraint, slide reference, decision, trade-off, and action item from the transcript is retained.
 6. **Pure Factual Grounding, Zero External Explanations, and Zero Opinion:** Verify that zero external explanations, definitions, unmentioned concepts, personal opinions, editorial interpretations, or hallucinated facts have been added. Output must begin immediately with the document header and end immediately after the final section.
