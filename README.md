@@ -47,6 +47,7 @@ meeting-transcript-summary-skill/
 |-- DESIGN.md                                       # Dashboard layout, typography, theme, and color specification
 |-- prd.md                                          # Product Requirements Document
 |-- README.md                                       # User guide, specifications, and integration documentation
+|-- SECURITY_AUDIT.md                               # Security, sanitization, and accessibility audit report
 |-- LICENSE                                         # Apache 2.0 License
 |-- dashboard.html                                  # Top-level working interactive Meeting Mode dashboard
 |-- assets/
@@ -70,8 +71,15 @@ meeting-transcript-summary-skill/
 |   |-- sample_presentation_transcript.txt          # Synthetic single-presenter keynote transcript
 |   |-- sample_presentation_summary.md              # Reference chronological output for Presentation Mode
 |   `-- sample_presentation_dashboard.html          # Working interactive dashboard example for Presentation Mode
-`-- scripts/
-    `-- clean_transcript.py                         # Standalone Python CLI utility to strip caption timestamps
+|-- legal/
+|   |-- PRIVACY.md                                  # Draft privacy policy template
+|   |-- TERMS.md                                    # Draft terms of service template
+|   |-- REFUNDS.md                                  # Draft refund and cancellation policy template
+|   `-- COOKIES.md                                  # Draft cookie and local storage policy template
+|-- scripts/
+|   `-- clean_transcript.py                         # Standalone Python CLI utility to strip caption timestamps
+`-- tests/
+    `-- test_smoke.py                               # Automated CLI, skill contract, CSP, and accessibility test suite
 ```
 
 ---

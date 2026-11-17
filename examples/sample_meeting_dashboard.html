@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';">
   <meta name="description" content="Interactive Evaluation Dashboard for Core Event Streaming Migration Architecture Review">
   <title>Core Event Streaming Migration -- Evaluation Dashboard</title>
   <style>
@@ -22,6 +23,12 @@
       --viz-indigo: #4F46E5;
       --viz-emerald: #059669;
       --viz-rose: #E11D48;
+      --viz-teal-text: #2DD4BF;
+      --viz-amber-text: #F59E0B;
+      --viz-indigo-text: #818CF8;
+      --viz-emerald-text: #34D399;
+      --viz-rose-text: #FB7185;
+      --viz-active-bg: #0F766E;
 
       --radius-sm: 6px;
       --radius-md: 8px;
@@ -34,10 +41,16 @@
       --bg-surface: #FFFFFF;
       --border-color: #E7E5E4;
       --text-primary: #1C1917;
-      --text-secondary: #787774;
+      --text-secondary: #57534E;
       --chart-grid: #E7E5E4;
       --surface-hover: rgba(28, 25, 23, 0.035);
       --surface-subtle: rgba(28, 25, 23, 0.02);
+      --viz-teal-text: #0F766E;
+      --viz-amber-text: #B45309;
+      --viz-indigo-text: #4338CA;
+      --viz-emerald-text: #047857;
+      --viz-rose-text: #BE123C;
+      --viz-active-bg: #0F766E;
     }
 
     * {
@@ -308,7 +321,7 @@
       letter-spacing: 0.04em;
       padding: 0.125rem 0.45rem;
       border-radius: var(--radius-sm);
-      color: var(--viz-rose);
+      color: var(--viz-rose-text);
       border: 1px solid var(--viz-rose);
       background-color: rgba(225, 29, 72, 0.08);
     }
@@ -323,7 +336,7 @@
       letter-spacing: 0.04em;
       padding: 0.125rem 0.45rem;
       border-radius: var(--radius-sm);
-      color: var(--viz-amber);
+      color: var(--viz-amber-text);
       border: 1px solid var(--viz-amber);
       background-color: rgba(217, 119, 6, 0.08);
     }
@@ -410,7 +423,6 @@
       font-family: var(--font-sans);
       font-size: 0.8125rem;
       width: 250px;
-      outline: none;
     }
 
     .graph-search-input:focus {
@@ -470,8 +482,8 @@
     }
 
     .ctrl-btn:hover {
-      border-color: var(--viz-teal);
-      color: var(--viz-teal);
+      border-color: var(--viz-teal-text);
+      color: var(--viz-teal-text);
     }
 
     .node-group {
@@ -555,7 +567,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--viz-teal);
+      color: var(--viz-teal-text);
     }
 
     .inspector-body {
@@ -584,7 +596,6 @@
       font-family: var(--font-sans);
       font-size: 0.8125rem;
       border-radius: var(--radius-sm);
-      outline: none;
     }
 
     .input-field {
@@ -619,7 +630,7 @@
     }
 
     .view-btn.active {
-      background-color: var(--viz-teal);
+      background-color: var(--viz-active-bg);
       color: #FFFFFF;
       font-weight: 600;
     }
@@ -738,7 +749,7 @@
       align-items: center;
       font-family: var(--font-mono);
       font-size: 0.75rem;
-      color: var(--viz-teal);
+      color: var(--viz-teal-text);
       margin-top: 0.15rem;
     }
 
@@ -810,13 +821,50 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--viz-teal);
+      color: var(--viz-teal-text);
     }
 
     .record-field-text {
       font-size: 0.8125rem;
       color: var(--text-secondary);
       line-height: 1.55;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    .node-group:focus-visible,
+    .heatmap-cell:focus-visible {
+      outline: 2px solid var(--viz-teal-text);
+      outline-offset: 2px;
+    }
+
+    button.heatmap-cell {
+      width: 100%;
+      border: 1px solid transparent;
+      font-family: var(--font-mono);
+    }
+
+    .dashboard-footer {
+      border-top: 1px solid var(--border-color);
+      background-color: var(--bg-surface);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      text-align: center;
     }
 
     @media (max-width: 960px) {
@@ -845,36 +893,39 @@
         </div>
       </div>
 
-      <nav class="nav-tabs" aria-label="Dashboard sections">
-        <button type="button" class="tab-btn active" id="tab-btn-overview" onclick="switchMainTab('overview', this)">Executive Brief</button>
-        <button type="button" class="tab-btn" id="tab-btn-graph" onclick="switchMainTab('graph', this)">Interactive Relationship Node Map</button>
-        <button type="button" class="tab-btn" id="tab-btn-actions" onclick="switchMainTab('actions', this)">Action Items</button>
-        <button type="button" class="tab-btn" id="tab-btn-discussion" onclick="switchMainTab('discussion', this)">Discussion Record</button>
+      <nav aria-label="Dashboard sections">
+        <div class="nav-tabs" role="tablist" aria-label="Dashboard views">
+          <button type="button" class="tab-btn active" id="tab-btn-overview" role="tab" aria-selected="true" aria-controls="tab-overview" tabindex="0" onclick="switchMainTab('overview', this)">Executive Brief</button>
+          <button type="button" class="tab-btn" id="tab-btn-graph" role="tab" aria-selected="false" aria-controls="tab-graph" tabindex="-1" onclick="switchMainTab('graph', this)">Interactive Relationship Node Map</button>
+          <button type="button" class="tab-btn" id="tab-btn-actions" role="tab" aria-selected="false" aria-controls="tab-actions" tabindex="-1" onclick="switchMainTab('actions', this)">Action Items</button>
+          <button type="button" class="tab-btn" id="tab-btn-discussion" role="tab" aria-selected="false" aria-controls="tab-discussion" tabindex="-1" onclick="switchMainTab('discussion', this)">Discussion Record</button>
+        </div>
       </nav>
     </div>
   </header>
 
   <main>
-    <section id="tab-overview" class="tab-content active">
+    <section id="tab-overview" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-overview">
+      <h2 class="sr-only">Executive Brief</h2>
       <div class="bento-grid bento-kpi">
         <div class="bento-cell">
           <div class="cell-title">Approved Decisions</div>
-          <div class="kpi-value" id="kpi-decisions" style="color: var(--viz-teal);">0</div>
+          <div class="kpi-value" id="kpi-decisions" style="color: var(--viz-teal-text);">0</div>
           <div class="kpi-footnote">Unanimous architectural sign-off</div>
         </div>
         <div class="bento-cell">
           <div class="cell-title">Architecture Domains</div>
-          <div class="kpi-value" id="kpi-topics" style="color: var(--viz-indigo);">0</div>
+          <div class="kpi-value" id="kpi-topics" style="color: var(--viz-indigo-text);">0</div>
           <div class="kpi-footnote">Broker, Schema, CMEK, Phasing</div>
         </div>
         <div class="bento-cell">
           <div class="cell-title">Tracked Deliverables</div>
-          <div class="kpi-value" id="kpi-actions" style="color: var(--viz-emerald);">0</div>
+          <div class="kpi-value" id="kpi-actions" style="color: var(--viz-emerald-text);">0</div>
           <div class="kpi-footnote">1 unassigned memory benchmark</div>
         </div>
         <div class="bento-cell">
           <div class="cell-title">Production Cutover</div>
-          <div class="kpi-value" id="kpi-cutover" style="color: var(--viz-amber);">2026-10-03</div>
+          <div class="kpi-value" id="kpi-cutover" style="color: var(--viz-amber-text);">2026-10-03</div>
           <div class="kpi-footnote">Staging dual-publish: 2026-09-05</div>
         </div>
       </div>
@@ -913,17 +964,18 @@
         <div class="bento-cell bento-cell-full">
           <div class="cell-header">
             <span class="cell-title">Critical Risks &amp; Blockers</span>
-            <span class="status-critical">2 Active Blockers</span>
+            <span class="status-critical">[BLOCKER: 2 ACTIVE]</span>
           </div>
           <ul class="data-list list-rose" id="display-risks"></ul>
         </div>
       </div>
     </section>
 
-    <section id="tab-graph" class="tab-content">
+    <section id="tab-graph" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-graph">
+      <h2 class="sr-only">Interactive Relationship Node Map</h2>
       <div class="graph-wrapper">
         <div class="graph-toolbar-overlay">
-          <input type="text" class="graph-search-input" id="graph-search-input" placeholder="Filter nodes by topic or rationale..." oninput="filterGraphNodes(this.value)">
+          <input type="text" class="graph-search-input" id="graph-search-input" aria-label="Filter relationship map nodes" placeholder="Filter nodes by topic or rationale..." oninput="filterGraphNodes(this.value)">
           <div class="graph-legend-bar">
             <span class="legend-chip"><span class="legend-dot" style="background: var(--viz-teal);"></span> Core Goal</span>
             <span class="legend-chip"><span class="legend-dot" style="background: var(--viz-indigo);"></span> Platform</span>
@@ -947,10 +999,10 @@
           </svg>
         </div>
 
-        <aside class="inspector-drawer" id="inspector-drawer" aria-label="Node detail inspector">
+        <aside class="inspector-drawer" id="inspector-drawer" aria-label="Node detail inspector" aria-hidden="true">
           <div class="inspector-header">
             <h2 class="inspector-title" id="inspector-title">Topic Detail</h2>
-            <button type="button" class="ctrl-btn" onclick="closeInspector()">Close</button>
+            <button type="button" class="ctrl-btn" id="inspector-close-btn" onclick="closeInspector()">Close</button>
           </div>
           <div class="inspector-block">
             <div class="inspector-label">Context &amp; Baseline</div>
@@ -972,14 +1024,15 @@
       </div>
     </section>
 
-    <section id="tab-actions" class="tab-content">
+    <section id="tab-actions" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-actions">
+      <h2 class="sr-only">Action Items</h2>
       <div class="controls-bar">
         <div class="view-switcher" role="group" aria-label="Action item layout">
-          <button type="button" class="view-btn active" id="view-btn-table" onclick="switchActionSubTab('table', this)">Monospace Table</button>
-          <button type="button" class="view-btn" id="view-btn-kanban" onclick="switchActionSubTab('kanban', this)">Owner Lanes</button>
+          <button type="button" class="view-btn active" id="view-btn-table" aria-pressed="true" onclick="switchActionSubTab('table', this)">Monospace Table</button>
+          <button type="button" class="view-btn" id="view-btn-kanban" aria-pressed="false" onclick="switchActionSubTab('kanban', this)">Owner Lanes</button>
         </div>
 
-        <input type="text" class="input-field" id="action-search-input" placeholder="Filter tasks, owners, deliverables..." oninput="applyActionFilters()">
+        <input type="text" class="input-field" id="action-search-input" aria-label="Filter action items" placeholder="Filter tasks, owners, deliverables..." oninput="applyActionFilters()">
 
         <select class="select-field" id="action-owner-select" onchange="applyActionFilters()" aria-label="Filter by owner">
           <option value="all">All Owners</option>
@@ -1008,10 +1061,13 @@
       <div id="subview-kanban" class="lanes-bento" style="display: none;"></div>
     </section>
 
-    <section id="tab-discussion" class="tab-content">
+    <section id="tab-discussion" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-discussion">
+      <h2 class="sr-only">Discussion Record</h2>
       <div class="record-surface" id="topics-accordion-list"></div>
     </section>
   </main>
+
+  <footer class="dashboard-footer">Local static evaluation view. Offline execution with zero external network requests.</footer>
 
   <script>
     const MEETING_DATA = {
@@ -1152,11 +1208,89 @@
     const PALETTE = ['#0D9488', '#4F46E5', '#059669', '#D97706', '#E11D48'];
 
     function hexToRgba(hex, alpha) {
-      const clean = (hex || '#0D9488').replace('#', '');
+      const clean = sanitizeHexColor(hex, '#0D9488').replace('#', '');
       const r = parseInt(clean.substring(0, 2), 16) || 13;
       const g = parseInt(clean.substring(2, 4), 16) || 148;
       const b = parseInt(clean.substring(4, 6), 16) || 136;
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function escapeHtml(val) {
+      return String(val == null ? '' : val)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function sanitizeHexColor(val, fallback) {
+      const str = String(val || '').trim();
+      return /^#[0-9A-Fa-f]{6}$/.test(str) ? str : (fallback || '#0D9488');
+    }
+
+    function resolveTextAccentColor(hexColor, isLight) {
+      const key = sanitizeHexColor(hexColor, '#0D9488').toUpperCase();
+      const mapLight = {
+        '#0D9488': '#0F766E',
+        '#D97706': '#B45309',
+        '#4F46E5': '#4338CA',
+        '#059669': '#047857',
+        '#E11D48': '#BE123C'
+      };
+      const mapDark = {
+        '#0D9488': '#2DD4BF',
+        '#D97706': '#F59E0B',
+        '#4F46E5': '#818CF8',
+        '#059669': '#34D399',
+        '#E11D48': '#FB7185'
+      };
+      return (isLight ? mapLight[key] : mapDark[key]) || (isLight ? '#0F766E' : '#2DD4BF');
+    }
+
+    function resolveSolidHighContrastBg(hexColor) {
+      const key = sanitizeHexColor(hexColor, '#0D9488').toUpperCase();
+      const mapSolid = {
+        '#0D9488': '#0F766E',
+        '#D97706': '#B45309',
+        '#4F46E5': '#4338CA',
+        '#059669': '#047857',
+        '#E11D48': '#BE123C'
+      };
+      return mapSolid[key] || '#0F766E';
+    }
+
+    function sanitizeCsvCell(val) {
+      let str = String(val == null ? '' : val).replace(/\r?\n/g, ' ');
+      if (/^\s*[=+\-@\t\r]/.test(str)) {
+        str = "'" + str;
+      }
+      return '"' + str.replace(/"/g, '""') + '"';
+    }
+
+    function sanitizeMdCell(val) {
+      return String(val == null ? '' : val).replace(/\|/g, '\\|').replace(/\r?\n/g, ' ').trim();
+    }
+
+    function bindTablistKeyboard() {
+      const tablist = document.querySelector('[role="tablist"]');
+      if (!tablist || tablist.dataset.keyBound === 'true') return;
+      tablist.dataset.keyBound = 'true';
+      tablist.addEventListener('keydown', (e) => {
+        const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+        const idx = tabs.indexOf(document.activeElement);
+        if (idx === -1) return;
+        let nextIdx = -1;
+        if (e.key === 'ArrowRight') nextIdx = (idx + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft') nextIdx = (idx - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') nextIdx = 0;
+        else if (e.key === 'End') nextIdx = tabs.length - 1;
+        if (nextIdx !== -1) {
+          e.preventDefault();
+          tabs[nextIdx].focus();
+          tabs[nextIdx].click();
+        }
+      });
     }
 
     function initDashboard(data) {
@@ -1168,7 +1302,7 @@
       document.getElementById('display-date').innerText = meetingDate;
 
       const pContainer = document.getElementById('display-participants');
-      pContainer.innerHTML = (data.participants || []).map(p => `<span class="participant-item">${p}</span>`).join('');
+      pContainer.innerHTML = (data.participants || []).map(p => `<span class="participant-item">${escapeHtml(p)}</span>`).join('');
 
       document.getElementById('kpi-decisions').innerText = data.metrics.decisionsCount;
       document.getElementById('kpi-topics').innerText = data.metrics.topicsCount;
@@ -1176,9 +1310,9 @@
       document.getElementById('kpi-cutover').innerText = data.metrics.targetCutover || 'TBD';
 
       document.getElementById('display-objective').innerText = data.executiveSummary.objective;
-      document.getElementById('display-decisions').innerHTML = data.executiveSummary.decisions.map(d => `<li>${d}</li>`).join('');
-      document.getElementById('display-impacts').innerHTML = data.executiveSummary.impacts.map(i => `<li>${i}</li>`).join('');
-      document.getElementById('display-risks').innerHTML = data.executiveSummary.risks.map(r => `<li>${r}</li>`).join('');
+      document.getElementById('display-decisions').innerHTML = data.executiveSummary.decisions.map(d => `<li>${escapeHtml(d)}</li>`).join('');
+      document.getElementById('display-impacts').innerHTML = data.executiveSummary.impacts.map(i => `<li>${escapeHtml(i)}</li>`).join('');
+      document.getElementById('display-risks').innerHTML = data.executiveSummary.risks.map(r => `<li>${escapeHtml(r)}</li>`).join('');
 
       renderBenchmarkChart(data);
       renderCoverageHeatmap(data);
@@ -1194,7 +1328,7 @@
       const isLight = document.documentElement.getAttribute('data-theme') === 'light';
       const gridColor = isLight ? '#E7E5E4' : '#292A30';
       const textPrimary = isLight ? '#1C1917' : '#ECE8E2';
-      const textSecondary = isLight ? '#787774' : '#9A9895';
+      const textSecondary = isLight ? '#57534E' : '#9A9895';
 
       container.innerHTML = `
         <svg viewBox="0 0 560 220" width="100%" height="220" role="img" aria-label="Monthly TCO, Wire Size, and Latency Benchmarks">
@@ -1210,7 +1344,7 @@
 
           <text x="8" y="65" fill="${textSecondary}" font-family="ui-monospace, monospace" font-size="11">Cloud Managed TCO</text>
           <rect x="140" y="50" width="177" height="18" rx="3" fill="#0D9488" />
-          <text x="325" y="63" fill="#0D9488" font-family="ui-monospace, monospace" font-size="11" font-weight="600">$11,800/mo (-28%)</text>
+          <text x="325" y="63" fill="${resolveTextAccentColor('#0D9488', isLight)}" font-family="ui-monospace, monospace" font-size="11" font-weight="600">$11,800/mo (-28%)</text>
 
           <text x="8" y="113" fill="${textSecondary}" font-family="ui-monospace, monospace" font-size="11">Unvalidated JSON</text>
           <rect x="140" y="98" width="300" height="16" rx="3" fill="#4F46E5" fill-opacity="0.45" />
@@ -1218,13 +1352,13 @@
 
           <text x="8" y="143" fill="${textSecondary}" font-family="ui-monospace, monospace" font-size="11">Protobuf v3 Wire</text>
           <rect x="140" y="128" width="174" height="16" rx="3" fill="#059669" />
-          <text x="322" y="140" fill="#059669" font-family="ui-monospace, monospace" font-size="11" font-weight="600">58% (-42% Size)</text>
+          <text x="322" y="140" fill="${resolveTextAccentColor('#059669', isLight)}" font-family="ui-monospace, monospace" font-size="11" font-weight="600">58% (-42% Size)</text>
 
           <text x="8" y="191" fill="${textSecondary}" font-family="ui-monospace, monospace" font-size="11">Latency (65k QPS)</text>
           <rect x="140" y="176" width="140" height="16" rx="3" fill="#059669" />
           <rect x="280" y="176" width="120" height="16" rx="3" fill="#0D9488" />
           <line x1="440" y1="168" x2="440" y2="202" stroke="#E11D48" stroke-width="2" stroke-dasharray="3 2" />
-          <text x="448" y="189" fill="#E11D48" font-family="ui-monospace, monospace" font-size="10.5" font-weight="600">14ms Avg / 26ms p99 (SLA 30ms)</text>
+          <text x="448" y="189" fill="${resolveTextAccentColor('#E11D48', isLight)}" font-family="ui-monospace, monospace" font-size="10.5" font-weight="600">14ms Avg / 26ms p99 (SLA 30ms)</text>
         </svg>
       `;
     }
@@ -1314,9 +1448,15 @@
     }
 
     function switchMainTab(tabKey, btn) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+        b.setAttribute('tabindex', '-1');
+      });
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      btn.setAttribute('tabindex', '0');
       document.getElementById('tab-' + tabKey).classList.add('active');
       if (tabKey === 'graph') {
         renderRelationshipNodeMap(MEETING_DATA.topics, MEETING_DATA.relationships);
@@ -1324,8 +1464,12 @@
     }
 
     function switchActionSubTab(subKey, btn) {
-      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
       btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
       document.getElementById('subview-table').style.display = subKey === 'table' ? 'block' : 'none';
       document.getElementById('subview-kanban').style.display = subKey === 'kanban' ? 'grid' : 'none';
     }
@@ -1443,7 +1587,7 @@
       const gridStroke = isLight ? '#E7E5E4' : '#292A30';
       const surfaceFill = isLight ? '#FFFFFF' : '#16171D';
       const textPrimary = isLight ? '#1C1917' : '#ECE8E2';
-      const textSecondary = isLight ? '#787774' : '#9A9895';
+      const textSecondary = isLight ? '#57534E' : '#9A9895';
 
       if (defs) {
         defs.innerHTML = PALETTE.map((col, idx) => `
@@ -1494,7 +1638,7 @@
         const id = t.id || `topic-${idx + 1}`;
         const angle = idx * angleStep - Math.PI / 4;
         const pIdx = (idx + 1) % PALETTE.length;
-        const nodeColor = t.color || PALETTE[pIdx];
+        const nodeColor = sanitizeHexColor(t.color, PALETTE[pIdx]);
         const node = {
           id: id,
           title: t.title,
@@ -1594,7 +1738,7 @@
 
             labelTextEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             labelTextEl.setAttribute('text-anchor', 'middle');
-            labelTextEl.setAttribute('fill', link.color);
+            labelTextEl.setAttribute('fill', resolveTextAccentColor(link.color, isLight));
             labelTextEl.setAttribute('font-family', 'ui-monospace, monospace');
             labelTextEl.setAttribute('font-size', '9.5');
             labelTextEl.setAttribute('font-weight', '600');
@@ -1613,24 +1757,35 @@
       nodes.forEach(node => {
         const nodeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         nodeG.setAttribute('class', 'node-group');
+        nodeG.setAttribute('tabindex', '0');
+        nodeG.setAttribute('role', 'button');
+        nodeG.setAttribute('aria-label', `Inspect topic: ${node.title || node.shortTitle}`);
 
         if (node.isRoot) {
           nodeG.innerHTML = `
-            <circle cx="0" cy="0" r="${node.r}" fill="${node.color}" stroke="${textPrimary}" stroke-width="2"/>
-            <text x="0" y="-4" text-anchor="middle" fill="#FFFFFF" font-family="ui-monospace, monospace" font-size="10" font-weight="600">CORE GOAL</text>
-            <text x="0" y="10" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="DM Sans, sans-serif" font-size="9" font-weight="500">MIGRATION</text>
+            <circle cx="0" cy="0" r="${node.r}" fill="#0F766E" stroke="${textPrimary}" stroke-width="2"/>
+            <text x="0" y="3" text-anchor="middle" fill="#FFFFFF" font-family="ui-monospace, monospace" font-size="10" font-weight="600">CORE GOAL</text>
           `;
         } else {
-          const words = node.shortTitle.split(' ');
-          const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
-          const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+          const words = String(node.shortTitle || '').split(' ');
+          const line1 = escapeHtml(words.slice(0, Math.ceil(words.length / 2)).join(' '));
+          const line2 = escapeHtml(words.slice(Math.ceil(words.length / 2)).join(' '));
+          const safeColor = sanitizeHexColor(node.color, '#0D9488');
           nodeG.innerHTML = `
-            <circle cx="0" cy="0" r="${node.r}" fill="${surfaceFill}" stroke="${node.color}" stroke-width="2.5"/>
-            <circle cx="0" cy="0" r="${node.r - 5}" fill="${hexToRgba(node.color, 0.1)}" stroke="none"/>
-            <text x="0" y="${line2 ? -3 : 3}" text-anchor="middle" fill="${textPrimary}" font-family="DM Sans, sans-serif" font-size="10.5" font-weight="600">${line1}</text>
-            ${line2 ? `<text x="0" y="11" text-anchor="middle" fill="${textSecondary}" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="500">${line2}</text>` : ''}
+            <circle cx="0" cy="0" r="${node.r}" fill="${surfaceFill}" stroke="${safeColor}" stroke-width="2.5"/>
+            <circle cx="0" cy="0" r="${node.r - 5}" fill="${hexToRgba(safeColor, 0.1)}" stroke="none"/>
+            <text x="0" y="${line2 ? -3 : 3}" text-anchor="middle" fill="${textPrimary}" font-family="system-ui, sans-serif" font-size="10.5" font-weight="600">${line1}</text>
+            ${line2 ? `<text x="0" y="11" text-anchor="middle" fill="${textSecondary}" font-family="system-ui, sans-serif" font-size="9.5" font-weight="500">${line2}</text>` : ''}
           `;
         }
+
+        nodeG.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            graphState.lastFocusedNodeEl = nodeG;
+            selectGraphNode(node);
+          }
+        });
 
         nodeG.addEventListener('mousedown', (e) => {
           e.stopPropagation();
@@ -1644,6 +1799,7 @@
         nodeG.addEventListener('click', (e) => {
           e.stopPropagation();
           if (!graphState.hasDraggedMoved) {
+            graphState.lastFocusedNodeEl = nodeG;
             selectGraphNode(node);
           }
         });
@@ -1888,11 +2044,21 @@
       document.getElementById('inspector-mechanism').innerText = topic.explanation || '';
       document.getElementById('inspector-rationale').innerText = topic.rationale || '';
       document.getElementById('inspector-conclusion').innerText = topic.conclusion || '';
-      document.getElementById('inspector-drawer').classList.add('open');
+      const drawer = document.getElementById('inspector-drawer');
+      drawer.classList.add('open');
+      drawer.setAttribute('aria-hidden', 'false');
+      const closeBtn = document.getElementById('inspector-close-btn');
+      if (closeBtn && graphState.lastFocusedNodeEl) closeBtn.focus();
     }
 
     function closeInspector() {
-      document.getElementById('inspector-drawer').classList.remove('open');
+      const drawer = document.getElementById('inspector-drawer');
+      drawer.classList.remove('open');
+      drawer.setAttribute('aria-hidden', 'true');
+      if (graphState.lastFocusedNodeEl) {
+        graphState.lastFocusedNodeEl.focus();
+        graphState.lastFocusedNodeEl = null;
+      }
       graphState.activeTopicId = null;
       graphState.nodes.forEach(n => n.domG && n.domG.classList.remove('dimmed'));
       graphState.links.forEach(l => l.domG && l.domG.classList.remove('dimmed'));
@@ -1934,21 +2100,21 @@
         return;
       }
       tbody.innerHTML = actions.map(act => {
-        const isUnassigned = act.assignee === 'Unassigned' || act.criticalState === 'UNASSIGNED BLOCKER';
+        const isUnassigned = act.assignee === 'Unassigned' || act.status === 'Unassigned' || act.criticalState === 'UNASSIGNED BLOCKER';
         const isGate = act.criticalState === 'HARD GATE';
         const ownerMarkup = isUnassigned
-          ? `<span class="status-critical">UNASSIGNED BLOCKER</span>`
-          : `<span>${act.assignee}</span>`;
+          ? `<span class="status-critical">[BLOCKER: UNASSIGNED]</span>`
+          : `<span>${escapeHtml(act.assignee)}</span>`;
         const deadlineMarkup = isGate
-          ? `<span style="color: var(--viz-amber); font-weight: 600;">${act.deadline}</span> <span class="status-warning">HARD GATE</span>`
-          : `<span style="color: ${isUnassigned ? 'var(--viz-rose)' : 'var(--viz-teal)'}; font-weight: 500;">${act.deadline}</span>`;
+          ? `<span style="color: var(--viz-amber-text); font-weight: 600;">${escapeHtml(act.deadline)}</span> <span class="status-warning">[HARD GATE]</span>`
+          : `<span style="color: ${isUnassigned ? 'var(--viz-rose-text)' : 'var(--viz-teal-text)'}; font-weight: 500;">${escapeHtml(act.deadline)}</span>`;
 
         return `
           <tr>
-            <td>${act.description}</td>
+            <td>${escapeHtml(act.description)}</td>
             <td>${ownerMarkup}</td>
             <td>${deadlineMarkup}</td>
-            <td style="color: var(--text-secondary);">${act.deliverable || ''}</td>
+            <td style="color: var(--text-secondary);">${escapeHtml(act.deliverable || '')}</td>
           </tr>
         `;
       }).join('');
@@ -1973,17 +2139,17 @@
         return `
           <div class="lane-column">
             <div class="lane-header">
-              <span class="lane-owner" style="color: ${isUnassigned ? 'var(--viz-rose)' : 'var(--text-primary)'};">${owner}</span>
+              <span class="lane-owner" style="color: ${isUnassigned ? 'var(--viz-rose-text)' : 'var(--text-primary)'};">${escapeHtml(owner)}${isUnassigned ? ' [UNASSIGNED]' : ''}</span>
               <span class="lane-count">${tasks.length}</span>
             </div>
             ${tasks.map(t => `
               <div class="lane-task-row">
-                <div class="lane-task-desc">${t.description}</div>
-                <div class="lane-task-deliverable">${t.deliverable || ''}</div>
+                <div class="lane-task-desc">${escapeHtml(t.description)}</div>
+                <div class="lane-task-deliverable">${escapeHtml(t.deliverable || '')}</div>
                 <div class="lane-task-meta">
-                  <span style="color: ${isUnassigned ? 'var(--viz-rose)' : 'var(--viz-teal)'};">${t.deadline}</span>
-                  ${t.criticalState === 'UNASSIGNED BLOCKER' ? '<span class="status-critical">UNASSIGNED</span>' : ''}
-                  ${t.criticalState === 'HARD GATE' ? '<span class="status-warning">HARD GATE</span>' : ''}
+                  <span style="color: ${isUnassigned ? 'var(--viz-rose-text)' : 'var(--viz-teal-text)'};">${escapeHtml(t.deadline)}</span>
+                  ${(isUnassigned || t.criticalState === 'UNASSIGNED BLOCKER') ? '<span class="status-critical">[UNASSIGNED]</span>' : ''}
+                  ${t.criticalState === 'HARD GATE' ? '<span class="status-warning">[HARD GATE]</span>' : ''}
                 </div>
               </div>
             `).join('')}
@@ -1996,21 +2162,25 @@
       const actions = MEETING_DATA.actionItems || [];
       const headers = ["Action Item", "Assigned To", "Deadline", "Acceptance Criteria"];
       const rows = actions.map(a => [
-        `"${(a.description || '').replace(/"/g, '""')}"`,
-        `"${(a.assignee || '').replace(/"/g, '""')}"`,
-        `"${(a.deadline || '').replace(/"/g, '""')}"`,
-        `"${(a.deliverable || '').replace(/"/g, '""')}"`
+        sanitizeCsvCell(a.description || ''),
+        sanitizeCsvCell(a.assignee || ''),
+        sanitizeCsvCell(a.deadline || ''),
+        sanitizeCsvCell(a.deliverable || '')
       ]);
-      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('
+');
       navigator.clipboard.writeText(csvContent);
     }
 
     function exportActionItemsMarkdown() {
       const actions = MEETING_DATA.actionItems || [];
-      let md = "| Action Item | Assigned To | Deadline | Acceptance Criteria / Target Deliverable |\n";
-      md += "| :--- | :--- | :--- | :--- |\n";
+      let md = "| Action Item | Assigned To | Deadline | Acceptance Criteria / Target Deliverable |
+";
+      md += "| :--- | :--- | :--- | :--- |
+";
       actions.forEach(a => {
-        md += `| ${a.description} | ${a.assignee} | ${a.deadline} | ${a.deliverable || ''} |\n`;
+        md += `| ${sanitizeMdCell(a.description)} | ${sanitizeMdCell(a.assignee)} | ${sanitizeMdCell(a.deadline)} | ${sanitizeMdCell(a.deliverable || '')} |
+`;
       });
       navigator.clipboard.writeText(md);
     }
@@ -2018,36 +2188,43 @@
     function renderTopicAccordions(topics) {
       const container = document.getElementById('topics-accordion-list');
       if (!container) return;
-      container.innerHTML = topics.map((t, idx) => `
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      container.innerHTML = topics.map((t, idx) => {
+        const isOpen = idx === 0;
+        const accentText = resolveTextAccentColor(t.color || PALETTE[(idx + 1) % PALETTE.length], isLight);
+        return `
         <div class="record-item">
-          <button type="button" class="record-header" onclick="toggleAccordion(${idx})">
-            <span><span style="font-family: var(--font-mono); color: ${t.color || 'var(--viz-teal)'}; margin-right: 0.5rem;">0${idx + 1}</span>${t.title}</span>
-            <span class="record-toggle-indicator" id="record-ind-${idx}">OPEN</span>
+          <button type="button" class="record-header" id="topic-btn-${idx}" aria-expanded="${isOpen ? 'true' : 'false'}" aria-controls="topic-body-${idx}" onclick="toggleAccordion(${idx})">
+            <span><span style="font-family: var(--font-mono); color: ${accentText}; margin-right: 0.5rem;">0${idx + 1}</span>${escapeHtml(t.title)}</span>
+            <span class="record-toggle-indicator" id="record-ind-${idx}">${isOpen ? '[OPEN]' : '[CLOSED]'}</span>
           </button>
-          <div class="record-body ${idx === 0 ? 'open' : ''}" id="topic-body-${idx}">
+          <div class="record-body ${isOpen ? 'open' : ''}" id="topic-body-${idx}" role="region" aria-labelledby="topic-btn-${idx}">
             <div class="record-field">
               <span class="record-field-label">Discussion Details (What Was Said)</span>
-              <p class="record-field-text">${t.context} ${t.explanation}</p>
+              <p class="record-field-text">${escapeHtml(t.context || '')} ${escapeHtml(t.explanation || '')}</p>
             </div>
             <div class="record-field">
               <span class="record-field-label">Points Raised &amp; Rationale</span>
-              <p class="record-field-text">${t.rationale}</p>
+              <p class="record-field-text">${escapeHtml(t.rationale || '')}</p>
             </div>
             <div class="record-field" style="grid-column: 1 / -1;">
-              <span class="record-field-label" style="color: var(--viz-emerald);">Key Conclusion</span>
-              <p class="record-field-text" style="color: var(--text-primary); font-weight: 500;">${t.conclusion}</p>
+              <span class="record-field-label" style="color: var(--viz-emerald-text);">Key Conclusion</span>
+              <p class="record-field-text" style="color: var(--text-primary); font-weight: 500;">${escapeHtml(t.conclusion || '')}</p>
             </div>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function toggleAccordion(idx) {
       const el = document.getElementById('topic-body-' + idx);
+      const btn = document.getElementById('topic-btn-' + idx);
       const ind = document.getElementById('record-ind-' + idx);
       if (el) {
         const isOpen = el.classList.toggle('open');
-        if (ind) ind.innerText = isOpen ? 'CLOSE' : 'OPEN';
+        if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        if (ind) ind.innerText = isOpen ? '[OPEN]' : '[CLOSED]';
       }
     }
 
@@ -2060,6 +2237,7 @@
       } catch (e) {}
       renderBenchmarkChart(MEETING_DATA);
       renderRelationshipNodeMap(MEETING_DATA.topics || [], MEETING_DATA.relationships || []);
+      renderTopicAccordions(MEETING_DATA.topics || []);
     }
 
     (function initTheme() {
@@ -2070,7 +2248,17 @@
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();
 
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const drawer = document.getElementById('inspector-drawer');
+        if (drawer && drawer.classList.contains('open')) {
+          closeInspector();
+        }
+      }
+    });
+
     window.addEventListener('DOMContentLoaded', () => {
+      bindTablistKeyboard();
       initDashboard(MEETING_DATA);
     });
   </script>

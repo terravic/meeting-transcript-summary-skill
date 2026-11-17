@@ -9,9 +9,12 @@ Usage:
 """
 
 import argparse
+import os
 import re
 import sys
 from typing import List, Tuple
+
+DEFAULT_MAX_INPUT_BYTES = 50 * 1024 * 1024
 
 
 def clean_vtt_srt(content: str) -> str:
@@ -32,7 +35,6 @@ def clean_vtt_srt(content: str) -> str:
         r'\[\d{1,2}:\d{2}(:\d{2})?\]|\(\d{1,2}:\d{2}(:\d{2})?\)'
     )
 
-    skip_next = False
     for line in lines:
         stripped = line.strip()
         
@@ -105,11 +107,36 @@ def clean_transcript(raw_text: str) -> str:
     return stage2
 
 
+def _resolve_max_input_bytes() -> int:
+    raw_limit = os.environ.get("CLEAN_TRANSCRIPT_MAX_BYTES", "")
+    if raw_limit.isdigit() and int(raw_limit) > 0:
+        return int(raw_limit)
+    return DEFAULT_MAX_INPUT_BYTES
+
+
 def main():
     parser = argparse.ArgumentParser(description="Clean and normalize meeting transcripts.")
     parser.add_argument("input_file", help="Path to raw transcript file (.txt, .vtt, .srt)")
     parser.add_argument("--output", "-o", help="Path to write cleaned transcript", default=None)
     args = parser.parse_args()
+
+    if not os.path.isfile(args.input_file):
+        print(f"Error reading {args.input_file}: path does not exist or is not a regular file", file=sys.stderr)
+        sys.exit(1)
+
+    max_bytes = _resolve_max_input_bytes()
+    try:
+        file_size = os.path.getsize(args.input_file)
+    except OSError as e:
+        print(f"Error reading {args.input_file}: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    if file_size > max_bytes:
+        print(
+            f"Error reading {args.input_file}: file size ({file_size} bytes) exceeds limit ({max_bytes} bytes)",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     try:
         with open(args.input_file, "r", encoding="utf-8", errors="replace") as f:

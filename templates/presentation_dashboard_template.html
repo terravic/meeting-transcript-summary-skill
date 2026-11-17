@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';">
   <meta name="description" content="Interactive Relationship Node Map and Chronological Presentation Dashboard">
   <title>Presentation Evaluation Dashboard</title>
   <style>
@@ -22,6 +23,12 @@
       --viz-indigo: #4F46E5;
       --viz-emerald: #059669;
       --viz-rose: #E11D48;
+      --viz-teal-text: #2DD4BF;
+      --viz-amber-text: #F59E0B;
+      --viz-indigo-text: #818CF8;
+      --viz-emerald-text: #34D399;
+      --viz-rose-text: #FB7185;
+      --viz-active-bg: #0F766E;
 
       --radius-sm: 6px;
       --radius-md: 8px;
@@ -34,10 +41,16 @@
       --bg-surface: #FFFFFF;
       --border-color: #E7E5E4;
       --text-primary: #1C1917;
-      --text-secondary: #787774;
+      --text-secondary: #57534E;
       --chart-grid: #E7E5E4;
       --surface-hover: rgba(28, 25, 23, 0.035);
       --surface-subtle: rgba(28, 25, 23, 0.02);
+      --viz-teal-text: #0F766E;
+      --viz-amber-text: #B45309;
+      --viz-indigo-text: #4338CA;
+      --viz-emerald-text: #047857;
+      --viz-rose-text: #BE123C;
+      --viz-active-bg: #0F766E;
     }
 
     * {
@@ -261,7 +274,6 @@
       font-family: var(--font-sans);
       font-size: 0.8125rem;
       width: 260px;
-      outline: none;
     }
 
     .graph-search-input:focus {
@@ -297,8 +309,8 @@
     }
 
     .ctrl-btn:hover {
-      border-color: var(--viz-teal);
-      color: var(--viz-teal);
+      border-color: var(--viz-teal-text);
+      color: var(--viz-teal-text);
     }
 
     .node-group {
@@ -367,7 +379,7 @@
     .inspector-meta {
       font-family: var(--font-mono);
       font-size: 0.75rem;
-      color: var(--viz-teal);
+      color: var(--viz-teal-text);
       margin-top: 0.2rem;
     }
 
@@ -389,7 +401,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--viz-teal);
+      color: var(--viz-teal-text);
     }
 
     .inspector-body {
@@ -468,13 +480,50 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--viz-teal);
+      color: var(--viz-teal-text);
     }
 
     .record-field-text {
       font-size: 0.8125rem;
       color: var(--text-secondary);
       line-height: 1.55;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    .node-group:focus-visible,
+    .heatmap-cell:focus-visible {
+      outline: 2px solid var(--viz-teal-text);
+      outline-offset: 2px;
+    }
+
+    button.heatmap-cell {
+      width: 100%;
+      border: 1px solid transparent;
+      font-family: var(--font-mono);
+    }
+
+    .dashboard-footer {
+      border-top: 1px solid var(--border-color);
+      background-color: var(--bg-surface);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      text-align: center;
     }
 
     @media (max-width: 960px) {
@@ -502,15 +551,18 @@
         </div>
       </div>
 
-      <nav class="nav-tabs" aria-label="Presentation views">
-        <button type="button" class="tab-btn active" onclick="switchMainTab('graph', this)">Interactive Relationship Node Map</button>
-        <button type="button" class="tab-btn" onclick="switchMainTab('walkthrough', this)">Chronological Walkthrough</button>
+      <nav aria-label="Presentation views">
+        <div class="nav-tabs" role="tablist" aria-label="Presentation sections">
+          <button type="button" class="tab-btn active" id="tab-btn-graph" role="tab" aria-selected="true" aria-controls="tab-graph" tabindex="0" onclick="switchMainTab('graph', this)">Interactive Relationship Node Map</button>
+          <button type="button" class="tab-btn" id="tab-btn-walkthrough" role="tab" aria-selected="false" aria-controls="tab-walkthrough" tabindex="-1" onclick="switchMainTab('walkthrough', this)">Chronological Walkthrough</button>
+        </div>
       </nav>
     </div>
   </header>
 
   <main>
-    <section id="tab-graph" class="tab-content active">
+    <section id="tab-graph" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-graph">
+      <h2 class="sr-only">Interactive Relationship Node Map</h2>
       <div class="bento-grid">
         <div class="bento-cell">
           <span class="cell-title">Core Theme</span>
@@ -520,7 +572,7 @@
 
       <div class="graph-wrapper">
         <div class="graph-toolbar-overlay">
-          <input type="text" class="graph-search-input" id="graph-search-input" placeholder="Filter slides, concepts, or metrics..." oninput="filterGraphNodes(this.value)">
+          <input type="text" class="graph-search-input" id="graph-search-input" aria-label="Filter presentation segments" placeholder="Filter slides, concepts, or metrics..." oninput="filterGraphNodes(this.value)">
         </div>
 
         <div class="graph-controls">
@@ -537,13 +589,13 @@
           </svg>
         </div>
 
-        <aside class="inspector-drawer" id="inspector-drawer" aria-label="Segment detail inspector">
+        <aside class="inspector-drawer" id="inspector-drawer" aria-label="Segment detail inspector" aria-hidden="true">
           <div class="inspector-header">
             <div>
               <h2 class="inspector-title" id="inspector-title">Segment Title</h2>
               <div class="inspector-meta" id="inspector-presenter">Presenter</div>
             </div>
-            <button type="button" class="ctrl-btn" onclick="closeInspector()">Close</button>
+            <button type="button" class="ctrl-btn" id="inspector-close-btn" onclick="closeInspector()">Close</button>
           </div>
           <div class="inspector-block">
             <div class="inspector-label">What Was Presented &amp; Said</div>
@@ -561,7 +613,8 @@
       </div>
     </section>
 
-    <section id="tab-walkthrough" class="tab-content">
+    <section id="tab-walkthrough" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-walkthrough">
+      <h2 class="sr-only">Chronological Walkthrough</h2>
       <div class="walkthrough-toolbar">
         <span class="cell-title">Chronological Sequence</span>
         <div style="display:flex; gap:0.5rem;">
@@ -573,6 +626,8 @@
       <div class="record-surface" id="segments-accordion-list"></div>
     </section>
   </main>
+
+  <footer class="dashboard-footer">Local static evaluation view. Offline execution with zero external network requests.</footer>
 
   <script>
     // Populate PRESENTATION_DATA with the real processed session transcript data when emitting dashboard.html
@@ -589,11 +644,89 @@
     const PALETTE = ['#0D9488', '#4F46E5', '#059669', '#D97706', '#E11D48'];
 
     function hexToRgba(hex, alpha) {
-      const clean = (hex || '#0D9488').replace('#', '');
+      const clean = sanitizeHexColor(hex, '#0D9488').replace('#', '');
       const r = parseInt(clean.substring(0, 2), 16) || 13;
       const g = parseInt(clean.substring(2, 4), 16) || 148;
       const b = parseInt(clean.substring(4, 6), 16) || 136;
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function escapeHtml(val) {
+      return String(val == null ? '' : val)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function sanitizeHexColor(val, fallback) {
+      const str = String(val || '').trim();
+      return /^#[0-9A-Fa-f]{6}$/.test(str) ? str : (fallback || '#0D9488');
+    }
+
+    function resolveTextAccentColor(hexColor, isLight) {
+      const key = sanitizeHexColor(hexColor, '#0D9488').toUpperCase();
+      const mapLight = {
+        '#0D9488': '#0F766E',
+        '#D97706': '#B45309',
+        '#4F46E5': '#4338CA',
+        '#059669': '#047857',
+        '#E11D48': '#BE123C'
+      };
+      const mapDark = {
+        '#0D9488': '#2DD4BF',
+        '#D97706': '#F59E0B',
+        '#4F46E5': '#818CF8',
+        '#059669': '#34D399',
+        '#E11D48': '#FB7185'
+      };
+      return (isLight ? mapLight[key] : mapDark[key]) || (isLight ? '#0F766E' : '#2DD4BF');
+    }
+
+    function resolveSolidHighContrastBg(hexColor) {
+      const key = sanitizeHexColor(hexColor, '#0D9488').toUpperCase();
+      const mapSolid = {
+        '#0D9488': '#0F766E',
+        '#D97706': '#B45309',
+        '#4F46E5': '#4338CA',
+        '#059669': '#047857',
+        '#E11D48': '#BE123C'
+      };
+      return mapSolid[key] || '#0F766E';
+    }
+
+    function sanitizeCsvCell(val) {
+      let str = String(val == null ? '' : val).replace(/\r?\n/g, ' ');
+      if (/^\s*[=+\-@\t\r]/.test(str)) {
+        str = "'" + str;
+      }
+      return '"' + str.replace(/"/g, '""') + '"';
+    }
+
+    function sanitizeMdCell(val) {
+      return String(val == null ? '' : val).replace(/\|/g, '\\|').replace(/\r?\n/g, ' ').trim();
+    }
+
+    function bindTablistKeyboard() {
+      const tablist = document.querySelector('[role="tablist"]');
+      if (!tablist || tablist.dataset.keyBound === 'true') return;
+      tablist.dataset.keyBound = 'true';
+      tablist.addEventListener('keydown', (e) => {
+        const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+        const idx = tabs.indexOf(document.activeElement);
+        if (idx === -1) return;
+        let nextIdx = -1;
+        if (e.key === 'ArrowRight') nextIdx = (idx + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft') nextIdx = (idx - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') nextIdx = 0;
+        else if (e.key === 'End') nextIdx = tabs.length - 1;
+        if (nextIdx !== -1) {
+          e.preventDefault();
+          tabs[nextIdx].focus();
+          tabs[nextIdx].click();
+        }
+      });
     }
 
     function initDashboard(data) {
@@ -605,7 +738,7 @@
       document.getElementById('display-date').innerText = presDate;
 
       const presenters = data.presenters || [];
-      document.getElementById('display-presenters').innerHTML = presenters.map(p => `<span>${p}</span>`).join(' | ');
+      document.getElementById('display-presenters').innerHTML = presenters.map(p => `<span>${escapeHtml(p)}</span>`).join(' | ');
 
       const segments = data.segments || [];
       document.getElementById('badge-segments').innerText = `${segments.length} Segments`;
@@ -618,9 +751,15 @@
     }
 
     function switchMainTab(tabKey, btn) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+        b.setAttribute('tabindex', '-1');
+      });
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      btn.setAttribute('tabindex', '0');
       document.getElementById('tab-' + tabKey).classList.add('active');
       if (tabKey === 'graph') {
         renderRelationshipNodeMap(PRESENTATION_DATA.segments || [], PRESENTATION_DATA.relationships || []);
@@ -702,7 +841,7 @@
       const gridStroke = isLight ? '#E7E5E4' : '#292A30';
       const surfaceFill = isLight ? '#FFFFFF' : '#16171D';
       const textPrimary = isLight ? '#1C1917' : '#ECE8E2';
-      const textSecondary = isLight ? '#787774' : '#9A9895';
+      const textSecondary = isLight ? '#57534E' : '#9A9895';
 
       if (defs) {
         defs.innerHTML = PALETTE.map((col, idx) => `
@@ -754,7 +893,7 @@
         const id = s.id || `seg-${idx + 1}`;
         const angle = idx * angleStep - Math.PI / 2;
         const pIdx = idx % PALETTE.length;
-        const nodeColor = s.color || PALETTE[pIdx];
+        const nodeColor = sanitizeHexColor(s.color, PALETTE[pIdx]);
         const node = {
           id: id,
           order: s.order || (idx + 1),
@@ -855,7 +994,7 @@
 
             labelTextEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             labelTextEl.setAttribute('text-anchor', 'middle');
-            labelTextEl.setAttribute('fill', link.color);
+            labelTextEl.setAttribute('fill', resolveTextAccentColor(link.color, isLight));
             labelTextEl.setAttribute('font-family', 'ui-monospace, monospace');
             labelTextEl.setAttribute('font-size', '9');
             labelTextEl.setAttribute('font-weight', '600');
@@ -874,24 +1013,37 @@
       nodes.forEach(node => {
         const nodeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         nodeG.setAttribute('class', 'node-group');
+        nodeG.setAttribute('tabindex', '0');
+        nodeG.setAttribute('role', 'button');
+        nodeG.setAttribute('aria-label', `Inspect segment: ${node.title || node.shortTitle}`);
 
         if (node.isRoot) {
           nodeG.innerHTML = `
-            <circle cx="0" cy="0" r="${node.r}" fill="${node.color}" stroke="${textPrimary}" stroke-width="2"/>
+            <circle cx="0" cy="0" r="${node.r}" fill="#0F766E" stroke="${textPrimary}" stroke-width="2"/>
             <text x="0" y="3" text-anchor="middle" fill="#FFFFFF" font-family="ui-monospace, monospace" font-size="10" font-weight="600">CORE THEME</text>
           `;
         } else {
-          const words = node.shortTitle.split(' ');
-          const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
-          const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+          const words = String(node.shortTitle || '').split(' ');
+          const line1 = escapeHtml(words.slice(0, Math.ceil(words.length / 2)).join(' '));
+          const line2 = escapeHtml(words.slice(Math.ceil(words.length / 2)).join(' '));
+          const safeColor = sanitizeHexColor(node.color, '#0D9488');
+          const safeTextCol = resolveTextAccentColor(safeColor, isLight);
           nodeG.innerHTML = `
-            <circle cx="0" cy="0" r="${node.r}" fill="${surfaceFill}" stroke="${node.color}" stroke-width="2.5"/>
-            <circle cx="0" cy="0" r="${node.r - 5}" fill="${hexToRgba(node.color, 0.1)}" stroke="none"/>
-            <text x="0" y="-14" text-anchor="middle" fill="${node.color}" font-family="ui-monospace, monospace" font-size="9.5" font-weight="600">#${node.order}</text>
-            <text x="0" y="${line2 ? 0 : 4}" text-anchor="middle" fill="${textPrimary}" font-family="DM Sans, sans-serif" font-size="10" font-weight="600">${line1}</text>
-            ${line2 ? `<text x="0" y="13" text-anchor="middle" fill="${textSecondary}" font-family="DM Sans, sans-serif" font-size="9" font-weight="500">${line2}</text>` : ''}
+            <circle cx="0" cy="0" r="${node.r}" fill="${surfaceFill}" stroke="${safeColor}" stroke-width="2.5"/>
+            <circle cx="0" cy="0" r="${node.r - 5}" fill="${hexToRgba(safeColor, 0.1)}" stroke="none"/>
+            <text x="0" y="-14" text-anchor="middle" fill="${safeTextCol}" font-family="ui-monospace, monospace" font-size="9.5" font-weight="600">#${escapeHtml(node.order)}</text>
+            <text x="0" y="${line2 ? 0 : 4}" text-anchor="middle" fill="${textPrimary}" font-family="system-ui, sans-serif" font-size="10" font-weight="600">${line1}</text>
+            ${line2 ? `<text x="0" y="13" text-anchor="middle" fill="${textSecondary}" font-family="system-ui, sans-serif" font-size="9" font-weight="500">${line2}</text>` : ''}
           `;
         }
+
+        nodeG.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            graphState.lastFocusedNodeEl = nodeG;
+            selectGraphNode(node);
+          }
+        });
 
         nodeG.addEventListener('mousedown', (e) => {
           e.stopPropagation();
@@ -905,6 +1057,7 @@
         nodeG.addEventListener('click', (e) => {
           e.stopPropagation();
           if (!graphState.hasDraggedMoved) {
+            graphState.lastFocusedNodeEl = nodeG;
             selectGraphNode(node);
           }
         });
@@ -1149,11 +1302,21 @@
       document.getElementById('inspector-summary').innerText = seg.summary || '';
       document.getElementById('inspector-visuals').innerText = seg.visualsAndMetrics || '';
       document.getElementById('inspector-takeaway').innerText = seg.takeaway || '';
-      document.getElementById('inspector-drawer').classList.add('open');
+      const drawer = document.getElementById('inspector-drawer');
+      drawer.classList.add('open');
+      drawer.setAttribute('aria-hidden', 'false');
+      const closeBtn = document.getElementById('inspector-close-btn');
+      if (closeBtn && graphState.lastFocusedNodeEl) closeBtn.focus();
     }
 
     function closeInspector() {
-      document.getElementById('inspector-drawer').classList.remove('open');
+      const drawer = document.getElementById('inspector-drawer');
+      drawer.classList.remove('open');
+      drawer.setAttribute('aria-hidden', 'true');
+      if (graphState.lastFocusedNodeEl) {
+        graphState.lastFocusedNodeEl.focus();
+        graphState.lastFocusedNodeEl = null;
+      }
       graphState.activeSegmentId = null;
       graphState.nodes.forEach(n => n.domG && n.domG.classList.remove('dimmed'));
       graphState.links.forEach(l => l.domG && l.domG.classList.remove('dimmed'));
@@ -1190,36 +1353,42 @@
     function renderChronologicalWalkthrough(segments) {
       const container = document.getElementById('segments-accordion-list');
       if (!container) return;
-      container.innerHTML = segments.map((s, idx) => `
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      container.innerHTML = segments.map((s, idx) => {
+        const accentText = resolveTextAccentColor(s.color || PALETTE[idx % PALETTE.length], isLight);
+        return `
         <div class="record-item">
-          <button type="button" class="record-header" onclick="toggleSegment(${idx})">
-            <span><span style="font-family: var(--font-mono); color: ${s.color || PALETTE[idx % PALETTE.length]}; margin-right: 0.6rem;">#0${s.order || (idx + 1)}</span>${s.title}</span>
-            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary);" id="seg-ind-${idx}">CLOSE</span>
+          <button type="button" class="record-header" id="seg-btn-${idx}" aria-expanded="true" aria-controls="segment-body-${idx}" onclick="toggleSegment(${idx})">
+            <span><span style="font-family: var(--font-mono); color: ${accentText}; margin-right: 0.6rem;">#0${escapeHtml(s.order || (idx + 1))}</span>${escapeHtml(s.title)}</span>
+            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary);" id="seg-ind-${idx}">[OPEN]</span>
           </button>
-          <div class="record-body open" id="segment-body-${idx}">
+          <div class="record-body open" id="segment-body-${idx}" role="region" aria-labelledby="seg-btn-${idx}">
             <div class="record-field">
-              <span class="record-field-label">What Was Presented &amp; Said (${s.presenter || 'Presenter'})</span>
-              <p class="record-field-text">${s.summary || ''}</p>
+              <span class="record-field-label">What Was Presented &amp; Said (${escapeHtml(s.presenter || 'Presenter')})</span>
+              <p class="record-field-text">${escapeHtml(s.summary || '')}</p>
             </div>
             <div class="record-field">
               <span class="record-field-label">Slide Visuals, Demos &amp; Metrics Cited</span>
-              <p class="record-field-text">${s.visualsAndMetrics || ''}</p>
+              <p class="record-field-text">${escapeHtml(s.visualsAndMetrics || '')}</p>
             </div>
             <div class="record-field" style="grid-column: 1 / -1;">
-              <span class="record-field-label" style="color: var(--viz-emerald);">Stated Key Takeaway</span>
-              <p class="record-field-text" style="color: var(--text-primary); font-weight: 500;">${s.takeaway || ''}</p>
+              <span class="record-field-label" style="color: var(--viz-emerald-text);">Stated Key Takeaway</span>
+              <p class="record-field-text" style="color: var(--text-primary); font-weight: 500;">${escapeHtml(s.takeaway || '')}</p>
             </div>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function toggleSegment(idx) {
       const el = document.getElementById('segment-body-' + idx);
+      const btn = document.getElementById('seg-btn-' + idx);
       const ind = document.getElementById('seg-ind-' + idx);
       if (el) {
         const isOpen = el.classList.toggle('open');
-        if (ind) ind.innerText = isOpen ? 'CLOSE' : 'OPEN';
+        if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        if (ind) ind.innerText = isOpen ? '[OPEN]' : '[CLOSED]';
       }
     }
 
@@ -1227,24 +1396,42 @@
       document.querySelectorAll('.record-body').forEach((el, idx) => {
         if (openState) el.classList.add('open');
         else el.classList.remove('open');
+        const btn = document.getElementById('seg-btn-' + idx);
+        if (btn) btn.setAttribute('aria-expanded', openState ? 'true' : 'false');
         const ind = document.getElementById('seg-ind-' + idx);
-        if (ind) ind.innerText = openState ? 'CLOSE' : 'OPEN';
+        if (ind) ind.innerText = openState ? '[OPEN]' : '[CLOSED]';
       });
     }
 
     function exportChronologicalMarkdown() {
       const d = PRESENTATION_DATA;
-      let md = `# Presentation Summary: ${d.presentationTitle}\n\n`;
-      md += `**Date:** ${d.date}  \n`;
-      md += `**Presenter(s):** ${(d.presenters || []).join(', ')}\n\n---\n\n`;
-      md += `## Chronological Presentation Summary\n\n`;
+      let md = `# Presentation Summary: ${sanitizeMdCell(d.presentationTitle)}
+
+`;
+      md += `**Date:** ${sanitizeMdCell(d.date)}  
+`;
+      md += `**Presenter(s):** ${(d.presenters || []).map(sanitizeMdCell).join(', ')}
+
+---
+
+`;
+      md += `## Chronological Presentation Summary
+
+`;
       (d.segments || []).forEach((s, idx) => {
-        md += `### ${s.order || (idx + 1)}. ${s.title}\n\n`;
-        if (s.presenter) md += `- **Presenter:** ${s.presenter}\n`;
-        md += `- **What Was Presented & Said:** ${s.summary}\n`;
-        if (s.visualsAndMetrics) md += `- **Slide Visuals & Metrics Cited:** ${s.visualsAndMetrics}\n`;
-        if (s.takeaway) md += `- **Stated Key Takeaway:** ${s.takeaway}\n`;
-        md += `\n`;
+        md += `### ${sanitizeMdCell(s.order || (idx + 1))}. ${sanitizeMdCell(s.title)}
+
+`;
+        if (s.presenter) md += `- **Presenter:** ${sanitizeMdCell(s.presenter)}
+`;
+        md += `- **What Was Presented & Said:** ${sanitizeMdCell(s.summary)}
+`;
+        if (s.visualsAndMetrics) md += `- **Slide Visuals & Metrics Cited:** ${sanitizeMdCell(s.visualsAndMetrics)}
+`;
+        if (s.takeaway) md += `- **Stated Key Takeaway:** ${sanitizeMdCell(s.takeaway)}
+`;
+        md += `
+`;
       });
       navigator.clipboard.writeText(md);
     }
@@ -1257,6 +1444,7 @@
         localStorage.setItem('dashboard_theme', newTheme);
       } catch (e) {}
       renderRelationshipNodeMap(PRESENTATION_DATA.segments || [], PRESENTATION_DATA.relationships || []);
+      renderChronologicalWalkthrough(PRESENTATION_DATA.segments || []);
     }
 
     (function initTheme() {
@@ -1267,7 +1455,17 @@
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();
 
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const drawer = document.getElementById('inspector-drawer');
+        if (drawer && drawer.classList.contains('open')) {
+          closeInspector();
+        }
+      }
+    });
+
     window.addEventListener('DOMContentLoaded', () => {
+      bindTablistKeyboard();
       initDashboard(PRESENTATION_DATA);
     });
   </script>
