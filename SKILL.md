@@ -1,22 +1,17 @@
 ---
 name: meeting-transcript-summary
 description: >-
-  Analyzes raw meeting or presentation transcripts from video conferencing exports,
-  WebVTT, SRT, or plain text in two modes: (1) Meeting Mode (default) - produces a
-  concise two-section core deliverable (Executive Summary and bullet-first Detailed
-  Discussion Record with Action Items table), plus optional add-ons created only when
-  explicitly requested: a 5-short-sentence summary (Five-Sentence Summary), a
-  user-specific action plan (Action Items for [User Name] brief paragraph), and an
-  interactive meeting dashboard; (2) Presentation Mode - produces strictly a concise
-  chronological bullet summary of what was presented (no Executive Summary, Action
-  Items, or 5-Sentence Summary) plus an optional Knowledge Graph-focused presentation
-  dashboard. Executes immediately when a transcript is pasted using defaults: mode
-  defaults to "meeting" (switches to "presentation" only when explicitly set),
-  dashboard defaults to "no dashboard" (builds dashboard.html only when requested),
-  5-sentence summary defaults to "no" (omitted unless requested), and user action plan
-  defaults to "none" (omitted unless a user is specified). Enforces strict factual
-  grounding, fact-first synthesis without "he said / she said" narration, and hard
-  anti-bloat length guardrails so output is never longer than the source transcript.
+  Summarizes raw meeting, call, webinar, lecture, or presentation transcripts
+  (plain text, WebVTT .vtt, SRT .srt, or caption exports) into concise,
+  fact-grounded Markdown documentation and optional interactive HTML dashboards.
+  Use when asked to summarize a transcript, extract meeting decisions and action
+  items, or build a transcript dashboard. Defaults to Meeting Mode (Executive
+  Summary plus bullet-first Detailed Discussion Record and Action Items table),
+  with opt-in Five-Sentence Summary, Action Items for [User Name], and
+  standalone dashboard.html when requested; switches to Presentation Mode
+  (chronological segment bullets and optional relationship-map dashboard) when
+  explicitly specified. Executes in one turn without speaker-turn narration and
+  stays shorter than the source transcript.
 ---
 
 # Meeting and Presentation Transcript Summary Skill

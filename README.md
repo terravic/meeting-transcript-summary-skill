@@ -203,12 +203,14 @@ Use the meeting-transcript-summary skill on the attached budget_sync.txt. Provid
    Use the meeting-transcript-summary skill in presentation mode on examples/sample_presentation_transcript.txt
    ```
 
-### 2. Web Assistant Configuration
+### 2. Web Assistant and Enterprise Skill Package Configuration
 
-1. Open your assistant's custom instructions or skills panel.
-2. Create a skill named `meeting-transcript-summary`.
-3. Paste the contents of [SKILL.md](SKILL.md) into the instruction body.
-4. Optionally attach [references/transcript_formats.md](references/transcript_formats.md), [references/dashboard_ui_guide.md](references/dashboard_ui_guide.md), [references/quality_checklist.md](references/quality_checklist.md), and [DESIGN.md](DESIGN.md) as reference files.
+- **Skill Directory or Archive Upload (Agent Skills Standard / Enterprise Platforms):**
+  1. Package or copy the skill directory under the folder name `meeting-transcript-summary/` so the parent directory matches `name: meeting-transcript-summary` in [SKILL.md](SKILL.md) (`description` stays within the `1,024`-character Agent Skills frontmatter limit for automatic progressive-disclosure indexing).
+  2. Upload or import the `meeting-transcript-summary/` directory (or `.zip` archive containing [SKILL.md](SKILL.md), `templates/`, `references/`, and `scripts/`) in your platform's Skills panel.
+- **Manual Custom Instructions Paste:**
+  1. Open your assistant's custom instructions or skills panel and create `meeting-transcript-summary`.
+  2. Paste [SKILL.md](SKILL.md) into the instruction body and optionally attach [references/transcript_formats.md](references/transcript_formats.md), [references/dashboard_ui_guide.md](references/dashboard_ui_guide.md), [references/quality_checklist.md](references/quality_checklist.md), and [DESIGN.md](DESIGN.md).
 
 ### 3. Command-Line Transcript Preprocessing
 
